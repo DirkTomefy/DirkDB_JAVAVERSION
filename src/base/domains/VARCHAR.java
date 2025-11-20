@@ -1,8 +1,9 @@
 package base.domains;
 
 import base.DomainAtom;
+import base.domains.interfaces.DBString;
 
-public class VARCHAR extends DomainAtom {
+public class VARCHAR extends DomainAtom implements DBString<String>{
     Integer limit;
 
     public void setLimit(Integer limit) {
@@ -37,5 +38,11 @@ public class VARCHAR extends DomainAtom {
     @Override
     public String toString(){
         return "VARCHAR( "+limit+" )";
+    }
+
+
+    @Override
+    public String intoStringValue(String value) {
+        return value;
     }
 }
