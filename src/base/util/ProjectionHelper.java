@@ -1,0 +1,78 @@
+package base.util;
+
+import java.util.Vector;
+
+import RDP.err.eval.FieldNotFoundErr;
+import base.Individual;
+import base.Relation;
+
+public class ProjectionHelper {
+    private String[] fields;
+    private Relation source;
+    private Relation result;
+    private Vector<Integer> fieldIndices;
+
+    public Relation executeProjection(Relation source, String[] fields) throws FieldNotFoundErr {
+        this.source = source;
+        this.fields = fields;
+
+        validateFields();
+        initializeResult();
+        setupMetadata();
+        projectData();
+
+        return result;
+    }
+
+    private void validateFields() throws FieldNotFoundErr {
+        for (String field : fields) {
+            if (!source.getFieldName().contains(field)) {
+                throw new FieldNotFoundErr("Champ non trouvé: " + field);
+            }
+        }
+    }
+
+    private void initializeResult() {
+        result = new Relation();
+        result.setName(source.getName() + "_projection");
+        result.setFieldName(new Vector<>());
+        result.setDomaines(new Vector<>());
+        result.setIndividus(new Vector<>());
+    }
+
+    private void setupMetadata() {
+        for (String field : fields) {
+            int index = source.getFieldName().indexOf(field);
+            result.getFieldName().add(field);
+            result.getFieldName().add(source.getFieldName().get(index));
+        }
+    }
+
+    private void projectData() {
+        calculateFieldIndices();
+
+        for (Individual individu : source.getIndividus()) {
+            Individual projected = projectIndividual(individu);
+            result.appendIfNotExist(projected);
+        }
+    }
+
+    private void calculateFieldIndices() {
+        fieldIndices = new Vector<>();
+        for (String field : fields) {
+            fieldIndices.add(source.getFieldName().indexOf(field));
+        }
+    }
+
+    private Individual projectIndividual(Individual original) {
+        Individual projected = new Individual();
+
+        for (int fieldIndex : fieldIndices) {
+            Object value = original.getValues().get(fieldIndex);
+            projected.getValues().add(value);
+        }
+
+        return projected;
+    }
+
+}

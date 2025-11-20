@@ -1,0 +1,41 @@
+package base.domains;
+
+import base.DomainAtom;
+
+public class VARCHAR extends DomainAtom {
+    Integer limit;
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public VARCHAR(){
+
+    }
+
+    public VARCHAR(boolean canBenull,Integer limit){
+        this.setCanBenull(canBenull);
+        this.setLimit(limit);
+    }
+
+    @Override
+    public boolean isSupportable(Object value) {
+        
+        if(value==null) return false;
+        if (value instanceof String s) {
+            if (limit == null) {
+                return true;
+            } else {
+                return s.length() <= limit;
+            }
+        } else {
+            return false;
+        }
+    }
+
+
+    @Override
+    public String toString(){
+        return "VARCHAR( "+limit+" )";
+    }
+}
