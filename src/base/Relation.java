@@ -24,6 +24,7 @@ public class Relation {
         return fieldName;
     }
 
+    
     public void setFieldName(Vector<String> fieldName) {
         this.fieldName = fieldName;
     }
@@ -83,25 +84,6 @@ public class Relation {
         }
     }
 
-    public boolean support(Individual ind) {
-        try {
-            supportsWithErr(ind);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void insertNewInd(Individual ind) throws DomainOutOfBonds, DomainSupportErr {
-        this.supportsWithErr(ind);
-        this.individus.add(ind);
-    }
-
-    public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
-        Individual newInd = new Individual(ind);
-        insertNewInd(newInd);
-    }
-
     public boolean contains(Individual ind) {
         boolean value = false;
         for (Individual i : this.individus) {
@@ -117,6 +99,28 @@ public class Relation {
             this.individus.add(ind);
     }
 
+
+    public boolean support(Individual ind) {
+        try {
+            supportsWithErr(ind);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    //Insérer un nouveau individu : Object[]
+    public void insertNewInd(Individual ind) throws DomainOutOfBonds, DomainSupportErr {
+        this.supportsWithErr(ind);
+        this.individus.add(ind);
+    }
+
+    public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
+        Individual newInd = new Individual(ind);
+        insertNewInd(newInd);
+    }
+
+    
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();

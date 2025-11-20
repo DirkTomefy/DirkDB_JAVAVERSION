@@ -10,8 +10,9 @@ public class VARCHAR extends DomainAtom implements DBString<String>{
         this.limit = limit;
     }
 
-    public VARCHAR(){
 
+    public VARCHAR(Integer limit){
+        this.setLimit(limit);
     }
 
     public VARCHAR(boolean canBenull,Integer limit){

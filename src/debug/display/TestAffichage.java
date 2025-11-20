@@ -21,8 +21,8 @@ public class TestAffichage {
 
         // --- 3) Domaines (ici tu as dit qu’on peut ne pas en mettre) ---
         Vector<Domain> domaines = new Vector<>();  // ou new Vector<>()
-        domaines.add((new VARCHAR()).intoDomain());
-        domaines.add((new VARCHAR()).intoDomain());
+        domaines.add((new VARCHAR(10)).intoDomain());
+        domaines.add((new VARCHAR(10)).intoDomain());
 
 
         // --- 4) Individus ---

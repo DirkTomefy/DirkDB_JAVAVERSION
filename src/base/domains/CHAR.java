@@ -9,7 +9,10 @@ public class CHAR extends DomainAtom implements DBString<char[]> {
     public CHAR(int limit) {
         this.limit = limit;
     }
-
+    public CHAR(boolean canBenull,int limit){
+        this.setCanBenull(canBenull);
+        this.limit=limit;
+    }
     @Override
     public String intoStringValue(char[] value) {
         return new String(value);
