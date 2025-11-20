@@ -18,7 +18,7 @@ public class CHAR extends DomainAtom implements DBString<char[]> {
     @Override
     public boolean isSupportable(Object value) {
         if(value instanceof char[] mychars){
-            if(mychars.length==limit) return true;
+            if(mychars.length<=limit) return true;
             return false;
         }else{
             return false;
