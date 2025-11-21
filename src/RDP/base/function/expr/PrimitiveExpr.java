@@ -72,8 +72,9 @@ public class PrimitiveExpr implements Expression {
         handleErrForEvalId1(idFieldName, fieldName, index);
         Object idValue = row.get(index);
         Domain d = domains.get(index);
+
         String maybeReturn = handleStringDomain(d, idValue);
-        if (maybeReturn == null) {
+        if (maybeReturn != null) {
             return maybeReturn;
         } else {
             return idValue;
@@ -84,9 +85,12 @@ public class PrimitiveExpr implements Expression {
         DBString<?> dbs = d.getStringVersion();
         if (dbs == null)
             return null;
+
+        
         String s = dbs.intoStringValue(idvalue);
         if (s == null)
             return null;
+        
         return s;
     }
 

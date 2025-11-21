@@ -125,6 +125,7 @@ public class RelationDisplayer {
     private static String formatValue(Object v) {
         if (v == null) return "NULL";
         if (v instanceof String) return "\"" + v + "\"";
+        if (v instanceof char[] c) return new String(c);
         return v.toString();
     }
 

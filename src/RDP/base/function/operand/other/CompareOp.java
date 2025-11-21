@@ -74,7 +74,7 @@ public enum CompareOp implements BinaryOp {
         if (left.getClass() == right.getClass()) {
             return left.equals(right);
         }
-        //??
+        System.out.println("left : " + left + "/ right" + right);
         try {
             double leftDouble = toDouble(left);
             double rightDouble = toDouble(right);
