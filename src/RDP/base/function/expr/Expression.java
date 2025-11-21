@@ -73,7 +73,7 @@ public interface Expression {
             if (Tokenizer.codonStop(input)) break;
 
             String oldInput = input;
-            ParseSuccess<Token> next = Tokenizer.scanBinopToken(input); // ScanToken doit renvoyer ParseSuccess
+            ParseSuccess<Token> next = Tokenizer.scanBinopToken(input); 
             if (next == null) break;
 
             Token token = next.matched();

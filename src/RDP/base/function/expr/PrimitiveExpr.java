@@ -59,36 +59,37 @@ public class PrimitiveExpr implements Expression {
 
     private Object evalId(Relation relation,Individual row) throws EvalErr {
         Vector<String> fieldName=relation.getFieldName();
+
         Vector<Domain> domains=relation.getDomaines();
-        // char[] e=null;
-        // String a="a";
-        // a.equals(e);
-        if (fieldName == null || fieldName.isEmpty()) {
+
+        handleErrForEvalId0(fieldName);
+
+        String idFieldName = (String) value;
+
+        int index = fieldName.indexOf(idFieldName);
+
+        handleErrForEvalId1(idFieldName, fieldName, index);
+        Object idValue = row.get(index);
+        
+
+        return idValue;
+    }
+    private void handleErrForEvalId0(Vector<String> fieldName) throws EvalErr {
+         if (fieldName == null || fieldName.isEmpty()) {
             throw new InvalidArgumentErr("ID", "field names cannot be null or empty");
         }
 
         if (!(value instanceof String)) {
             throw new TypeMismatchErr("String", value);
         }
-
-        String idFieldName = (String) value;
-        int index = fieldName.indexOf(idFieldName);
-
+    }
+    private void handleErrForEvalId1( String idFieldName,Vector<String> fieldName ,int index) throws EvalErr  {
         if(fieldName.lastIndexOf(idFieldName)!=fieldName.indexOf(idFieldName)) throw new AmbigousNameErr(idFieldName);
         
         if (index == -1) {
             throw new FieldNotFoundErr(idFieldName, fieldName);
         }
-
-        Object idValue = row.get(index);
-        
-        if (idValue == null) {
-            throw new NullValueErr("field '" + idFieldName + "'");
-        }
-
-        return idValue;
     }
-
     private Object evalNumber() throws EvalErr {
         if (value instanceof Number) {
             return value;

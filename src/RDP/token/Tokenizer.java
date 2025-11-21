@@ -12,7 +12,19 @@ import RDP.err.ParseNomException;
 import RDP.err.parsing.token.TokenNotFound;
 
 public class Tokenizer {
-    public static ParseSuccess<Token> mapToBinOpToken(ParseSuccess<String> success,String oldInput) throws ParseNomException {
+    public static final String[] privatizedToken = new String[] { "null" };
+
+    public static boolean isPrivatized(String t){
+        for (String string : privatizedToken) {  
+            if(string.equalsIgnoreCase(t)){
+                return true;
+            } 
+        }
+        return false;
+    }
+
+    public static ParseSuccess<Token> mapToBinOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
         ArithmeticOp op = switch (success.matched()) {
             case "+" -> ArithmeticOp.ADD;
             case "-" -> ArithmeticOp.MIN;
@@ -23,7 +35,8 @@ public class Tokenizer {
         return new ParseSuccess<>(success.remaining(), Token.binop(op));
     }
 
-    public static ParseSuccess<Token> mapToCompareOpToken(ParseSuccess<String> success,String oldInput) throws ParseNomException {
+    public static ParseSuccess<Token> mapToCompareOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
         CompareOp op = switch (success.matched()) {
             case "=" -> CompareOp.Eq;
             case "!=" -> CompareOp.Neq;
@@ -42,7 +55,8 @@ public class Tokenizer {
         return new ParseSuccess<>(success.remaining(), Token.binop(op));
     }
 
-    public static ParseSuccess<Token> mapToPrefixedOpToken(ParseSuccess<String> success,String oldInput) throws ParseNomException {
+    public static ParseSuccess<Token> mapToPrefixedOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
         PrefixedOp op = switch (success.matched()) {
             case "-" -> PrefixedOp.NEG;
             case "!" -> PrefixedOp.NOT;
@@ -69,7 +83,7 @@ public class Tokenizer {
                     ParserNomUtil.tag("-"),
                     ParserNomUtil.tag("*"),
                     ParserNomUtil.tag("/")).apply(input);
-            return mapToBinOpToken(success,input);
+            return mapToBinOpToken(success, input);
         };
     }
 
@@ -83,7 +97,7 @@ public class Tokenizer {
                     ParserNomUtil.tag(">"),
                     ParserNomUtil.tag("="),
                     ParserNomUtil.tagNoCase("is")).apply(input);
-            return mapToCompareOpToken(success,input);
+            return mapToCompareOpToken(success, input);
         };
     }
 
@@ -102,7 +116,7 @@ public class Tokenizer {
                     ParserNomUtil.tag("!"),
                     ParserNomUtil.tag("-")).apply(input);
 
-            return mapToPrefixedOpToken(s,input);
+            return mapToPrefixedOpToken(s, input);
         };
     }
 
@@ -137,6 +151,7 @@ public class Tokenizer {
     public static ParserNom<Token> tagId() {
         return input -> {
             ParseSuccess<String> success = ParserNomUtil.tagName(input);
+            if(isPrivatized(success.matched())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
             return new ParseSuccess<>(success.remaining(), Token.id(success.matched()));
         };
     }
@@ -184,6 +199,7 @@ public class Tokenizer {
     }
 
     public static ParseSuccess<Token> scanBinopToken(String input) throws TokenNotFound {
+        input=input.trim();
         try {
             ParseSuccess<Token> t = ParserNomUtil.alt(
                     tagIsNot(),
@@ -192,6 +208,7 @@ public class Tokenizer {
                     tagArithmOp()).apply(input);
             return t;
         } catch (ParseNomException e) {
+            System.out.println(""+input);
             throw new TokenNotFound(input);
         }
     }

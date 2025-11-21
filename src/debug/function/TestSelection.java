@@ -25,12 +25,12 @@ public class TestSelection {
         Vector<Individual> inVector=new Vector<>();
         inVector.add(new Individual(new Object[]{1,"bogosy","paris"}));
         inVector.add(new Individual(new Object[]{2,"paris","paris"}));
-        inVector.add(new Individual(new Object[]{3,"mpisandoka","marseille"}));
+        inVector.add(new Individual(new Object[]{3,"mpisandoka",null}));
 
         Relation r=new Relation("relation test", fieldName, domains, inVector);
 
       //  System.out.println(""+r);
-        String condition="nom=ville";
+        String condition="ville is null";
         System.out.println("Condition :"+condition);
         System.out.println(""+r.selection(condition));
     }

@@ -42,5 +42,11 @@ public class TestTokenizer {
 
         ParseSuccess<Expression> expr5=Expression.parseExpression.apply("--13");
         System.out.println("Ok :"+expr5.matched());
+
+        ParseSuccess<Token> t1=Tokenizer.scanBinopToken("is");
+        System.out.println("Ok :"+t1.matched()); 
+        ParseSuccess<Expression> expr6=Expression.parseExpression.apply("ville is null");
+        System.out.println("Ok :"+expr6.matched());
+
     }
 }

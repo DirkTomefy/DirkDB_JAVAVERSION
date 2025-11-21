@@ -47,21 +47,9 @@ public class Token {
     public static Token nullvalue(){
         return new Token(TokenKind.NULLVALUE, null);
     }
-
-    // private Token cloneToken() {
-    //     try {
-    //         Token clone = (Token) super.clone();
-    //         clone.value = null;
-    //         return clone;
-    //     } catch (CloneNotSupportedException e) {
-    //         throw new AssertionError();
-    //     }
-    // }
-
-   
     @Override
     public String toString() {
-        return value == null ? status.name() : status.name() + "(" + value + ")";
+        return value == null ? status.name() : status.name() + "("+value.getClass().getSimpleName()+"." + value + ")";
     }
 
 
