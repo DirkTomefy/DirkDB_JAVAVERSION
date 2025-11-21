@@ -30,7 +30,7 @@ public class TestSelection {
         Relation r=new Relation("relation test", fieldName, domains, inVector);
 
       //  System.out.println(""+r);
-        String condition="ville is null";
+        String condition="!(ville is not null) and -1=-(1)";
         System.out.println("Condition :"+condition);
         System.out.println(""+r.selection(condition));
     }

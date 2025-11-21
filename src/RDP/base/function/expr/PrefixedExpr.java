@@ -42,9 +42,6 @@ public class PrefixedExpr implements Expression {
     @Override
     public Object eval(Relation relation,Individual row) throws EvalErr {
         Object value = expr.eval(relation,row);
-        
-        System.out.println(""+expr.toString());
-
         return switch (op) {
             case NOT -> evalNot(value);
             case NEG -> evalNeg(value);

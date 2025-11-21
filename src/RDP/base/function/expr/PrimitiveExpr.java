@@ -11,6 +11,7 @@ import RDP.err.eval.TypeMismatchErr;
 import base.Domain;
 import base.Individual;
 import base.Relation;
+import base.domains.abstracts.DBString;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;
@@ -37,19 +38,19 @@ public class PrimitiveExpr implements Expression {
         return new PrimitiveExpr(PrimitiveKind.STRING, valueString);
     }
 
-    public static PrimitiveExpr nullvalue(){
+    public static PrimitiveExpr nullvalue() {
         return new PrimitiveExpr(PrimitiveKind.NULLVALUE, null);
     }
+
     @Override
     public String toString() {
         return type.toString() + "(" + value + ")";
     }
 
-
     @Override
-    public Object eval(Relation r,Individual row) throws EvalErr {
+    public Object eval(Relation r, Individual row) throws EvalErr {
         return switch (type) {
-            case ID -> evalId(r,row);
+            case ID -> evalId(r, row);
             case NULLVALUE -> evalNullValue();
             case NUMBER -> evalNumber();
             case STRING -> evalString();
@@ -57,10 +58,10 @@ public class PrimitiveExpr implements Expression {
         };
     }
 
-    private Object evalId(Relation relation,Individual row) throws EvalErr {
-        Vector<String> fieldName=relation.getFieldName();
+    private Object evalId(Relation relation, Individual row) throws EvalErr {
+        Vector<String> fieldName = relation.getFieldName();
 
-        Vector<Domain> domains=relation.getDomaines();
+        Vector<Domain> domains = relation.getDomaines();
 
         handleErrForEvalId0(fieldName);
 
@@ -70,12 +71,27 @@ public class PrimitiveExpr implements Expression {
 
         handleErrForEvalId1(idFieldName, fieldName, index);
         Object idValue = row.get(index);
-        
-
-        return idValue;
+        Domain d = domains.get(index);
+        String maybeReturn = handleStringDomain(d, idValue);
+        if (maybeReturn == null) {
+            return maybeReturn;
+        } else {
+            return idValue;
+        }
     }
+
+    private String handleStringDomain(Domain d, Object idvalue) {
+        DBString<?> dbs = d.getStringVersion();
+        if (dbs == null)
+            return null;
+        String s = dbs.intoStringValue(idvalue);
+        if (s == null)
+            return null;
+        return s;
+    }
+
     private void handleErrForEvalId0(Vector<String> fieldName) throws EvalErr {
-         if (fieldName == null || fieldName.isEmpty()) {
+        if (fieldName == null || fieldName.isEmpty()) {
             throw new InvalidArgumentErr("ID", "field names cannot be null or empty");
         }
 
@@ -83,13 +99,16 @@ public class PrimitiveExpr implements Expression {
             throw new TypeMismatchErr("String", value);
         }
     }
-    private void handleErrForEvalId1( String idFieldName,Vector<String> fieldName ,int index) throws EvalErr  {
-        if(fieldName.lastIndexOf(idFieldName)!=fieldName.indexOf(idFieldName)) throw new AmbigousNameErr(idFieldName);
-        
+
+    private void handleErrForEvalId1(String idFieldName, Vector<String> fieldName, int index) throws EvalErr {
+        if (fieldName.lastIndexOf(idFieldName) != fieldName.indexOf(idFieldName))
+            throw new AmbigousNameErr(idFieldName);
+
         if (index == -1) {
             throw new FieldNotFoundErr(idFieldName, fieldName);
         }
     }
+
     private Object evalNumber() throws EvalErr {
         if (value instanceof Number) {
             return value;

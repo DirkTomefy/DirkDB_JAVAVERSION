@@ -3,12 +3,14 @@ package base;
 import java.util.HashSet;
 import java.util.Vector;
 
+import base.domains.abstracts.DBString;
+
 public class Domain {
     HashSet<DomainAtom> supports;
 
     public Domain() {
-        this.supports=new HashSet<>();
-    }   
+        this.supports = new HashSet<>();
+    }
 
     public Domain(HashSet<DomainAtom> supports) {
         this.supports = supports;
@@ -57,40 +59,49 @@ public class Domain {
     public boolean isSupportable(Object a) {
         boolean value = false;
         for (DomainAtom domainAtom : supports) {
-            if(a==null)
+            if (a == null)
                 return domainAtom.getCanBenull();
             if (domainAtom.isSupportable(a))
                 return true;
         }
         return value;
     }
+
     @Override
     public String toString() {
         if (supports == null || supports.isEmpty()) {
             return "Domain{EMPTY}";
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("Domain{");
-        
+
         int count = 0;
         for (DomainAtom atom : supports) {
-            if (count > 0) sb.append(", ");
-            
+            if (count > 0)
+                sb.append(", ");
+
             if (atom != null) {
-                sb.append(""+atom.toString());
+                sb.append("" + atom.toString());
             } else {
                 sb.append("NULL");
             }
             count++;
         }
         sb.append("}");
-        
+
         return sb.toString();
     }
 
     public HashSet<DomainAtom> getSupports() {
         return supports;
     }
-    
+
+    public DBString<?> getStringVersion() {
+        for (DomainAtom domainAtom : supports) {
+            if (domainAtom instanceof DBString e)
+                return e;
+        }
+        return null;
+    }
 }

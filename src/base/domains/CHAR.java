@@ -1,20 +1,20 @@
 package base.domains;
+import base.domains.abstracts.DBString;
 
-import base.DomainAtom;
-import base.domains.interfaces.DBString;
-
-public class CHAR extends DomainAtom implements DBString<char[]> { 
+public class CHAR extends DBString<char[]> { 
     int limit;
     
     public CHAR(int limit) {
+        this.setClazz(char[].class);
         this.limit = limit;
     }
     public CHAR(boolean canBenull,int limit){
+        this.setClazz(char[].class);
         this.setCanBenull(canBenull);
         this.limit=limit;
     }
     @Override
-    public String intoStringValue(char[] value) {
+    public String intoStringValue0(char[] value) {
         return new String(value);
     }
 
@@ -27,4 +27,5 @@ public class CHAR extends DomainAtom implements DBString<char[]> {
             return false;
         }
     }
+
 }

@@ -1,9 +1,7 @@
 package base.domains;
+import base.domains.abstracts.DBString;
 
-import base.DomainAtom;
-import base.domains.interfaces.DBString;
-
-public class VARCHAR extends DomainAtom implements DBString<String>{
+public class VARCHAR extends DBString<String>{
     Integer limit;
 
     public void setLimit(Integer limit) {
@@ -12,10 +10,12 @@ public class VARCHAR extends DomainAtom implements DBString<String>{
 
 
     public VARCHAR(Integer limit){
+        this.setClazz(String.class);
         this.setLimit(limit);
     }
 
     public VARCHAR(boolean canBenull,Integer limit){
+        this.setClazz(String.class);
         this.setCanBenull(canBenull);
         this.setLimit(limit);
     }
@@ -43,7 +43,7 @@ public class VARCHAR extends DomainAtom implements DBString<String>{
 
 
     @Override
-    public String intoStringValue(String value) {
+    public String intoStringValue0(String value) {
         return value;
     }
 }

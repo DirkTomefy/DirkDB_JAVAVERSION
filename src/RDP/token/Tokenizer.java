@@ -208,7 +208,6 @@ public class Tokenizer {
                     tagArithmOp()).apply(input);
             return t;
         } catch (ParseNomException e) {
-            System.out.println(""+input);
             throw new TokenNotFound(input);
         }
     }
