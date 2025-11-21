@@ -1,10 +1,9 @@
 package RDP.base.function.expr;
 
-import java.util.Vector;
-
 import RDP.base.function.operand.PrefixedOp;
 import RDP.err.EvalErr;
 import base.Individual;
+import base.Relation;
 
 public class PrefixedExpr implements Expression {
     private PrefixedOp op;
@@ -41,8 +40,8 @@ public class PrefixedExpr implements Expression {
 
 
     @Override
-    public Object eval(Individual row, Vector<String> fieldName) throws EvalErr {
-        Object value = expr.eval(row, fieldName);
+    public Object eval(Relation relation,Individual row) throws EvalErr {
+        Object value = expr.eval(relation,row);
         
         System.out.println(""+expr.toString());
 

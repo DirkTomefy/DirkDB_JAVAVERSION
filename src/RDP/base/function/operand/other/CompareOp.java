@@ -1,7 +1,4 @@
 package RDP.base.function.operand.other;
-
-import java.util.Vector;
-
 import RDP.base.function.expr.Expression;
 import RDP.base.function.expr.PrimitiveExpr;
 import RDP.base.function.expr.PrimitiveKind;
@@ -9,6 +6,7 @@ import RDP.base.function.operand.BinaryOp;
 import RDP.err.EvalErr;
 import RDP.err.eval.InvalidArgumentErr;
 import base.Individual;
+import base.Relation;
 
 public enum CompareOp implements BinaryOp {
     Eq,
@@ -26,15 +24,15 @@ public enum CompareOp implements BinaryOp {
     }
 
     @Override
-    public Object applyByCtx(Individual row, Vector<String> fieldName, Expression left, Expression right)
+    public Object applyByCtx(Relation relation,Individual row, Expression left, Expression right)
             throws EvalErr {
         return switch (this) {
-            case Is, IsNot -> evalIsComparison(row, fieldName, left, right);
-            default -> evalStandardComparison(row, fieldName, left, right);
+            case Is, IsNot -> evalIsComparison(relation, row, left, right);
+            default -> evalStandardComparison(relation, row, left, right);
         };
     }
 
-    private Object evalIsComparison(Individual row, Vector<String> fieldName, Expression left, Expression right)
+    private Object evalIsComparison(Relation relation,Individual row, Expression left, Expression right)
             throws EvalErr {
         if (!(right instanceof PrimitiveExpr)) {
             throw new InvalidArgumentErr("IS/IS NOT", "right operand must be a primitive null value");
@@ -45,16 +43,16 @@ public enum CompareOp implements BinaryOp {
             throw new InvalidArgumentErr("IS/IS NOT", "right operand must be a null value");
         }
 
-        Object leftValue = left.eval(row, fieldName);
+        Object leftValue = left.eval(relation,row);
         boolean isNull = (leftValue == null);
 
         return (this == Is) ? isNull : !isNull;
     }
 
-    private Object evalStandardComparison(Individual row, Vector<String> fieldName, Expression left, Expression right)
+    private Object evalStandardComparison(Relation relation,Individual row, Expression left, Expression right)
             throws EvalErr {
-        Object leftValue = left.eval(row, fieldName);
-        Object rightValue = right.eval(row, fieldName);
+        Object leftValue = left.eval(relation,row);
+        Object rightValue = right.eval(relation,row);
 
         if (leftValue == null || rightValue == null) {
             return false;
@@ -67,8 +65,8 @@ public enum CompareOp implements BinaryOp {
             default -> throw new InvalidArgumentErr(this.toString(), "comparison not implemented");
         };
     }
-
-    private boolean areEqual(Object left, Object right) {
+    
+    private static boolean areEqual(Object left, Object right) {
         if (left == null && right == null)
             return true;
         if (left == null || right == null)
@@ -76,6 +74,7 @@ public enum CompareOp implements BinaryOp {
         if (left.getClass() == right.getClass()) {
             return left.equals(right);
         }
+        //??
         try {
             double leftDouble = toDouble(left);
             double rightDouble = toDouble(right);
@@ -98,7 +97,7 @@ public enum CompareOp implements BinaryOp {
         };
     }
 
-    private double toDouble(Object value) throws EvalErr {
+    private static double toDouble(Object value) throws EvalErr {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
         }

@@ -1,4 +1,5 @@
 package base;
+
 import java.util.Vector;
 
 import RDP.base.ParseSuccess;
@@ -24,7 +25,6 @@ public class Relation {
         return fieldName;
     }
 
-    
     public void setFieldName(Vector<String> fieldName) {
         this.fieldName = fieldName;
     }
@@ -99,7 +99,6 @@ public class Relation {
             this.individus.add(ind);
     }
 
-
     public boolean support(Individual ind) {
         try {
             supportsWithErr(ind);
@@ -109,7 +108,7 @@ public class Relation {
         }
     }
 
-    //Insérer un nouveau individu : Object[]
+    // Insérer un nouveau individu : Object[]
     public void insertNewInd(Individual ind) throws DomainOutOfBonds, DomainSupportErr {
         this.supportsWithErr(ind);
         this.individus.add(ind);
@@ -120,7 +119,6 @@ public class Relation {
         insertNewInd(newInd);
     }
 
-    
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();
@@ -219,16 +217,14 @@ public class Relation {
         String newName = this.name + "_selection";
         Vector<Individual> selectedIndividuals = new Vector<>();
         Relation result = new Relation(newName, this.fieldName, this.domaines, selectedIndividuals);
-
-        for (Individual individual : this.individus) {
-            Object resultEval = expr.eval(individual, this.fieldName);
+        for (Individual individual : individus) {
+            Object resultEval = expr.eval(this, individual);
             boolean conditionMet = Expression.ObjectIntoBoolean(resultEval);
 
             if (conditionMet) {
                 result.appendIfNotExist(individual);
             }
         }
-
         return result;
     }
 

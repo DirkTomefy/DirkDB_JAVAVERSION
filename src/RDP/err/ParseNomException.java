@@ -1,8 +1,9 @@
 package RDP.err;
 
 import RDP.token.Token;
+import err.RelationalErr;
 
-public class ParseNomException extends Exception {
+public class ParseNomException extends RelationalErr {
     String input;
 
     public String getInput() {

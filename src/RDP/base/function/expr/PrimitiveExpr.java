@@ -8,7 +8,9 @@ import RDP.err.eval.FieldNotFoundErr;
 import RDP.err.eval.InvalidArgumentErr;
 import RDP.err.eval.NullValueErr;
 import RDP.err.eval.TypeMismatchErr;
+import base.Domain;
 import base.Individual;
+import base.Relation;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;
@@ -43,9 +45,11 @@ public class PrimitiveExpr implements Expression {
         return type.toString() + "(" + value + ")";
     }
 
-    public Object eval(Individual row, Vector<String> fieldName) throws EvalErr {
+
+    @Override
+    public Object eval(Relation r,Individual row) throws EvalErr {
         return switch (type) {
-            case ID -> evalId(row, fieldName);
+            case ID -> evalId(r,row);
             case NULLVALUE -> evalNullValue();
             case NUMBER -> evalNumber();
             case STRING -> evalString();
@@ -53,8 +57,12 @@ public class PrimitiveExpr implements Expression {
         };
     }
 
-    private Object evalId(Individual row, Vector<String> fieldName) throws EvalErr {
-      
+    private Object evalId(Relation relation,Individual row) throws EvalErr {
+        Vector<String> fieldName=relation.getFieldName();
+        Vector<Domain> domains=relation.getDomaines();
+        // char[] e=null;
+        // String a="a";
+        // a.equals(e);
         if (fieldName == null || fieldName.isEmpty()) {
             throw new InvalidArgumentErr("ID", "field names cannot be null or empty");
         }
@@ -73,6 +81,7 @@ public class PrimitiveExpr implements Expression {
         }
 
         Object idValue = row.get(index);
+        
         if (idValue == null) {
             throw new NullValueErr("field '" + idFieldName + "'");
         }
@@ -104,7 +113,4 @@ public class PrimitiveExpr implements Expression {
         }
         throw new NullValueErr("default primitive expression");
     }
-
-   
-
 }
