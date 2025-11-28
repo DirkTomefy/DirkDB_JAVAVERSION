@@ -7,6 +7,11 @@ public class NUMBER extends DomainAtom {
     Number min;
     Number max;
     
+    public NUMBER(Number min, Number max) {
+        this.min = min;
+        this.max = max;
+    }
+
     public NUMBER(){
 
     }

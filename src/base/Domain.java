@@ -1,18 +1,16 @@
 package base;
 
-import java.util.HashSet;
 import java.util.Vector;
-
 import base.domains.abstracts.DBString;
 
 public class Domain {
-    HashSet<DomainAtom> supports;
+    Vector<DomainAtom> supports;
 
     public Domain() {
-        this.supports = new HashSet<>();
+        this.supports = new Vector<>();
     }
 
-    public Domain(HashSet<DomainAtom> supports) {
+    public Domain(Vector<DomainAtom> supports) {
         this.supports = supports;
     }
 
@@ -28,7 +26,7 @@ public class Domain {
         if (d2 == null)
             return new Domain(d1.supports);
 
-        HashSet<DomainAtom> newSupports = new HashSet<>();
+        Vector<DomainAtom> newSupports = new Vector<>();
         newSupports.addAll(d1.supports);
         newSupports.addAll(d2.supports);
         return new Domain(newSupports);
@@ -90,7 +88,7 @@ public class Domain {
         return sb.toString();
     }
 
-    public HashSet<DomainAtom> getSupports() {
+    public Vector<DomainAtom> getSupports() {
         return supports;
     }
 

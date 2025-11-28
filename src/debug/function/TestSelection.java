@@ -28,7 +28,7 @@ public class TestSelection {
         // --- 3) Domaines (ici tu as dit qu’on peut ne pas en mettre) ---
         Vector<Domain> domaines = new Vector<>();  // ou new Vector<>()
         domaines.add((new VARCHAR(10)).intoDomain());
-        domaines.add((new NUMBER()).intoDomain());
+        domaines.add((new NUMBER(1,2)).intoDomain());
         domaines.add((new NUMBER()).intoDomain());
         domaines.add((new DATE()).intoDomain());
 
@@ -54,7 +54,7 @@ public class TestSelection {
         Relation relation = new Relation(name, fieldName, domaines, individus);
    
         relation.insertNewInd(new  Vector<Object>(new Vector<>(Arrays.asList(
-                "Alexandre","2", 500000.00, new Date()
+                "Alexandre",1, 500000.00, new Date()
         ))));
     }
 }
