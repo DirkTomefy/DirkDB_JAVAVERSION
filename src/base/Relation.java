@@ -128,6 +128,7 @@ public class Relation {
     }
 
     public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
+        if(ind==null) throw new DomainSupportErr("N'insérer jamais un individu null (c'est stupide)");
         this.supportsWithErr(ind);
         this.individus.add(ind);
     }

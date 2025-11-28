@@ -19,7 +19,7 @@ public class VARCHAR extends DBString<String>{
         this.setCanBenull(canBenull);
         this.setLimit(limit);
     }
-
+    
     @Override
     public boolean isSupportable(Object value) {
         

@@ -19,7 +19,6 @@ public class CHAR extends DBString<char[]> {
     @Override
     public String intoStringValue0(char[] value) {
         String v = new String(value);
-        // System.out.println(""+v);
         return v;
     }
 

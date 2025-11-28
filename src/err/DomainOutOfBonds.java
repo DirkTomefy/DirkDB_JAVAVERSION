@@ -3,12 +3,10 @@ package err;
  
 import java.util.Vector;
 
+import RDP.err.EvalErr;
 import base.Relation;
 
-public class DomainOutOfBonds extends RelationalErr {
-    public DomainOutOfBonds() {
-
-    }
+public class DomainOutOfBonds extends EvalErr {
 
     public DomainOutOfBonds(String message) {
         super(message);
@@ -19,7 +17,7 @@ public class DomainOutOfBonds extends RelationalErr {
     }
 
     public DomainOutOfBonds( Vector<Object> ind, Relation rel) {
-        super("Cannot add  Vector<Object> of fields_size=" + ind.size()
+        super("Cannot add  Individual of fields_size="  + ind.size()
                 + " in relation(" + rel.getName() + ") with domains_size " + rel.getDomaines().size());
     }
 }

@@ -11,12 +11,11 @@ public class RelationDisplayer {
     private RelationDisplayer() {
     } 
 
-    // Affichage normal (sans domaines)
     public static String display(Relation relation) {
         return buildTable(relation, false);
     }
 
-    // Affichage debug (types, infos)
+    
     public static String displayDebug(Relation relation) {
         return buildTable(relation, true);
     }
@@ -27,7 +26,7 @@ public class RelationDisplayer {
     private static String buildTable(Relation rel, boolean debug) {
 
         List<String> columns = rel.getFieldName();
-        List<Domain> domaines = rel.getDomaines(); // domaine par colonne
+        List<Domain> domaines = rel.getDomaines(); 
         List< Vector<Object>> rows = rel.getIndividus();
 
         StringBuilder sb = new StringBuilder();
@@ -136,6 +135,13 @@ public class RelationDisplayer {
             sb.append(String.format("%-" + width[i] + "s", v)).append(" | ");
         }
         return sb.toString();
+    }
+    public static String formatObjectIntoDebugVersion(Object a){
+        if(a.getClass().equals(String.class)){
+            return "\""+a+"\"";
+        }else{
+            return a.toString();
+        }
     }
 
 }

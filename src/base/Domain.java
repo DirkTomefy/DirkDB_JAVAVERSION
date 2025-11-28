@@ -57,14 +57,11 @@ public class Domain {
     }
 
     public boolean isSupportable(Object a) {
-        boolean value = false;
         for (DomainAtom domainAtom : supports) {
-            if (a == null)
-                return domainAtom.getCanBenull();
-            if (domainAtom.isSupportable(a))
-                return true;
+            if ((a == null && domainAtom.getCanBenull()) || domainAtom.isSupportable(a))
+                return  true ;
         }
-        return value;
+        return false;
     }
 
     @Override

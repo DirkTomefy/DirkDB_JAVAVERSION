@@ -4,6 +4,8 @@ import java.util.*;
 import base.Domain;
  
 import base.Relation;
+import base.domains.DATE;
+import base.domains.NUMBER;
 import base.domains.VARCHAR;
 
 public class TestAffichage {
@@ -23,7 +25,8 @@ public class TestAffichage {
         Vector<Domain> domaines = new Vector<>();  // ou new Vector<>()
         domaines.add((new VARCHAR(10)).intoDomain());
         domaines.add((new VARCHAR(10)).intoDomain());
-
+        domaines.add((new NUMBER()).intoDomain());
+        domaines.add((new DATE()).intoDomain());
 
         // --- 4) Individus ---
         Vector< Vector<Object>> individus = new Vector<>();
