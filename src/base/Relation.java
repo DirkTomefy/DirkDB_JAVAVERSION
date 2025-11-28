@@ -29,6 +29,26 @@ public class Relation {
         this.fieldName = fieldName;
     }
 
+    public static boolean indEquals(Vector<Object> ind1, Vector<Object> ind2) {
+        if (ind1 == null || ind2 == null)
+            return false;
+        if (ind1.size() != ind2.size())
+            return false;
+
+        for (int i = 0; i < ind1.size(); i++) {
+            Object v1 = ind1.get(i);
+            Object v2 = ind2.get(i);
+            if (v1 == null && v2 == null)
+                continue;
+            if (v1 == null || v2 == null)
+                return false;
+            if (!v1.equals(v2))
+                return false;
+        }
+
+        return true;
+    }
+
     public String getName() {
         return name;
     }
@@ -85,13 +105,12 @@ public class Relation {
     }
 
     public boolean contains(Vector<Object> ind) {
-        boolean value = false;
         for (Vector<Object> i : this.individus) {
-            if (ind.equals(i)) {
+            if (indEquals(ind,i)) {
                 return true;
             }
         }
-        return value;
+        return false;
     }
 
     public void appendIfNotExist(Vector<Object> ind) {
@@ -108,13 +127,11 @@ public class Relation {
         }
     }
 
-    // Insérer un nouveau individu : Object[]
     public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
         this.supportsWithErr(ind);
         this.individus.add(ind);
     }
 
-    
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();
