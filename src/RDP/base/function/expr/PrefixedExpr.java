@@ -1,8 +1,10 @@
 package RDP.base.function.expr;
 
+import java.util.Vector;
+
 import RDP.base.function.operand.PrefixedOp;
 import RDP.err.EvalErr;
-import base.Individual;
+ 
 import base.Relation;
 
 public class PrefixedExpr implements Expression {
@@ -40,7 +42,7 @@ public class PrefixedExpr implements Expression {
 
 
     @Override
-    public Object eval(Relation relation,Individual row) throws EvalErr {
+    public Object eval(Relation relation, Vector<Object> row) throws EvalErr {
         Object value = expr.eval(relation,row);
         return switch (op) {
             case NOT -> evalNot(value);

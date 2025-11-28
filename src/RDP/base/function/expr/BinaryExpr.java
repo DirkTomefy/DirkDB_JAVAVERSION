@@ -1,7 +1,9 @@
 package RDP.base.function.expr;
+import java.util.Vector;
+
 import RDP.base.function.operand.BinaryOp;
 import RDP.err.EvalErr;
-import base.Individual;
+ 
 import base.Relation;
 
 public class BinaryExpr implements Expression {
@@ -25,7 +27,7 @@ public class BinaryExpr implements Expression {
 
 
     @Override
-    public Object eval(Relation relation, Individual row) throws EvalErr {
+    public Object eval(Relation relation,  Vector<Object> row) throws EvalErr {
         return this.op.applyByCtx(relation,row, left, right);
     }
 }

@@ -3,7 +3,7 @@ package base.util;
 import java.util.Vector;
 
 import RDP.err.eval.FieldNotFoundErr;
-import base.Individual;
+ 
 import base.Relation;
 
 public class ProjectionHelper {
@@ -51,8 +51,8 @@ public class ProjectionHelper {
     private void projectData() {
         calculateFieldIndices();
 
-        for (Individual individu : source.getIndividus()) {
-            Individual projected = projectIndividual(individu);
+        for ( Vector<Object> individu : source.getIndividus()) {
+             Vector<Object> projected = projectIndividual(individu);
             result.appendIfNotExist(projected);
         }
     }
@@ -64,12 +64,12 @@ public class ProjectionHelper {
         }
     }
 
-    private Individual projectIndividual(Individual original) {
-        Individual projected = new Individual();
+    private  Vector<Object> projectIndividual( Vector<Object> original) {
+         Vector<Object> projected = new  Vector<Object>();
 
         for (int fieldIndex : fieldIndices) {
-            Object value = original.getValues().get(fieldIndex);
-            projected.getValues().add(value);
+            Object value = original.get(fieldIndex);
+            projected.add(value);
         }
 
         return projected;

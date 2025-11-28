@@ -1,6 +1,8 @@
 package err;
 
-import base.Individual;
+ 
+import java.util.Vector;
+
 import base.Relation;
 
 public class DomainOutOfBonds extends RelationalErr {
@@ -16,8 +18,8 @@ public class DomainOutOfBonds extends RelationalErr {
         super(cause);
     }
 
-    public DomainOutOfBonds(Individual ind, Relation rel) {
-        super("Cannot add individual of fields_size=" + ind.getValues().size()
+    public DomainOutOfBonds( Vector<Object> ind, Relation rel) {
+        super("Cannot add  Vector<Object> of fields_size=" + ind.size()
                 + " in relation(" + rel.getName() + ") with domains_size " + rel.getDomaines().size());
     }
 }

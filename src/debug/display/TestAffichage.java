@@ -2,7 +2,7 @@ package debug.display;
 import java.util.*;
 
 import base.Domain;
-import base.Individual;
+ 
 import base.Relation;
 import base.domains.VARCHAR;
 
@@ -26,20 +26,20 @@ public class TestAffichage {
 
 
         // --- 4) Individus ---
-        Vector<Individual> individus = new Vector<>();
+        Vector< Vector<Object>> individus = new Vector<>();
 
         // Individu 1
-        individus.add(new Individual(new Vector<>(Arrays.asList(
+        individus.add(new  Vector<Object>(new Vector<>(Arrays.asList(
                 "Jean", 32, 450000.75, new Date()
         ))));
 
         // Individu 2
-        individus.add(new Individual(new Vector<>(Arrays.asList(
+        individus.add(new  Vector<Object>(new Vector<>(Arrays.asList(
                 "Marie", 25, 380000.00, new Date()
         ))));
 
         // Individu 3 avec un NULL
-        individus.add(new Individual(new Vector<>(Arrays.asList(
+        individus.add(new  Vector<Object>(new Vector<>(Arrays.asList(
                 "Alexandre", null, 500000.00, new Date()
         ))));
 

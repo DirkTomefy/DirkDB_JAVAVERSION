@@ -1,11 +1,13 @@
 package RDP.base.function.operand.other;
+import java.util.Vector;
+
 import RDP.base.function.expr.Expression;
 import RDP.base.function.expr.PrimitiveExpr;
 import RDP.base.function.expr.PrimitiveKind;
 import RDP.base.function.operand.BinaryOp;
 import RDP.err.EvalErr;
 import RDP.err.eval.InvalidArgumentErr;
-import base.Individual;
+ 
 import base.Relation;
 
 public enum CompareOp implements BinaryOp {
@@ -24,7 +26,7 @@ public enum CompareOp implements BinaryOp {
     }
 
     @Override
-    public Object applyByCtx(Relation relation,Individual row, Expression left, Expression right)
+    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right)
             throws EvalErr {
         return switch (this) {
             case Is, IsNot -> evalIsComparison(relation, row, left, right);
@@ -32,7 +34,7 @@ public enum CompareOp implements BinaryOp {
         };
     }
 
-    private Object evalIsComparison(Relation relation,Individual row, Expression left, Expression right)
+    private Object evalIsComparison(Relation relation, Vector<Object> row, Expression left, Expression right)
             throws EvalErr {
         if (!(right instanceof PrimitiveExpr)) {
             throw new InvalidArgumentErr("IS/IS NOT", "right operand must be a primitive null value");
@@ -49,7 +51,7 @@ public enum CompareOp implements BinaryOp {
         return (this == Is) ? isNull : !isNull;
     }
 
-    private Object evalStandardComparison(Relation relation,Individual row, Expression left, Expression right)
+    private Object evalStandardComparison(Relation relation, Vector<Object> row, Expression left, Expression right)
             throws EvalErr {
         Object leftValue = left.eval(relation,row);
         Object rightValue = right.eval(relation,row);

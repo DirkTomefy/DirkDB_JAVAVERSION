@@ -1,4 +1,6 @@
 package RDP.base.function.operand.other;
+import java.util.Vector;
+
 import RDP.base.ParseSuccess;
 import RDP.base.function.expr.Expression;
 import RDP.base.function.operand.BinaryOp;
@@ -6,7 +8,7 @@ import RDP.base.helper.ParserNomUtil;
 import RDP.err.EvalErr;
 import RDP.err.ParseNomException;
 import RDP.err.eval.DivisionByZeroErr;
-import base.Individual;
+ 
 import base.Relation;
 
 public enum ArithmeticOp implements BinaryOp {
@@ -16,7 +18,7 @@ public enum ArithmeticOp implements BinaryOp {
     DIV;
 
     @Override
-    public Object applyByCtx(Relation relation,Individual row, Expression left, Expression right)
+    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right)
             throws EvalErr {
         Object leftValue = left.eval(relation,row);
         Object rightValue = right.eval(relation,row);

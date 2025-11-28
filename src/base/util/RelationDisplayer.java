@@ -3,7 +3,7 @@ package base.util;
 import java.util.*;
 
 import base.Domain;
-import base.Individual;
+ 
 import base.Relation;
 
 public class RelationDisplayer {
@@ -28,7 +28,7 @@ public class RelationDisplayer {
 
         List<String> columns = rel.getFieldName();
         List<Domain> domaines = rel.getDomaines(); // domaine par colonne
-        List<Individual> rows = rel.getIndividus();
+        List< Vector<Object>> rows = rel.getIndividus();
 
         StringBuilder sb = new StringBuilder();
 
@@ -49,14 +49,14 @@ public class RelationDisplayer {
         }
 
         if (rows != null) {
-            for (Individual ind : rows) {
-                if (ind == null || ind.getValues() == null)
+            for ( Vector<Object> ind : rows) {
+                if (ind == null || ind == null)
                     continue;
-                for (int i = 0; i < ind.getValues().size(); i++) {
-                    String v = formatValue(ind.getValues().get(i));
+                for (int i = 0; i < ind.size(); i++) {
+                    String v = formatValue(ind.get(i));
                     if (debug) {
-                        String type = (ind.getValues().get(i) == null) ? "null"
-                                : ind.getValues().get(i).getClass().getSimpleName();
+                        String type = (ind.get(i) == null) ? "null"
+                                : ind.get(i).getClass().getSimpleName();
                         v += " (" + type + ")";
                     }
                     width[i] = Math.max(width[i], v.length());
@@ -84,7 +84,7 @@ public class RelationDisplayer {
 
         // 4) Lignes des individus
         if (rows != null && !rows.isEmpty()) {
-            for (Individual ind : rows) {
+            for ( Vector<Object> ind : rows) {
                 sb.append(formatRowFromIndividual(ind, width, debug)).append("\n");
             }
         } else {
@@ -98,9 +98,9 @@ public class RelationDisplayer {
         return sb.toString();
     }
 
-    // ---- version formatRowFromIndividual adaptée au debug ----
-    private static String formatRowFromIndividual(Individual ind, int[] width, boolean debug) {
-        List<Object> vals = ind.getValues();
+    // ---- version formatRowFrom Vector<Object> adaptée au debug ----
+    private static String formatRowFromIndividual( Vector<Object> ind, int[] width, boolean debug) {
+        List<Object> vals = ind;
         StringBuilder sb = new StringBuilder("| ");
 
         for (int i = 0; i < width.length; i++) {

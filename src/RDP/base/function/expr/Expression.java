@@ -2,6 +2,8 @@ package RDP.base.function.expr;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
+
 import RDP.base.ParseSuccess;
 import RDP.base.ParserNom;
 import RDP.base.function.expr.helper.FactorHelper;
@@ -16,7 +18,7 @@ import RDP.err.parsing.AfterIsOrIsNotErr;
 import RDP.token.Token;
 import RDP.token.TokenKind;
 import RDP.token.Tokenizer;
-import base.Individual;
+ 
 import base.Relation;
 
 public interface Expression {
@@ -33,9 +35,9 @@ public interface Expression {
 
     Map<BinaryOp, SpecialBinOpHandler> BINOP_HANDLER = initHandler();
 
-    Object eval(Relation relation,Individual row) throws EvalErr;
+    Object eval(Relation relation, Vector<Object> row) throws EvalErr;
 
-    default boolean evalToBoolean(Relation relation,Individual row) throws EvalErr {
+    default boolean evalToBoolean(Relation relation, Vector<Object> row) throws EvalErr {
         return ObjectIntoBoolean(eval(relation,row));
     }
 

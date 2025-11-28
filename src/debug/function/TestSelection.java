@@ -1,41 +1,9 @@
 package debug.function;
-
-import java.util.Vector;
-
 import RDP.err.EvalErr;
 import RDP.err.ParseNomException;
-import base.Domain;
-import base.Individual;
-import base.Relation;
-import base.domains.CHAR;
-import base.domains.NUMBER;
-import base.domains.VARCHAR;
 
 public class TestSelection {
     public static void main(String[] args) throws ParseNomException, EvalErr {
-        Vector<String> fieldName=new Vector<>();
-        fieldName.add("id");
-        fieldName.add("nom");
-        fieldName.add("ville");
-        fieldName.add("ville_char");
-
-
-        Vector<Domain> domains=new Vector<>();
-        domains.add(new NUMBER().intoDomain());
-        domains.add(new VARCHAR(30).intoDomain());
-        domains.add(new VARCHAR(30).intoDomain());
-        domains.add(new CHAR(30).intoDomain());
-
-        Vector<Individual> inVector=new Vector<>();
-        inVector.add(new Individual(new Object[]{1,"bogosy","paris",new char[]{'p','a','r','i','s'}}));
-        inVector.add(new Individual(new Object[]{2,"paris","paris",new char[]{'p','a','r','i','s'}}));
-        inVector.add(new Individual(new Object[]{3,"mpisandoka",null,null}));
-
-        Relation r=new Relation("relation test", fieldName, domains, inVector);
-
-      //  System.out.println(""+r);
-        String condition="ville=ville_char";
-        System.out.println("Condition :"+condition);
-        System.out.println(""+r.selection(condition).toString());
+      
     }
 }

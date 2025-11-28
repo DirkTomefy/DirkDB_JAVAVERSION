@@ -9,7 +9,7 @@ import RDP.err.eval.InvalidArgumentErr;
 import RDP.err.eval.NullValueErr;
 import RDP.err.eval.TypeMismatchErr;
 import base.Domain;
-import base.Individual;
+ 
 import base.Relation;
 import base.domains.abstracts.DBString;
 
@@ -48,7 +48,7 @@ public class PrimitiveExpr implements Expression {
     }
 
     @Override
-    public Object eval(Relation r, Individual row) throws EvalErr {
+    public Object eval(Relation r,  Vector<Object> row) throws EvalErr {
         return switch (type) {
             case ID -> evalId(r, row);
             case NULLVALUE -> evalNullValue();
@@ -58,7 +58,7 @@ public class PrimitiveExpr implements Expression {
         };
     }
 
-    private Object evalId(Relation relation, Individual row) throws EvalErr {
+    private Object evalId(Relation relation,  Vector<Object> row) throws EvalErr {
         Vector<String> fieldName = relation.getFieldName();
 
         Vector<Domain> domains = relation.getDomaines();

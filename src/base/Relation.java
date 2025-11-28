@@ -19,7 +19,7 @@ public class Relation {
 
     Vector<String> fieldName;
     Vector<Domain> domaines = new Vector<>();
-    Vector<Individual> individus = new Vector<>();
+    Vector<Vector<Object>> individus = new Vector<>();
 
     public Vector<String> getFieldName() {
         return fieldName;
@@ -45,11 +45,11 @@ public class Relation {
         this.domaines = domaines;
     }
 
-    public Vector<Individual> getIndividus() {
+    public Vector<Vector<Object>> getIndividus() {
         return individus;
     }
 
-    public void setIndividus(Vector<Individual> individus) {
+    public void setIndividus(Vector<Vector<Object>> individus) {
         this.individus = individus;
     }
 
@@ -59,7 +59,7 @@ public class Relation {
         this.individus = new Vector<>();
     }
 
-    public Relation(String name, Vector<String> fieldName, Vector<Domain> domaines, Vector<Individual> individus) {
+    public Relation(String name, Vector<String> fieldName, Vector<Domain> domaines, Vector<Vector<Object>> individus) {
         this.name = name;
         this.fieldName = fieldName;
         this.domaines = domaines;
@@ -73,20 +73,20 @@ public class Relation {
         return false;
     }
 
-    public void supportsWithErr(Individual ind) throws DomainOutOfBonds, DomainSupportErr {
-        if (ind.values.size() != this.domaines.size())
+    public void supportsWithErr(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
+        if (ind.size() != this.domaines.size())
             throw new DomainOutOfBonds(ind, this);
-        for (int i = 0; i < ind.values.size(); i++) {
-            if (!domaines.get(i).isSupportable(ind.getValues().get(i))) {
+        for (int i = 0; i < ind.size(); i++) {
+            if (!domaines.get(i).isSupportable(ind.get(i))) {
                 throw new DomainSupportErr(ind, this.domaines.get(i), i);
             }
 
         }
     }
 
-    public boolean contains(Individual ind) {
+    public boolean contains(Vector<Object> ind) {
         boolean value = false;
-        for (Individual i : this.individus) {
+        for (Vector<Object> i : this.individus) {
             if (ind.equals(i)) {
                 return true;
             }
@@ -94,12 +94,12 @@ public class Relation {
         return value;
     }
 
-    public void appendIfNotExist(Individual ind) {
+    public void appendIfNotExist(Vector<Object> ind) {
         if (!this.contains(ind))
             this.individus.add(ind);
     }
 
-    public boolean support(Individual ind) {
+    public boolean support(Vector<Object> ind) {
         try {
             supportsWithErr(ind);
             return true;
@@ -109,29 +109,25 @@ public class Relation {
     }
 
     // Insérer un nouveau individu : Object[]
-    public void insertNewInd(Individual ind) throws DomainOutOfBonds, DomainSupportErr {
+    public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
         this.supportsWithErr(ind);
         this.individus.add(ind);
     }
 
-    public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
-        Individual newInd = new Individual(ind);
-        insertNewInd(newInd);
-    }
-
+    
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();
-        Vector<Individual> newIndividus = new Vector<>();
+        Vector<Vector<Object>> newIndividus = new Vector<>();
         Vector<String> fieldName = rel1.fieldName;
 
         if (rel1.isValidDomain(rel2)) {
             newDomaines = Domain.createNewDomain(rel1.getDomaines(), rel2.getDomaines());
             Relation result = new Relation(nvNom, fieldName, newDomaines, newIndividus);
-            for (Individual i1 : rel1.individus) {
+            for (Vector<Object> i1 : rel1.individus) {
                 result.appendIfNotExist(i1);
             }
-            for (Individual i2 : rel2.individus) {
+            for (Vector<Object> i2 : rel2.individus) {
                 result.appendIfNotExist(i2);
             }
             return result;
@@ -144,11 +140,11 @@ public class Relation {
     public static Relation intersection(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.getName() + "_inter_" + rel2.getName();
         Vector<Domain> newDomaines = rel1.domaines;
-        Vector<Individual> newIndividus = new Vector<>();
+        Vector<Vector<Object>> newIndividus = new Vector<>();
         Vector<String> fieldName = rel1.fieldName;
         if (rel1.isValidDomain(rel2)) {
             Relation result = new Relation(nvNom, fieldName, newDomaines, newIndividus);
-            for (Individual i1 : rel1.individus) {
+            for (Vector<Object> i1 : rel1.individus) {
                 if (rel2.contains(i1)) {
                     result.appendIfNotExist(i1);
                 }
@@ -162,10 +158,10 @@ public class Relation {
     public static Relation difference(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.getName() + "_diff_" + rel2.getName();
         Vector<Domain> newDomaines = rel1.domaines;
-        Vector<Individual> newIndividus = new Vector<>();
+        Vector<Vector<Object>> newIndividus = new Vector<>();
         Vector<String> fieldName = rel1.fieldName;
         if (rel1.isValidDomain(rel2)) {
-            for (Individual i1 : rel1.individus) {
+            for (Vector<Object> i1 : rel1.individus) {
                 if (rel2.contains(i1)) {
                     continue;
                 } else {
@@ -181,7 +177,7 @@ public class Relation {
     public static Relation produitCartesien(Relation rel1, Relation rel2) {
         String nv_nom = rel1.getName() + "_produit_" + rel2.getName();
         Vector<Domain> newDomaines = new Vector<>();
-        Vector<Individual> newIndividus = new Vector<>();
+        Vector<Vector<Object>> newIndividus = new Vector<>();
         Vector<String> fieldName = new Vector<>();
 
         newDomaines.addAll(rel1.domaines);
@@ -189,13 +185,13 @@ public class Relation {
         fieldName.addAll(rel1.fieldName);
         fieldName.addAll(rel2.fieldName);
 
-        for (Individual i1 : rel1.individus) {
-            for (Individual i2 : rel2.individus) {
+        for (Vector<Object> i1 : rel1.individus) {
+            for (Vector<Object> i2 : rel2.individus) {
 
                 Vector<Object> values = new Vector<>();
-                values.addAll(i1.values);
-                values.addAll(i2.values);
-                Individual newInd = new Individual(values);
+                values.addAll(i1);
+                values.addAll(i2);
+                Vector<Object> newInd = new Vector<Object>(values);
                 newIndividus.add(newInd);
             }
         }
@@ -215,9 +211,9 @@ public class Relation {
 
         Expression expr = exprSuccess.matched();
         String newName = this.name + "_selection";
-        Vector<Individual> selectedIndividuals = new Vector<>();
-        Relation result = new Relation(newName, this.fieldName, this.domaines, selectedIndividuals);
-        for (Individual individual : individus) {
+        Vector<Vector<Object>> selectedInd = new Vector<>();
+        Relation result = new Relation(newName, this.fieldName, this.domaines, selectedInd);
+        for (Vector<Object> individual : individus) {
             Object resultEval = expr.eval(this, individual);
             boolean conditionMet = Expression.ObjectIntoBoolean(resultEval);
 
