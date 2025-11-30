@@ -2,9 +2,9 @@ package debug.token;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
-import query.base.function.expr.BinaryExpr;
-import query.base.function.expr.Expression;
-import query.base.function.expr.PrefixedExpr;
+import query.base.classes.expr.BinaryExpr;
+import query.base.classes.expr.Expression;
+import query.base.classes.expr.PrefixedExpr;
 import query.token.Token;
 import query.token.Tokenizer;
 

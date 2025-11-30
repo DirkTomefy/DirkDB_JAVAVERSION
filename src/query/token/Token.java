@@ -1,7 +1,7 @@
 package query.token;
 
-import query.base.function.operand.BinaryOp;
-import query.base.function.operand.PrefixedOp;
+import query.base.classes.operand.BinaryOp;
+import query.base.classes.operand.PrefixedOp;
 
 public class Token {
     public TokenKind status;

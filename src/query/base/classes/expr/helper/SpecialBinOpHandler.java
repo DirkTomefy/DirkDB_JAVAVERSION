@@ -1,8 +1,8 @@
-package query.base.function.expr.helper;
+package query.base.classes.expr.helper;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
-import query.base.function.expr.Expression;
+import query.base.classes.expr.Expression;
 
 @FunctionalInterface
 public interface SpecialBinOpHandler {

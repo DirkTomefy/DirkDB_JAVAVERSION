@@ -1,12 +1,12 @@
-package query.base.function.expr.helper;
+package query.base.classes.expr.helper;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
-import query.base.function.expr.Expression;
-import query.base.function.expr.PrefixedExpr;
-import query.base.function.expr.PrimitiveExpr;
-import query.base.function.operand.PrefixedOp;
-import query.base.function.operand.other.ArithmeticOp;
+import query.base.classes.expr.Expression;
+import query.base.classes.expr.PrefixedExpr;
+import query.base.classes.expr.PrimitiveExpr;
+import query.base.classes.operand.PrefixedOp;
+import query.base.classes.operand.other.ArithmeticOp;
 import query.token.Token;
 import query.token.Tokenizer;
 

@@ -10,7 +10,7 @@ import base.err.RelationDomainSizeErr;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
 import query.base.ParseSuccess;
-import query.base.function.expr.Expression;
+import query.base.classes.expr.Expression;
 import query.err.eval.FieldNotFoundErr;
 import query.err.eval.FieldToProjectEmpty;
 

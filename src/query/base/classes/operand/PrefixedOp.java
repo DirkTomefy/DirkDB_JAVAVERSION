@@ -1,4 +1,4 @@
-package query.base.function.operand;
+package query.base.classes.operand;
 
 public enum PrefixedOp {
     NOT,

@@ -5,10 +5,10 @@ import java.util.List;
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.ParserNom;
-import query.base.function.operand.PrefixedOp;
-import query.base.function.operand.other.ArithmeticOp;
-import query.base.function.operand.other.CompareOp;
-import query.base.function.operand.other.LogicalOp;
+import query.base.classes.operand.PrefixedOp;
+import query.base.classes.operand.other.ArithmeticOp;
+import query.base.classes.operand.other.CompareOp;
+import query.base.classes.operand.other.LogicalOp;
 import query.base.helper.ParserNomUtil;
 import query.err.parsing.token.TokenNotFound;
 

@@ -1,12 +1,12 @@
-package query.base.function.operand.other;
+package query.base.classes.operand.other;
 import java.util.Vector;
 
 import base.Relation;
 import base.err.EvalErr;
-import query.base.function.expr.Expression;
-import query.base.function.expr.PrimitiveExpr;
-import query.base.function.expr.PrimitiveKind;
-import query.base.function.operand.BinaryOp;
+import query.base.classes.expr.Expression;
+import query.base.classes.expr.PrimitiveExpr;
+import query.base.classes.expr.PrimitiveKind;
+import query.base.classes.operand.BinaryOp;
 import query.err.eval.InvalidArgumentErr;
 
 public enum CompareOp implements BinaryOp {

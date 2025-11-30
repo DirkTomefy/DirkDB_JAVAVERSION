@@ -1,9 +1,9 @@
-package query.base.function.expr;
+package query.base.classes.expr;
 import java.util.Vector;
 
 import base.Relation;
 import base.err.EvalErr;
-import query.base.function.operand.BinaryOp;
+import query.base.classes.operand.BinaryOp;
 
 public class BinaryExpr implements Expression {
     private final Expression left;

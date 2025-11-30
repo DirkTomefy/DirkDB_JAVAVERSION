@@ -1,4 +1,4 @@
-package query.base.function.expr;
+package query.base.classes.expr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,12 +9,12 @@ import base.err.EvalErr;
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.ParserNom;
-import query.base.function.expr.helper.FactorHelper;
-import query.base.function.expr.helper.SpecialBinOpHandler;
-import query.base.function.operand.BinaryOp;
-import query.base.function.operand.other.ArithmeticOp;
-import query.base.function.operand.other.CompareOp;
-import query.base.function.operand.other.LogicalOp;
+import query.base.classes.expr.helper.FactorHelper;
+import query.base.classes.expr.helper.SpecialBinOpHandler;
+import query.base.classes.operand.BinaryOp;
+import query.base.classes.operand.other.ArithmeticOp;
+import query.base.classes.operand.other.CompareOp;
+import query.base.classes.operand.other.LogicalOp;
 import query.err.parsing.AfterIsOrIsNotErr;
 import query.token.Token;
 import query.token.TokenKind;

@@ -1,4 +1,4 @@
-package query.base.function.expr;
+package query.base.classes.expr;
 
 public enum PrimitiveKind {
     NUMBER,

@@ -1,10 +1,10 @@
-package query.base.function.expr;
+package query.base.classes.expr;
 
 import java.util.Vector;
 
 import base.Relation;
 import base.err.EvalErr;
-import query.base.function.operand.PrefixedOp;
+import query.base.classes.operand.PrefixedOp;
 
 public class PrefixedExpr implements Expression {
     private PrefixedOp op;
