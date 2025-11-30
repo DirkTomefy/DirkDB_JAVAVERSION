@@ -7,6 +7,7 @@ import RDP.base.function.expr.Expression;
 import RDP.err.EvalErr;
 import RDP.err.ParseNomException;
 import RDP.err.eval.FieldNotFoundErr;
+import RDP.err.eval.FieldToProjectEmpty;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
 import err.DomainOutOfBonds;
@@ -217,7 +218,7 @@ public class Relation {
         return new Relation(nv_nom, fieldName, newDomaines, newIndividus);
     }
 
-    public Relation projection(String[] fields) throws FieldNotFoundErr {
+    public Relation projection(String[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
         ProjectionHelper helper = new ProjectionHelper();
         return helper.executeProjection(this, fields);
     }

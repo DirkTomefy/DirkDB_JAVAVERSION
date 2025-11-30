@@ -3,7 +3,7 @@ package base.util;
 import java.util.Vector;
 
 import RDP.err.eval.FieldNotFoundErr;
- 
+import RDP.err.eval.FieldToProjectEmpty;
 import base.Relation;
 
 public class ProjectionHelper {
@@ -12,7 +12,9 @@ public class ProjectionHelper {
     private Relation result;
     private Vector<Integer> fieldIndices;
 
-    public Relation executeProjection(Relation source, String[] fields) throws FieldNotFoundErr {
+    public Relation executeProjection(Relation source, String[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
+        if(fields==null) throw new FieldToProjectEmpty();
+        if(fields.length<1) throw new FieldToProjectEmpty();
         this.source = source;
         this.fields = fields;
 
@@ -20,14 +22,13 @@ public class ProjectionHelper {
         initializeResult();
         setupMetadata();
         projectData();
-
         return result;
     }
 
     private void validateFields() throws FieldNotFoundErr {
         for (String field : fields) {
             if (!source.getFieldName().contains(field)) {
-                throw new FieldNotFoundErr("Champ non trouvé: " + field);
+                throw new FieldNotFoundErr(field);
             }
         }
     }
@@ -40,10 +41,10 @@ public class ProjectionHelper {
         result.setIndividus(new Vector<>());
     }
 
-    private void setupMetadata() {
+    private void setupMetadata() throws FieldNotFoundErr {
         for (String field : fields) {
             int index = source.getFieldName().indexOf(field);
-            result.getFieldName().add(field);
+            if(index==-1) throw new FieldNotFoundErr(field);
             result.getFieldName().add(source.getFieldName().get(index));
         }
     }
@@ -71,7 +72,6 @@ public class ProjectionHelper {
             Object value = original.get(fieldIndex);
             projected.add(value);
         }
-
         return projected;
     }
 
