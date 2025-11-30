@@ -4,13 +4,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
-import RDP.err.eval.FieldNotFoundErr;
-import RDP.err.eval.FieldToProjectEmpty;
 import base.Domain;
 import base.Relation;
 import base.domains.DATE;
 import base.domains.NUMBER;
 import base.domains.VARCHAR;
+import query.err.eval.FieldNotFoundErr;
+import query.err.eval.FieldToProjectEmpty;
 
 public class TestProjection {
     public static Relation makeRelationTest(){

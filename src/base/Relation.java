@@ -2,10 +2,6 @@ package base;
 
 import java.util.Vector;
 
-import RDP.base.ParseSuccess;
-import RDP.base.function.expr.Expression;
-import RDP.err.eval.FieldNotFoundErr;
-import RDP.err.eval.FieldToProjectEmpty;
 import base.err.DomainOutOfBonds;
 import base.err.DomainSupportErr;
 import base.err.EvalErr;
@@ -13,6 +9,10 @@ import base.err.ParseNomException;
 import base.err.RelationDomainSizeErr;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
+import query.base.ParseSuccess;
+import query.base.function.expr.Expression;
+import query.err.eval.FieldNotFoundErr;
+import query.err.eval.FieldToProjectEmpty;
 
 public class Relation {
 

@@ -1,12 +1,12 @@
 package debug.token;
 
-import RDP.base.ParseSuccess;
-import RDP.base.function.expr.BinaryExpr;
-import RDP.base.function.expr.Expression;
-import RDP.base.function.expr.PrefixedExpr;
-import RDP.token.Token;
-import RDP.token.Tokenizer;
 import base.err.ParseNomException;
+import query.base.ParseSuccess;
+import query.base.function.expr.BinaryExpr;
+import query.base.function.expr.Expression;
+import query.base.function.expr.PrefixedExpr;
+import query.token.Token;
+import query.token.Tokenizer;
 
 public class TestTokenizer {
     public static void main(String[] args) throws ParseNomException {

@@ -1,6 +1,6 @@
 package base.err;
 
-import RDP.token.Token;
+import query.token.Token;
 
 public class ParseNomException extends RelationalErr {
     String input;

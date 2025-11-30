@@ -2,9 +2,9 @@ package base.util;
 
 import java.util.Vector;
 
-import RDP.err.eval.FieldNotFoundErr;
-import RDP.err.eval.FieldToProjectEmpty;
 import base.Relation;
+import query.err.eval.FieldNotFoundErr;
+import query.err.eval.FieldToProjectEmpty;
 
 public class ProjectionHelper {
     private String[] fields;

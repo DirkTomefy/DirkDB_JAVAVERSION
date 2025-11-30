@@ -1,0 +1,32 @@
+package query.base.function.expr;
+import java.util.Vector;
+
+import base.Relation;
+import base.err.EvalErr;
+import query.base.function.operand.BinaryOp;
+
+public class BinaryExpr implements Expression {
+    private final Expression left;
+    private final BinaryOp op;
+    private final Expression right;
+
+    public BinaryExpr(Expression left, BinaryOp op, Expression right) {
+        this.left = left;
+        this.op = op;
+        this.right = right;
+    }
+
+    
+
+    @Override
+    public String toString() {
+        return "(" + left + " " + op + " " + right + ")";
+    }
+
+
+
+    @Override
+    public Object eval(Relation relation,  Vector<Object> row) throws EvalErr {
+        return this.op.applyByCtx(relation,row, left, right);
+    }
+}
