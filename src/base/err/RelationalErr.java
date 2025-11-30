@@ -1,4 +1,4 @@
-package err;
+package base.err;
 
 public class RelationalErr extends Exception{
     public RelationalErr() {

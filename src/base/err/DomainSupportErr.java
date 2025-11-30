@@ -1,8 +1,7 @@
-package err;
+package base.err;
 
 import java.util.Vector;
 
-import RDP.err.EvalErr;
 import base.Domain;
 import base.util.RelationDisplayer;
  

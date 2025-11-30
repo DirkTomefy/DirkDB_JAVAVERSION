@@ -8,8 +8,8 @@ import RDP.base.function.operand.other.ArithmeticOp;
 import RDP.base.function.operand.other.CompareOp;
 import RDP.base.function.operand.other.LogicalOp;
 import RDP.base.helper.ParserNomUtil;
-import RDP.err.ParseNomException;
 import RDP.err.parsing.token.TokenNotFound;
+import base.err.ParseNomException;
 
 public class Tokenizer {
     public static final String[] privatizedToken = new String[] { "null" };

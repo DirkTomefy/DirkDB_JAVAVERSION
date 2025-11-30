@@ -5,10 +5,10 @@ import RDP.base.function.expr.Expression;
 import RDP.base.function.expr.PrimitiveExpr;
 import RDP.base.function.expr.PrimitiveKind;
 import RDP.base.function.operand.BinaryOp;
-import RDP.err.EvalErr;
 import RDP.err.eval.InvalidArgumentErr;
  
 import base.Relation;
+import base.err.EvalErr;
 
 public enum CompareOp implements BinaryOp {
     Eq,

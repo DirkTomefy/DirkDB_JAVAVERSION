@@ -4,9 +4,9 @@ import RDP.base.ParseSuccess;
 import RDP.base.function.expr.BinaryExpr;
 import RDP.base.function.expr.Expression;
 import RDP.base.function.expr.PrefixedExpr;
-import RDP.err.ParseNomException;
 import RDP.token.Token;
 import RDP.token.Tokenizer;
+import base.err.ParseNomException;
 
 public class TestTokenizer {
     public static void main(String[] args) throws ParseNomException {

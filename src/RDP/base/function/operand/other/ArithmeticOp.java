@@ -5,11 +5,11 @@ import RDP.base.ParseSuccess;
 import RDP.base.function.expr.Expression;
 import RDP.base.function.operand.BinaryOp;
 import RDP.base.helper.ParserNomUtil;
-import RDP.err.EvalErr;
-import RDP.err.ParseNomException;
 import RDP.err.eval.DivisionByZeroErr;
  
 import base.Relation;
+import base.err.EvalErr;
+import base.err.ParseNomException;
 
 public enum ArithmeticOp implements BinaryOp {
     ADD,

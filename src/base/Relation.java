@@ -4,15 +4,15 @@ import java.util.Vector;
 
 import RDP.base.ParseSuccess;
 import RDP.base.function.expr.Expression;
-import RDP.err.EvalErr;
-import RDP.err.ParseNomException;
 import RDP.err.eval.FieldNotFoundErr;
 import RDP.err.eval.FieldToProjectEmpty;
+import base.err.DomainOutOfBonds;
+import base.err.DomainSupportErr;
+import base.err.EvalErr;
+import base.err.ParseNomException;
+import base.err.RelationDomainSizeErr;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
-import err.DomainOutOfBonds;
-import err.DomainSupportErr;
-import err.RelationDomainSizeErr;
 
 public class Relation {
 

@@ -1,6 +1,6 @@
 package RDP.err.parsing;
 
-import RDP.err.ParseNomException;
+import base.err.ParseNomException;
 
 public class AfterIsOrIsNotErr extends ParseNomException{
     public AfterIsOrIsNotErr(String input){

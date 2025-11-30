@@ -1,6 +1,6 @@
 package RDP.base;
 
-import RDP.err.ParseNomException;
+import base.err.ParseNomException;
 
 @FunctionalInterface
 public interface ParserNom<T> {

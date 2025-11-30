@@ -2,9 +2,8 @@ package RDP.base.function.expr;
 import java.util.Vector;
 
 import RDP.base.function.operand.BinaryOp;
-import RDP.err.EvalErr;
- 
 import base.Relation;
+import base.err.EvalErr;
 
 public class BinaryExpr implements Expression {
     private final Expression left;

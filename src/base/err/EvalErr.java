@@ -1,6 +1,4 @@
-package RDP.err;
-
-import err.RelationalErr;
+package base.err;
 
 public class EvalErr extends RelationalErr{
     public EvalErr(String message){

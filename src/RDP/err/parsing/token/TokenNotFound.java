@@ -1,6 +1,6 @@
 package RDP.err.parsing.token;
 
-import RDP.err.ParseNomException;
+import base.err.ParseNomException;
 
 public class TokenNotFound extends ParseNomException {
     public TokenNotFound(String input){

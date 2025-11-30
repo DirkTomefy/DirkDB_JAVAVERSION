@@ -3,9 +3,8 @@ import java.util.Vector;
 
 import RDP.base.function.expr.Expression;
 import RDP.base.function.operand.BinaryOp;
-import RDP.err.EvalErr;
- 
 import base.Relation;
+import base.err.EvalErr;
 
 public enum LogicalOp implements BinaryOp {
     AND,

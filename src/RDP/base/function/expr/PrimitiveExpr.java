@@ -2,7 +2,6 @@ package RDP.base.function.expr;
 
 import java.util.Vector;
 
-import RDP.err.EvalErr;
 import RDP.err.eval.AmbigousNameErr;
 import RDP.err.eval.FieldNotFoundErr;
 import RDP.err.eval.InvalidArgumentErr;
@@ -12,6 +11,7 @@ import base.Domain;
  
 import base.Relation;
 import base.domains.abstracts.DBString;
+import base.err.EvalErr;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;

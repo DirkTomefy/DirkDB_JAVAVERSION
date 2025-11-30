@@ -1,5 +1,4 @@
-package err;
-import RDP.err.EvalErr;
+package base.err;
 import base.Relation;
 public class RelationDomainSizeErr extends EvalErr {
     public RelationDomainSizeErr(Relation rel1,Relation rel2){

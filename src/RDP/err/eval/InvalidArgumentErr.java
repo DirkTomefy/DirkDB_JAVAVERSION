@@ -1,6 +1,6 @@
 package RDP.err.eval;
 
-import RDP.err.EvalErr;
+import base.err.EvalErr;
 
 public class InvalidArgumentErr extends EvalErr {
     public InvalidArgumentErr(String functionName, String reason) {

@@ -12,14 +12,14 @@ import RDP.base.function.operand.BinaryOp;
 import RDP.base.function.operand.other.ArithmeticOp;
 import RDP.base.function.operand.other.CompareOp;
 import RDP.base.function.operand.other.LogicalOp;
-import RDP.err.EvalErr;
-import RDP.err.ParseNomException;
 import RDP.err.parsing.AfterIsOrIsNotErr;
 import RDP.token.Token;
 import RDP.token.TokenKind;
 import RDP.token.Tokenizer;
  
 import base.Relation;
+import base.err.EvalErr;
+import base.err.ParseNomException;
 
 public interface Expression {
 

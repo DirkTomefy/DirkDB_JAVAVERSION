@@ -5,7 +5,7 @@ import java.util.List;
 
 import RDP.base.ParseSuccess;
 import RDP.base.ParserNom;
-import RDP.err.ParseNomException;
+import base.err.ParseNomException;
 
 public class ParserNomUtil {
 

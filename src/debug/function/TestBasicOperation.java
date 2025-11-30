@@ -6,7 +6,7 @@ import java.util.Vector;
 import base.Domain;
 import base.Relation;
 import base.domains.VARCHAR;
-import err.RelationDomainSizeErr;
+import base.err.RelationDomainSizeErr;
 
 public class TestBasicOperation {
     public static Vector<Vector<Object>> makeIndividusForRelOne() {

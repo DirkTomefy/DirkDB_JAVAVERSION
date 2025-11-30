@@ -1,9 +1,8 @@
-package err;
+package base.err;
 
  
 import java.util.Vector;
 
-import RDP.err.EvalErr;
 import base.Relation;
 
 public class DomainOutOfBonds extends EvalErr {

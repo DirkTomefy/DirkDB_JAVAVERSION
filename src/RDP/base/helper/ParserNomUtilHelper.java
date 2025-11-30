@@ -3,7 +3,7 @@ package RDP.base.helper;
 import java.util.function.Function;
 
 import RDP.base.ParseSuccess;
-import RDP.err.ParseNomException;
+import base.err.ParseNomException;
 
 public class ParserNomUtilHelper {
 
