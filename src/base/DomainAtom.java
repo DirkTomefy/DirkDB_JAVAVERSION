@@ -1,7 +1,7 @@
 package base;
 
 public abstract class DomainAtom {
-    private boolean canBenull = false;
+    private boolean canBenull = true;
 
     public abstract boolean isSupportable(Object value);
 
