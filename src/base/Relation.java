@@ -107,7 +107,7 @@ public class Relation {
 
     public boolean contains(Vector<Object> ind) {
         for (Vector<Object> i : this.individus) {
-            if (indEquals(ind,i)) {
+            if (indEquals(ind, i)) {
                 return true;
             }
         }
@@ -129,7 +129,8 @@ public class Relation {
     }
 
     public void insertNewInd(Vector<Object> ind) throws DomainOutOfBonds, DomainSupportErr {
-        if(ind==null) throw new DomainSupportErr("N'insérer jamais un individu null (c'est stupide)");
+        if (ind == null)
+            throw new DomainSupportErr("N'insérer jamais un individu null (c'est stupide)");
         this.supportsWithErr(ind);
         this.individus.add(ind);
     }
@@ -241,6 +242,92 @@ public class Relation {
             }
         }
         return result;
+    }
+
+    public Relation jointureExterneGauche(Relation tojoin, String condition)
+            throws ParseNomException, EvalErr {
+        Relation produit = produitCartesien(this, tojoin);
+        Relation jointureInterne = produit.selection(condition);
+        String newName = this.name + "_left_join_" + tojoin.name;
+
+        Vector<Domain> newDomains = new Vector<>();
+        newDomains.addAll(this.domaines);
+        newDomains.addAll(tojoin.domaines);
+
+        Vector<String> newFieldNames = new Vector<>();
+        newFieldNames.addAll(this.fieldName);
+        newFieldNames.addAll(tojoin.fieldName);
+
+        Vector<Vector<Object>> newIndividus = new Vector<>();
+
+        Relation result = new Relation(newName, newFieldNames, newDomains, newIndividus);
+
+        // 4. Ajouter tous les tuples issus de la jointure interne
+        for (Vector<Object> ind : jointureInterne.individus) {
+            result.appendIfNotExist(ind);
+        }
+
+        // 5. Pour chaque individu de la relation gauche
+        for (Vector<Object> leftInd : this.individus) {
+
+            boolean found = false;
+
+            for (Vector<Object> joinedInd : jointureInterne.individus) {
+                // comparer uniquement la partie gauche
+                boolean same = true;
+                for (int i = 0; i < leftInd.size(); i++) {
+                    if (!Relation.indEquals(
+                            new Vector<>(leftInd.subList(i, i + 1)),
+                            new Vector<>(joinedInd.subList(i, i + 1)))) {
+                        same = false;
+                        break;
+                    }
+                }
+                if (same) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // 6. Si aucune correspondance → ajouter avec NULL à droite
+            if (!found) {
+                Vector<Object> newInd = new Vector<>();
+                newInd.addAll(leftInd);
+
+                for (int i = 0; i < tojoin.fieldName.size(); i++) {
+                    newInd.add(null);
+                }
+
+                result.appendIfNotExist(newInd);
+            }
+        }
+
+        return result;
+    }
+
+    public Relation jointureExterneDroite(Relation tojoin, String condition) throws ParseNomException, EvalErr {
+        return tojoin.jointureExterneGauche(this, condition);
+    }
+
+    public Relation jointureExternePleine(Relation tojoin, String condition)
+            throws ParseNomException, EvalErr, RelationDomainSizeErr {
+
+        // LEFT OUTER JOIN
+        Relation leftJoin = this.jointureExterneGauche(tojoin, condition);
+
+        // RIGHT OUTER JOIN
+        Relation rightJoin = this.jointureExterneDroite(tojoin, condition);
+
+        // UNION des deux (supprime les doublons)
+        return Relation.union(leftJoin, rightJoin);
+    }
+
+    public Relation jointureNaturelle(Relation tojoin, String condition) {
+        return null;
+    }
+
+    public Relation jointureInterne(Relation tojoin, String condition) throws ParseNomException, EvalErr {
+        return produitCartesien(this, tojoin).selection(condition);
     }
 
     @Override
