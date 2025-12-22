@@ -7,5 +7,10 @@ public enum TokenKind {
     BINOP,
     PREFIXEDOP,
     OTHER,
-    NULLVALUE;
+    NULLVALUE,
+    // ---OTHER TOKEN KIND ::
+    SELECT,
+    COMMA,
+    FROM
+    ;
 }

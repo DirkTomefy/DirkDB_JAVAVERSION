@@ -47,6 +47,9 @@ public class Token {
     public static Token nullvalue(){
         return new Token(TokenKind.NULLVALUE, null);
     }
+    public static Token selectSign(){
+        return new Token(TokenKind.SELECT, null);
+    }
     @Override
     public String toString() {
         return value == null ? status.name() : status.name() + "("+value.getClass().getSimpleName()+"." + value + ")";

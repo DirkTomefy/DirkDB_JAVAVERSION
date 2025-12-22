@@ -5,7 +5,6 @@ public enum PrimitiveKind {
     STRING,
     ID,
     NULLVALUE;
-
     PrimitiveKind() {
      
     }

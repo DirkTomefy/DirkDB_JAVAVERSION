@@ -1,12 +1,20 @@
 package query.main;
 
 public class FieldName {
-    public FieldName(String src, String simplename) {
-        this.src = src;
-        this.simplename = simplename;
-    }
     String src;
     String simplename;
+    String alias;
+    public FieldName(String src, String simplename, String alias) {
+        this.src = src;
+        this.simplename = simplename;
+        this.alias = alias;
+    }
+    public String getAlias() {
+        return alias;
+    }
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
     public String getSrc() {
         return src;
     }
