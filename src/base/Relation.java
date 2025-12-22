@@ -13,12 +13,13 @@ import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.err.eval.FieldNotFoundErr;
 import query.err.eval.FieldToProjectEmpty;
+import  query.main.common.Field;
 
 public class Relation {
 
     String name;
 
-    Vector<String> fieldName;
+    Vector<Field> fieldName;
     Vector<Domain> domaines = new Vector<>();
     Vector<Vector<Object>> individus = new Vector<>();
 

@@ -11,6 +11,7 @@ public enum TokenKind {
     // ---OTHER TOKEN KIND ::
     SELECT,
     COMMA,
-    FROM
+    FROM,
+    AS,
     ;
 }

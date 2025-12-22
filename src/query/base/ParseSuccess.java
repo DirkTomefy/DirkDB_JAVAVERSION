@@ -1,4 +1,9 @@
 package query.base;
-public record ParseSuccess<T>(String remaining,T matched ) {
+public record ParseSuccess<T>(String remaining,T matched ) implements AutoCloseable {
+
+    @Override
+    public void close()   {
+      
+    }
 
 }

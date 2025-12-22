@@ -16,4 +16,7 @@ public class SelectTokenizer extends Tokenizer {
         ParseSuccess<String> success = ParserNomUtil.tagNoCase("ao@").apply(input);
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
     }
+    public static  ParseSuccess<Token>  scanFieldsToken(String input) throws ParseNomException {
+        return null;
+    }
 }
