@@ -44,7 +44,7 @@ public class ProjectionHelper {
 
     private void setupMetadata() throws FieldNotFoundErr {
         for (QualifiedIdentifier field : fields) {
-            int index = source.getFieldName().indexOf(field);
+            int index = field.getIndexFromList(source.getFieldName());
             if(index==-1) throw new FieldNotFoundErr(field);
             result.getFieldName().add(source.getFieldName().get(index));
         }
@@ -62,7 +62,7 @@ public class ProjectionHelper {
     private void calculateFieldIndices() {
         fieldIndices = new Vector<>();
         for (QualifiedIdentifier field : fields) {
-            fieldIndices.add(source.getFieldName().indexOf(field));
+            fieldIndices.add(field.getIndexFromList(source.getFieldName()));
         }
     }
 

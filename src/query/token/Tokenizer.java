@@ -217,4 +217,7 @@ public class Tokenizer {
     public static boolean codonStop(String input) {
         return input.trim().startsWith(")") || input.trim().isEmpty();
     }
+    public static boolean startsWithFactor(String input){
+        return input.trim().startsWith("(");
+    }
 }

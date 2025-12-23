@@ -67,7 +67,7 @@ public class PrimitiveExpr implements Expression {
 
         QualifiedIdentifier idFieldName = (QualifiedIdentifier) value;
 
-        int index = fieldName.indexOf(idFieldName);
+        int index = idFieldName.getIndexFromList(fieldName);
 
         handleErrForEvalId1(idFieldName, fieldName, index);
         Object idValue = row.get(index);
@@ -105,7 +105,7 @@ public class PrimitiveExpr implements Expression {
     }
 
     private void handleErrForEvalId1(QualifiedIdentifier idFieldName, Vector<QualifiedIdentifier> fieldName, int index) throws EvalErr {
-        if (fieldName.lastIndexOf(idFieldName) != fieldName.indexOf(idFieldName))
+        if (idFieldName.isAmbigousFromList(fieldName))
             throw new AmbigousNameErr(idFieldName);
 
         if (index == -1) {

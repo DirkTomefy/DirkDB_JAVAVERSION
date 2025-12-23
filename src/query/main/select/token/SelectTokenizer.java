@@ -16,7 +16,12 @@ public class SelectTokenizer extends Tokenizer {
         ParseSuccess<String> success = ParserNomUtil.tagNoCase("ao@").apply(input);
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
     }
+    public static  ParseSuccess<Token> scanWhereToken(String input) throws ParseNomException {
+         ParseSuccess<String> success = ParserNomUtil.tagNoCase("rehefa").apply(input);
+        return new ParseSuccess<>(success.remaining(), Token.selectSign());
+    }
     public static  ParseSuccess<Token>  scanFieldsToken(String input) throws ParseNomException {
+        // TODO : commas , fieldName , as sign 
         return null;
     }
 }

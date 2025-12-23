@@ -38,24 +38,24 @@ public class TestBasicOperation {
     }
 
     public static void main(String[] args) throws RelationDomainSizeErr {
-        Vector<String> fieldName = new Vector<>();
-        fieldName.add("id");
-        fieldName.add("name");
-        Vector<Domain> d = new Vector<>();
-        d.add(new VARCHAR(1).intoDomain());
+        // Vector<String> fieldName = new Vector<>();
+        // fieldName.add("id");
+        // fieldName.add("name");
+        // Vector<Domain> d = new Vector<>();
+        // d.add(new VARCHAR(1).intoDomain());
 
-        Relation rel1 = new Relation("rel1", fieldName, d, makeIndividusForRelOne());
-        Relation rel2 = new Relation("rel2", fieldName, d, makeIndividusForRelTwo());
+        // Relation rel1 = new Relation("rel1", fieldName, d, makeIndividusForRelOne());
+        // Relation rel2 = new Relation("rel2", fieldName, d, makeIndividusForRelTwo());
 
-        System.out.println(""+Relation.intersection(rel2, rel1)+"\n");   
+        // System.out.println(""+Relation.intersection(rel2, rel1)+"\n");   
 
-        System.out.println(""+Relation.difference(rel1, rel2)+"\n");  
+        // System.out.println(""+Relation.difference(rel1, rel2)+"\n");  
         
-        System.out.println(""+Relation.difference(rel2, rel1)+"\n");   
+        // System.out.println(""+Relation.difference(rel2, rel1)+"\n");   
 
-        System.out.println(""+Relation.union(rel1, rel2)+"\n");   
+        // System.out.println(""+Relation.union(rel1, rel2)+"\n");   
         
-        System.out.println(""+Relation.produitCartesien(rel1, rel2)+"\n");        
+        // System.out.println(""+Relation.produitCartesien(rel1, rel2)+"\n");        
         
     }
 }
