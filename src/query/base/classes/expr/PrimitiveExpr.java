@@ -1,5 +1,4 @@
 package query.base.classes.expr;
-
 import java.util.Vector;
 
 import base.Domain;
@@ -12,6 +11,7 @@ import query.err.eval.FieldNotFoundErr;
 import query.err.eval.InvalidArgumentErr;
 import query.err.eval.NullValueErr;
 import query.err.eval.TypeMismatchErr;
+import query.main.common.QualifiedIdentifier;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;
@@ -59,13 +59,13 @@ public class PrimitiveExpr implements Expression {
     }
 
     private Object evalId(Relation relation,  Vector<Object> row) throws EvalErr {
-        Vector<String> fieldName = relation.getFieldName();
+        Vector<QualifiedIdentifier> fieldName = relation.getFieldName();
 
         Vector<Domain> domains = relation.getDomaines();
 
         handleErrForEvalId0(fieldName);
 
-        String idFieldName = (String) value;
+        QualifiedIdentifier idFieldName = (QualifiedIdentifier) value;
 
         int index = fieldName.indexOf(idFieldName);
 
@@ -94,17 +94,17 @@ public class PrimitiveExpr implements Expression {
         return s;
     }
 
-    private void handleErrForEvalId0(Vector<String> fieldName) throws EvalErr {
+    private void handleErrForEvalId0(Vector<QualifiedIdentifier> fieldName) throws EvalErr {
         if (fieldName == null || fieldName.isEmpty()) {
             throw new InvalidArgumentErr("ID", "field names cannot be null or empty");
         }
 
-        if (!(value instanceof String)) {
+        if (!(value instanceof QualifiedIdentifier)) {
             throw new TypeMismatchErr("String", value);
         }
     }
 
-    private void handleErrForEvalId1(String idFieldName, Vector<String> fieldName, int index) throws EvalErr {
+    private void handleErrForEvalId1(QualifiedIdentifier idFieldName, Vector<QualifiedIdentifier> fieldName, int index) throws EvalErr {
         if (fieldName.lastIndexOf(idFieldName) != fieldName.indexOf(idFieldName))
             throw new AmbigousNameErr(idFieldName);
 

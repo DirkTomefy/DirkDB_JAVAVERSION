@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
+import query.main.common.QualifiedIdentifier;
 
 public class ParserNomUtilHelper {
 
@@ -12,14 +13,39 @@ public class ParserNomUtilHelper {
         return ParserNomUtil.digit1().apply(input);
     }
 
+    public static ParseSuccess<String> parseOriginPart(String input) throws ParseNomException {
+        return ParserNomUtil.tagName(input);
+    }
+
+    public static ParseSuccess<String> parseSimpleNamePart(String input) throws ParseNomException {
+        return ParserNomUtil.opt(inp -> {
+            if (!inp.startsWith("."))
+                return new ParseSuccess<>(inp, null);
+            ParseSuccess<String> digits = ParserNomUtil.tagName(inp.substring(1));
+            String frac = digits.matched();
+            return new ParseSuccess<>(digits.remaining(), frac);
+        }, input);
+    }
+
     // Parse la partie fractionnaire optionnelle (commence par un point)
     public static ParseSuccess<String> parseFractionPart(String input) throws ParseNomException {
         return ParserNomUtil.opt(inp -> {
-            if (!inp.startsWith(".")) return new ParseSuccess<>(inp, null);
+            if (!inp.startsWith("."))
+                return new ParseSuccess<>(inp, null);
             ParseSuccess<String> digits = ParserNomUtil.digit1().apply(inp.substring(1));
             String frac = "." + digits.matched();
             return new ParseSuccess<>(digits.remaining(), frac);
         }, input);
+    }
+
+    public static ParseSuccess<QualifiedIdentifier> combineOriginAndName(ParseSuccess<String> originpart,
+            ParseSuccess<String> simplenamepart) {
+        if (simplenamepart.matched() == null) {
+            return new ParseSuccess<>(simplenamepart.remaining(), new QualifiedIdentifier(null, originpart.matched()));
+        } else {
+            return new ParseSuccess<>(simplenamepart.remaining(),
+                    new QualifiedIdentifier(originpart.matched(), simplenamepart.matched()));
+        }
     }
 
     // Combine partie entière et fractionnaire en Double

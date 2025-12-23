@@ -4,6 +4,6 @@ import java.util.Vector;
 
 import query.main.select.element.interfaces.SelectFields;
 
-public class FieldSelectedList extends Vector<Field> implements SelectFields {
+public class FieldSelectedList extends Vector<QualifiedIdentifier> implements SelectFields {
     
 }

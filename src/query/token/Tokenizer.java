@@ -11,6 +11,7 @@ import query.base.classes.operand.other.CompareOp;
 import query.base.classes.operand.other.LogicalOp;
 import query.base.helper.ParserNomUtil;
 import query.err.parsing.token.TokenNotFound;
+import query.main.common.QualifiedIdentifier;
 
 public class Tokenizer {
     public static final String[] privatizedToken = new String[] { "null" };
@@ -151,8 +152,8 @@ public class Tokenizer {
     // === tagId ===
     public static ParserNom<Token> tagId() {
         return input -> {
-            ParseSuccess<String> success = ParserNomUtil.tagName(input);
-            if(isPrivatized(success.matched())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
+            ParseSuccess<QualifiedIdentifier> success = ParserNomUtil.identifier1().apply(input);
+            if(success.matched().origin()==null && isPrivatized(success.matched().name())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
             return new ParseSuccess<>(success.remaining(), Token.id(success.matched()));
         };
     }

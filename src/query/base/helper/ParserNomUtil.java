@@ -6,6 +6,7 @@ import java.util.List;
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.ParserNom;
+import query.main.common.QualifiedIdentifier;
 
 public class ParserNomUtil {
 
@@ -101,6 +102,14 @@ public class ParserNomUtil {
         };
     }
 
+    // === IDENTIFIER1 ===
+    public static ParserNom<QualifiedIdentifier> identifier1(){
+        return input->{
+             ParseSuccess<String> originPartRes = ParserNomUtilHelper.parseOriginPart(input);
+            ParseSuccess<String> simpleNamePartRes = ParserNomUtilHelper.parseSimpleNamePart(originPartRes.remaining());
+            return ParserNomUtilHelper.combineOriginAndName(originPartRes, simpleNamePartRes);
+        };
+    }
     // === TAKEWHILE1 ===
     public static ParseSuccess<String> takeWhile1(java.util.function.Function<Character, Boolean> predicate, String input) throws ParseNomException {
         int i = 0;

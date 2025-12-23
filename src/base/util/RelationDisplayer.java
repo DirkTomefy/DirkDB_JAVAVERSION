@@ -5,6 +5,7 @@ import java.util.*;
 import base.Domain;
  
 import base.Relation;
+import query.main.common.QualifiedIdentifier;
 
 public class RelationDisplayer {
 
@@ -25,7 +26,7 @@ public class RelationDisplayer {
     // =========================================================================
     private static String buildTable(Relation rel, boolean debug) {
 
-        List<String> columns = rel.getFieldName();
+        List<QualifiedIdentifier> columns = rel.getFieldName();
         List<Domain> domaines = rel.getDomaines(); 
         List< Vector<Object>> rows = rel.getIndividus();
 
@@ -40,11 +41,12 @@ public class RelationDisplayer {
 
         // 1) Largeur max par colonne (noms + domaines + valeurs)
         for (int i = 0; i < colCount; i++) {
-            String header = columns.get(i);
+            QualifiedIdentifier header = columns.get(i);
+            String h1=debug ? header.name() : header.origin()+header.name();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
-                header += " (" + domaines.get(i) + ")";
+                h1 += " (" + domaines.get(i) + ")";
             }
-            width[i] = header.length();
+            width[i] = h1.length();
         }
 
         if (rows != null) {
@@ -72,11 +74,12 @@ public class RelationDisplayer {
         // 3) Ligne en-tête
         List<String> headerValues = new ArrayList<>();
         for (int i = 0; i < colCount; i++) {
-            String h = columns.get(i);
+            QualifiedIdentifier h = columns.get(i);
+            String h2=debug ? h.name() : h.origin()+h.name();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
-                h += " (" + domaines.get(i) + ")";
+                h2+=" (" + domaines.get(i) + ")";
             }
-            headerValues.add(h);
+            headerValues.add(h2);
         }
         sb.append(formatRow(headerValues, width)).append("\n");
         sb.append("-".repeat(totalWidth)).append("\n");

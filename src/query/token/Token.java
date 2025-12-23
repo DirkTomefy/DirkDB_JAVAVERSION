@@ -2,6 +2,7 @@ package query.token;
 
 import query.base.classes.operand.BinaryOp;
 import query.base.classes.operand.PrefixedOp;
+import query.main.common.QualifiedIdentifier;
 
 public class Token {
     public TokenKind status;
@@ -25,8 +26,8 @@ public class Token {
         return new Token(TokenKind.NUMBER, v);
     }
 
-    public static Token id(String s) {
-        return new Token(TokenKind.ID, s);
+    public static Token id(QualifiedIdentifier f) {
+        return new Token(TokenKind.ID, f);
     }
 
     public static Token string(String s) {

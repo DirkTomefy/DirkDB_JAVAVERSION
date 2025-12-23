@@ -1,4 +1,4 @@
-package query.main.select.element.classes;
+package query.main.common;
 
 import query.main.select.element.interfaces.TableOrigin;
 

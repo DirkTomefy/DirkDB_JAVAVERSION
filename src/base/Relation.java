@@ -13,23 +13,26 @@ import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.err.eval.FieldNotFoundErr;
 import query.err.eval.FieldToProjectEmpty;
-import  query.main.common.Field;
+import  query.main.common.QualifiedIdentifier;
 
 public class Relation {
 
     String name;
 
-    Vector<Field> fieldName;
+    Vector<QualifiedIdentifier> fieldName;
+   
+
     Vector<Domain> domaines = new Vector<>();
     Vector<Vector<Object>> individus = new Vector<>();
 
-    public Vector<String> getFieldName() {
+     public Vector<QualifiedIdentifier> getFieldName() {
         return fieldName;
     }
 
-    public void setFieldName(Vector<String> fieldName) {
+    public void setFieldName(Vector<QualifiedIdentifier> fieldName) {
         this.fieldName = fieldName;
     }
+
 
     public static boolean indEquals(Vector<Object> ind1, Vector<Object> ind2) {
         if (ind1 == null || ind2 == null)
@@ -81,7 +84,7 @@ public class Relation {
         this.individus = new Vector<>();
     }
 
-    public Relation(String name, Vector<String> fieldName, Vector<Domain> domaines, Vector<Vector<Object>> individus) {
+    public Relation(String name, Vector<QualifiedIdentifier> fieldName, Vector<Domain> domaines, Vector<Vector<Object>> individus) {
         this.name = name;
         this.fieldName = fieldName;
         this.domaines = domaines;
@@ -140,7 +143,7 @@ public class Relation {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();
         Vector<Vector<Object>> newIndividus = new Vector<>();
-        Vector<String> fieldName = rel1.fieldName;
+        Vector<QualifiedIdentifier> fieldName = rel1.fieldName;
 
         if (rel1.isValidDomain(rel2)) {
             newDomaines = Domain.createNewDomain(rel1.getDomaines(), rel2.getDomaines());
@@ -162,7 +165,7 @@ public class Relation {
         String nvNom = rel1.getName() + "_inter_" + rel2.getName();
         Vector<Domain> newDomaines = rel1.domaines;
         Vector<Vector<Object>> newIndividus = new Vector<>();
-        Vector<String> fieldName = rel1.fieldName;
+        Vector<QualifiedIdentifier> fieldName = rel1.fieldName;
         if (rel1.isValidDomain(rel2)) {
             Relation result = new Relation(nvNom, fieldName, newDomaines, newIndividus);
             for (Vector<Object> i1 : rel1.individus) {
@@ -180,7 +183,7 @@ public class Relation {
         String nvNom = rel1.getName() + "_diff_" + rel2.getName();
         Vector<Domain> newDomaines = rel1.domaines;
         Vector<Vector<Object>> newIndividus = new Vector<>();
-        Vector<String> fieldName = rel1.fieldName;
+        Vector<QualifiedIdentifier> fieldName = rel1.fieldName;
         if (rel1.isValidDomain(rel2)) {
             for (Vector<Object> i1 : rel1.individus) {
                 if (rel2.contains(i1)) {
@@ -199,7 +202,7 @@ public class Relation {
         String nv_nom = rel1.getName() + "_produit_" + rel2.getName();
         Vector<Domain> newDomaines = new Vector<>();
         Vector<Vector<Object>> newIndividus = new Vector<>();
-        Vector<String> fieldName = new Vector<>();
+        Vector<QualifiedIdentifier> fieldName = new Vector<>();
 
         newDomaines.addAll(rel1.domaines);
         newDomaines.addAll(rel2.domaines);
@@ -220,7 +223,7 @@ public class Relation {
         return new Relation(nv_nom, fieldName, newDomaines, newIndividus);
     }
 
-    public Relation projection(String[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
+    public Relation projection(QualifiedIdentifier[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
         ProjectionHelper helper = new ProjectionHelper();
         return helper.executeProjection(this, fields);
     }
@@ -255,7 +258,7 @@ public class Relation {
         newDomains.addAll(this.domaines);
         newDomains.addAll(tojoin.domaines);
 
-        Vector<String> newFieldNames = new Vector<>();
+        Vector<QualifiedIdentifier> newFieldNames = new Vector<>();
         newFieldNames.addAll(this.fieldName);
         newFieldNames.addAll(tojoin.fieldName);
 

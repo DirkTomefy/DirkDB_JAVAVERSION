@@ -5,14 +5,15 @@ import java.util.Vector;
 import base.Relation;
 import query.err.eval.FieldNotFoundErr;
 import query.err.eval.FieldToProjectEmpty;
+import query.main.common.QualifiedIdentifier;
 
 public class ProjectionHelper {
-    private String[] fields;
+    private QualifiedIdentifier[] fields;
     private Relation source;
     private Relation result;
     private Vector<Integer> fieldIndices;
 
-    public Relation executeProjection(Relation source, String[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
+    public Relation executeProjection(Relation source, QualifiedIdentifier[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
         if(fields==null) throw new FieldToProjectEmpty();
         if(fields.length<1) throw new FieldToProjectEmpty();
         this.source = source;
@@ -26,7 +27,7 @@ public class ProjectionHelper {
     }
 
     private void validateFields() throws FieldNotFoundErr {
-        for (String field : fields) {
+        for (QualifiedIdentifier field : fields) {
             if (!source.getFieldName().contains(field)) {
                 throw new FieldNotFoundErr(field);
             }
@@ -42,7 +43,7 @@ public class ProjectionHelper {
     }
 
     private void setupMetadata() throws FieldNotFoundErr {
-        for (String field : fields) {
+        for (QualifiedIdentifier field : fields) {
             int index = source.getFieldName().indexOf(field);
             if(index==-1) throw new FieldNotFoundErr(field);
             result.getFieldName().add(source.getFieldName().get(index));
@@ -60,7 +61,7 @@ public class ProjectionHelper {
 
     private void calculateFieldIndices() {
         fieldIndices = new Vector<>();
-        for (String field : fields) {
+        for (QualifiedIdentifier field : fields) {
             fieldIndices.add(source.getFieldName().indexOf(field));
         }
     }
