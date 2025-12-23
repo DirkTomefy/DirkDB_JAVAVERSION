@@ -28,13 +28,13 @@ public interface SelectFields {
             try (ParseSuccess<Token> t = SelectTokenizer.scanFieldsToken(input)) {
                 switch (t.matched().status) {
                     case COMMA->{
-
+                        // TODO
                     }
                     case ID->{
-
+                        // TODO
                     }
                     case AS->{
-
+                        // TODO
                     }
                     default->{
                         break loop;
