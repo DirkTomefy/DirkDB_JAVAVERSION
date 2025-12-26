@@ -12,15 +12,19 @@ import query.main.common.QualifiedIdentifier;
 import query.main.select.element.classes.AllField;
 import query.main.select.element.classes.FieldElementWithAlias;
 import query.main.select.element.classes.FieldSelectedList;
+import query.main.select.element.classes.SelectCtx;
 import query.main.select.element.interfaces.SelectFields;
+
 
 public class ProjectionHelper {
     Relation result;
     Relation src;
     SelectFields field;
+    SelectCtx ctx;
 
-    public ProjectionHelper(Relation src, SelectFields field) {
+    public ProjectionHelper(Relation src, SelectFields field,SelectCtx ctx) {
         this.src = src;
+        this.ctx=ctx;
         this.field = field;
         this.result = new Relation();
     }

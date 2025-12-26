@@ -17,6 +17,7 @@ import query.base.classes.operand.other.CompareOp;
 import query.base.classes.operand.other.LogicalOp;
 import query.base.helper.ParserNomUtil;
 import query.err.parsing.AfterIsOrIsNotErr;
+import query.main.select.element.classes.SelectCtx;
 import query.token.Token;
 import query.token.TokenKind;
 import query.token.Tokenizer;
@@ -34,9 +35,13 @@ public interface Expression {
     };
 
     Map<BinaryOp, SpecialBinOpHandler> BINOP_HANDLER = initHandler();
-
+    
     Object eval(Relation relation, Vector<Object> row) throws EvalErr;
 
+    
+    //TODO REMPLIR CETTE FONCTION :
+    Object evalByCtx(Relation relation, Vector<Object> row, SelectCtx ctx) throws EvalErr;
+    
     default boolean evalToBoolean(Relation relation, Vector<Object> row) throws EvalErr {
         return ObjectIntoBoolean(eval(relation, row));
     }

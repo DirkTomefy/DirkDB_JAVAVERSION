@@ -1,10 +1,13 @@
 package query.main.select;
 
+import java.util.LinkedHashMap;
+
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.base.helper.ParserNomUtil;
 import query.main.select.element.classes.AllField;
+import query.main.select.element.classes.SelectCtx;
 import query.main.select.element.interfaces.SelectFields;
 import query.main.select.element.interfaces.TableOriginWithAlias;
 import query.main.select.token.SelectTokenizer;
@@ -14,6 +17,7 @@ public class SelectRqst extends TableOriginWithAlias {
     SelectFields fields;
     TableOriginWithAlias from;
     Expression where;
+    //TODO : mettre les jointures ici
 
     public SelectRqst(SelectFields fields, TableOriginWithAlias from, Expression where) {
         this.fields = fields;
@@ -56,6 +60,8 @@ public class SelectRqst extends TableOriginWithAlias {
             return Expression.parseExpression.apply(whereToken.remaining());
         }
     }
+
+    // TODO mettre une fonction eval
 
     @Override
     public String toString() {
