@@ -16,4 +16,10 @@ public class FieldElementWithAlias {
     public void setAlias(String alias) {
         this.alias = alias;
     }
+    public Expression getExpr() {
+        return expr;
+    }
+    public String getAlias() {
+        return alias;
+    }
 }

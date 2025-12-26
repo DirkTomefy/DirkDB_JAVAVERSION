@@ -1,14 +1,12 @@
 package query.base.classes.expr;
+
 import java.util.Vector;
 
 import base.Domain;
- 
+
 import base.Relation;
 import base.domains.abstracts.DBString;
 import base.err.EvalErr;
-import query.err.eval.AmbigousNameErr;
-import query.err.eval.FieldNotFoundErr;
-import query.err.eval.InvalidArgumentErr;
 import query.err.eval.NullValueErr;
 import query.err.eval.TypeMismatchErr;
 import query.main.common.QualifiedIdentifier;
@@ -48,7 +46,7 @@ public class PrimitiveExpr implements Expression {
     }
 
     @Override
-    public Object eval(Relation r,  Vector<Object> row) throws EvalErr {
+    public Object eval(Relation r, Vector<Object> row) throws EvalErr {
         return switch (type) {
             case ID -> evalId(r, row);
             case NULLVALUE -> evalNullValue();
@@ -58,21 +56,11 @@ public class PrimitiveExpr implements Expression {
         };
     }
 
-    private Object evalId(Relation relation,  Vector<Object> row) throws EvalErr {
-        Vector<QualifiedIdentifier> fieldName = relation.getFieldName();
-
-        Vector<Domain> domains = relation.getDomaines();
-
-        handleErrForEvalId0(fieldName);
-
+    private Object evalId(Relation relation, Vector<Object> row) throws EvalErr {
         QualifiedIdentifier idFieldName = (QualifiedIdentifier) value;
-
-        int index = idFieldName.getIndexFromList(fieldName);
-
-        handleErrForEvalId1(idFieldName, fieldName, index);
-        Object idValue = row.get(index);
-        Domain d = domains.get(index);
-
+        int index = idFieldName.getIndex(relation.getFieldName());
+        Domain d = relation.getDomaines().get(index);
+        Object idValue = idFieldName.getValueFromARow(relation.getFieldName(), row, index);
         String maybeReturn = handleStringDomain(d, idValue);
         if (maybeReturn != null) {
             return maybeReturn;
@@ -86,31 +74,11 @@ public class PrimitiveExpr implements Expression {
         if (dbs == null)
             return null;
 
-        
         String s = dbs.intoStringValue(idvalue);
         if (s == null)
             return null;
-        
+
         return s;
-    }
-
-    private void handleErrForEvalId0(Vector<QualifiedIdentifier> fieldName) throws EvalErr {
-        if (fieldName == null || fieldName.isEmpty()) {
-            throw new InvalidArgumentErr("ID", "field names cannot be null or empty");
-        }
-
-        if (!(value instanceof QualifiedIdentifier)) {
-            throw new TypeMismatchErr("String", value);
-        }
-    }
-
-    private void handleErrForEvalId1(QualifiedIdentifier idFieldName, Vector<QualifiedIdentifier> fieldName, int index) throws EvalErr {
-        if (idFieldName.isAmbigousFromList(fieldName))
-            throw new AmbigousNameErr(idFieldName);
-
-        if (index == -1) {
-            throw new FieldNotFoundErr(idFieldName, fieldName);
-        }
     }
 
     private Object evalNumber() throws EvalErr {

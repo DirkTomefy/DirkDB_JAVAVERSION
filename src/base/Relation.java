@@ -9,11 +9,9 @@ import base.err.ParseNomException;
 import base.err.RelationDomainSizeErr;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
-import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
-import query.err.eval.FieldNotFoundErr;
-import query.err.eval.FieldToProjectEmpty;
 import  query.main.common.QualifiedIdentifier;
+import query.main.select.element.interfaces.SelectFields;
 
 public class Relation {
 
@@ -223,22 +221,17 @@ public class Relation {
         return new Relation(nv_nom, fieldName, newDomaines, newIndividus);
     }
 
-    public Relation projection(QualifiedIdentifier[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
-        ProjectionHelper helper = new ProjectionHelper();
-        return helper.executeProjection(this, fields);
+    public Relation projection(SelectFields fields) throws EvalErr {
+        ProjectionHelper helper =new ProjectionHelper(this, fields);         
+        return helper.executeProjection();
     }
 
-    public Relation selection(String condition) throws ParseNomException, EvalErr {
-        ParseSuccess<Expression> exprSuccess = Expression.parseExpression.apply(condition);
-        if (!exprSuccess.remaining().trim().isEmpty())
-            throw ParseNomException.buildRemainingException(exprSuccess.remaining());
-
-        Expression expr = exprSuccess.matched();
+    public Relation selection(Expression condition) throws ParseNomException, EvalErr {
         String newName = this.name + "_selection";
         Vector<Vector<Object>> selectedInd = new Vector<>();
         Relation result = new Relation(newName, this.fieldName, this.domaines, selectedInd);
         for (Vector<Object> individual : individus) {
-            Object resultEval = expr.eval(this, individual);
+            Object resultEval = condition.eval(this, individual);
             boolean conditionMet = Expression.ObjectIntoBoolean(resultEval);
 
             if (conditionMet) {
@@ -248,7 +241,7 @@ public class Relation {
         return result;
     }
 
-    public Relation jointureExterneGauche(Relation tojoin, String condition)
+    public Relation jointureExterneGauche(Relation tojoin, Expression condition)
             throws ParseNomException, EvalErr {
         Relation produit = produitCartesien(this, tojoin);
         Relation jointureInterne = produit.selection(condition);
@@ -309,11 +302,11 @@ public class Relation {
         return result;
     }
 
-    public Relation jointureExterneDroite(Relation tojoin, String condition) throws ParseNomException, EvalErr {
+    public Relation jointureExterneDroite(Relation tojoin, Expression condition) throws ParseNomException, EvalErr {
         return tojoin.jointureExterneGauche(this, condition);
     }
 
-    public Relation jointureExternePleine(Relation tojoin, String condition)
+    public Relation jointureExternePleine(Relation tojoin, Expression condition)
             throws ParseNomException, EvalErr, RelationDomainSizeErr {
 
         // LEFT OUTER JOIN
@@ -326,11 +319,11 @@ public class Relation {
         return Relation.union(leftJoin, rightJoin);
     }
 
-    public Relation jointureNaturelle(Relation tojoin, String condition) {
+    public Relation jointureNaturelle(Relation tojoin, Expression condition) {
         return null;
     }
 
-    public Relation jointureInterne(Relation tojoin, String condition) throws ParseNomException, EvalErr {
+    public Relation jointureInterne(Relation tojoin, Expression condition) throws ParseNomException, EvalErr {
         return produitCartesien(this, tojoin).selection(condition);
     }
 

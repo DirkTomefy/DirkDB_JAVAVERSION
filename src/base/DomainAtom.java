@@ -15,7 +15,7 @@ public abstract class DomainAtom {
 
     public Domain intoDomain() {
         Domain a = new Domain();
-        a.append(this);
+        a.add(this);
         return a;
     }
 }

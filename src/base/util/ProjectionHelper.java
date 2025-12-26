@@ -2,78 +2,116 @@ package base.util;
 
 import java.util.Vector;
 
+import base.Domain;
 import base.Relation;
+import base.err.EvalErr;
+import query.base.classes.expr.PrimitiveExpr;
+import query.err.eval.AmbigousNameErr;
 import query.err.eval.FieldNotFoundErr;
-import query.err.eval.FieldToProjectEmpty;
 import query.main.common.QualifiedIdentifier;
+import query.main.select.element.classes.AllField;
+import query.main.select.element.classes.FieldElementWithAlias;
+import query.main.select.element.classes.FieldSelectedList;
+import query.main.select.element.interfaces.SelectFields;
 
 public class ProjectionHelper {
-    private QualifiedIdentifier[] fields;
-    private Relation source;
-    private Relation result;
-    private Vector<Integer> fieldIndices;
+    Relation result;
+    Relation src;
+    SelectFields field;
 
-    public Relation executeProjection(Relation source, QualifiedIdentifier[] fields) throws FieldNotFoundErr, FieldToProjectEmpty {
-        if(fields==null) throw new FieldToProjectEmpty();
-        if(fields.length<1) throw new FieldToProjectEmpty();
-        this.source = source;
-        this.fields = fields;
-
-        validateFields();
-        initializeResult();
-        setupMetadata();
-        projectData();
-        return result;
+    public ProjectionHelper(Relation src, SelectFields field) {
+        this.src = src;
+        this.field = field;
+        this.result = new Relation();
     }
 
-    private void validateFields() throws FieldNotFoundErr {
-        for (QualifiedIdentifier field : fields) {
-            if (!source.getFieldName().contains(field)) {
-                throw new FieldNotFoundErr(field);
+    public Vector<QualifiedIdentifier> makeFieldName() {
+        if (field instanceof FieldSelectedList list) {
+            Vector<QualifiedIdentifier> newFieldName = new Vector<>();
+            for (FieldElementWithAlias field : list) {
+                if (field.getExpr() instanceof PrimitiveExpr maybeQid && field.getAlias() == null) {
+                    if (maybeQid.getValue() instanceof QualifiedIdentifier qid) {
+                        newFieldName.add(qid);
+                    }
+                } else if (field.getAlias() != null) {
+                    newFieldName.add(new QualifiedIdentifier(null, field.getAlias()));
+                } else {
+                    newFieldName.add(new QualifiedIdentifier(null, field.getExpr().toString()));
+                }
             }
+            return newFieldName;
+        } else {
+            throw new IllegalArgumentException(
+                    "Field is not an instance of AllField but may be a FieldElementWithAlias or something else");
         }
     }
 
-    private void initializeResult() {
-        result = new Relation();
-        result.setName(source.getName() + "_projection");
-        result.setFieldName(new Vector<>());
-        result.setDomaines(new Vector<>());
-        result.setIndividus(new Vector<>());
-    }
-
-    private void setupMetadata() throws FieldNotFoundErr {
-        for (QualifiedIdentifier field : fields) {
-            int index = field.getIndexFromList(source.getFieldName());
-            if(index==-1) throw new FieldNotFoundErr(field);
-            result.getFieldName().add(source.getFieldName().get(index));
+    public Vector<Domain> makeDomains() throws AmbigousNameErr, FieldNotFoundErr {
+        if (field instanceof FieldSelectedList list) {
+            Vector<Domain> newDomains = new Vector<>();
+            for (FieldElementWithAlias field : list) {
+                if (field.getExpr() instanceof PrimitiveExpr maybeQid) {
+                    if (maybeQid.getValue() instanceof QualifiedIdentifier qid) {
+                        int index = qid.getIndex(src.getFieldName());
+                        newDomains.add(src.getDomaines().get(index));
+                    }
+                } else {
+                    newDomains.add(Domain.makeUniversalDomain());
+                }
+            }
+            return newDomains;
+        } else {
+            throw new IllegalArgumentException(
+                    "Field is not an instance of AllField but may be a FieldElementWithAlias or something else");
         }
     }
 
-    private void projectData() {
-        calculateFieldIndices();
+    public Vector<Object> projectIndividual(Vector<Object> row) throws EvalErr {
+        Vector<Object> projectedRow = new Vector<>();
 
-        for ( Vector<Object> individu : source.getIndividus()) {
-             Vector<Object> projected = projectIndividual(individu);
-            result.appendIfNotExist(projected);
+        if (field instanceof FieldSelectedList list) {
+            for (FieldElementWithAlias fieldElement : list) {
+
+                Object value = null;
+                if (fieldElement.getExpr() instanceof PrimitiveExpr primitiveExpr) {
+                    Object primitiveValue = primitiveExpr.getValue();
+
+                    if (primitiveValue instanceof QualifiedIdentifier qid) {
+                        value = qid.getValueFromARow(src.getFieldName(), row);
+                    } else {
+                        value = primitiveValue;
+                    }
+                } else {
+                    value = fieldElement.getExpr().eval(src, row);
+                }
+
+                projectedRow.add(value);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported field type: " + field.getClass().getName());
         }
+
+        return projectedRow;
     }
 
-    private void calculateFieldIndices() {
-        fieldIndices = new Vector<>();
-        for (QualifiedIdentifier field : fields) {
-            fieldIndices.add(field.getIndexFromList(source.getFieldName()));
+    public Relation executeProjectionForList() throws EvalErr {
+        this.result.setName(src.getName() + "_projection");
+        this.result.setDomaines(makeDomains());
+        this.result.setFieldName(makeFieldName());
+
+        for (Vector<Object> individu : src.getIndividus()) {
+            this.result.getIndividus().add(projectIndividual(individu));
         }
+        return this.result;
     }
 
-    private  Vector<Object> projectIndividual( Vector<Object> original) {
-         Vector<Object> projected = new  Vector<Object>();
-
-        for (int fieldIndex : fieldIndices) {
-            Object value = original.get(fieldIndex);
-            projected.add(value);
+    public Relation executeProjection() throws EvalErr {
+        if(this.field instanceof AllField){
+            return src;
+        }else{
+            return executeProjectionForList();
         }
-        return projected;
     }
 
 }

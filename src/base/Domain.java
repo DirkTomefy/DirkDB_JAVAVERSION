@@ -1,6 +1,10 @@
 package base;
 
 import java.util.Vector;
+
+import base.domains.DATE;
+import base.domains.NUMBER;
+import base.domains.VARCHAR;
 import base.domains.abstracts.DBString;
 
 public class Domain {
@@ -14,7 +18,7 @@ public class Domain {
         this.supports = supports;
     }
 
-    public void append(DomainAtom values) {
+    public void add(DomainAtom values) {
         this.supports.add(values);
     }
 
@@ -98,5 +102,12 @@ public class Domain {
                 return e;
         }
         return null;
+    }
+    public static Domain makeUniversalDomain(){
+        Domain d=new Domain();
+        d.add(new VARCHAR(null));
+        d.add(new DATE());
+        d.add(new NUMBER());
+        return d;
     }
 }
