@@ -30,7 +30,10 @@ public interface SelectFields {
         input = expr.remaining();
         FieldSelectedList fields = new FieldSelectedList(expr.matched());
         loop: while (true) {
-            try (ParseSuccess<Token> t = SelectTokenizer.scanFieldsToken(input)) {
+            ParseSuccess<Token> t = ParserNomUtil.opt(SelectTokenizer::scanFieldsToken, input);
+            if (t.matched() == null) {
+                break;
+            } else {
                 input = t.remaining();
                 switch (t.matched().status) {
 
@@ -54,22 +57,18 @@ public interface SelectFields {
                         handleAliasForLast(fields, q.matched(), input);
                     }
                     default -> {
-                        System.out.println("break for default token :"+t );
                         break loop;
                     }
                 }
-                if (Tokenizer.codonStop(input)){
+                if (Tokenizer.codonStop(input)) {
                     break loop;
-                }else{
+                } else {
                     continue loop;
                 }
-
-            } catch (ParseNomException e) {
-                System.out.println("input"+input);
-                e.printStackTrace();
-                break loop;
             }
+
         }
+
         return new ParseSuccess<FieldSelectedList>(input, fields);
     }
 
@@ -81,7 +80,8 @@ public interface SelectFields {
             throw new AliasWithSourceCodeException(input);
         }
     }
-     public static void main(String[] args) throws ParseNomException {
-        System.out.println("select : \n"+SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 "));
+
+    public static void main(String[] args) throws ParseNomException {
+        System.out.println("select : \n" + SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 ao@ table"));
     }
 }

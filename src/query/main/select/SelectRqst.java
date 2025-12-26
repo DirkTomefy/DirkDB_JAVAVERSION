@@ -44,7 +44,7 @@ public class SelectRqst extends TableOriginWithAlias {
 
     public static ParseSuccess<Expression> parseOptionalWhere(String input) throws ParseNomException {
          ParseSuccess<Token> whereToken = ParserNomUtil.opt(inp -> {
-            return SelectTokenizer.scanFromToken(inp);
+            return SelectTokenizer.scanWhereToken(inp);
         }, input);
         if (whereToken.matched() == null) {
             return new ParseSuccess<Expression>(input, null);

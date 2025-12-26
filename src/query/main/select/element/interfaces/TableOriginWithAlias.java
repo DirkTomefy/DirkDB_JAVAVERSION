@@ -2,11 +2,15 @@ package query.main.select.element.interfaces;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
+import query.base.helper.ParserNomUtil;
 import query.err.parsing.token.TokenNotFound;
 import query.main.select.SelectRqst;
+import query.main.select.element.classes.TableNameOrigin;
 import query.main.select.element.err.AliasNeededException;
+import query.main.select.token.SelectTokenizer;
 import query.token.Token;
 import query.token.Tokenizer;
+import java.util.UUID;
 
 public abstract class TableOriginWithAlias {
     protected String id;
@@ -26,36 +30,42 @@ public abstract class TableOriginWithAlias {
         if (alias.matched() == null && origin.matched() instanceof SelectRqst) {
             throw new AliasNeededException(alias.matched());
         } else {
-            // !! trés important :
             origin.matched().setAlias(alias.matched());
             return new ParseSuccess<TableOriginWithAlias>(alias.remaining(), origin.matched());
         }
     }
 
     public static ParseSuccess<TableOriginWithAlias> parseFromBase0(String input) throws ParseNomException {
-        // TODO : générer l'unique id : 
-        String id = "fjdsmkfj124";
         if (Tokenizer.startsWithFactor(input)) {
             ParseSuccess<Token> parens_token = Tokenizer.tagParensToken().apply(input);
             ParseSuccess<TableOriginWithAlias> origin = parseFromBase0(parens_token.remaining());
 
             ParseSuccess<Token> parens_token1 = Tokenizer.tagParensToken().apply(origin.remaining());
             if (parens_token1.matched().value.equals(")")) {
-                // !! trés important :
-                origin.matched().setId(id);
                 return new ParseSuccess<TableOriginWithAlias>(parens_token1.remaining(), origin.matched());
             } else {
                 throw new TokenNotFound(origin.remaining());
             }
         } else {
-            // TODO : vérifier si c'est une table ou un subSelect
+            ParseSuccess<Token> select_sign = ParserNomUtil.opt(SelectTokenizer::scanSelectToken, input);
+            if (select_sign.matched() != null) {
+                // * ICI CELA EST UN SUBSELECT*/
+                ParseSuccess<SelectRqst> select = SelectRqst.parseSelect(input);
+                select.matched().setAlias(null);
+                select.matched().setId(UUID.randomUUID().toString());
+                return new ParseSuccess<TableOriginWithAlias>(select.remaining(), select.matched());
+            } else {
+                // * ICI CELA EST UN NOM DE TABLE*/
+                ParseSuccess<String> tableName = ParserNomUtil.tagName(input.trim());
+                return new ParseSuccess<TableOriginWithAlias>(tableName.remaining(),
+                        new TableNameOrigin(UUID.randomUUID().toString(), null, tableName.matched()));
+            }
         }
-        return null;
     }
 
     public static ParseSuccess<String> parseOptionaAlias(String input) {
-        // TODO 
-        return null;
+        // TODO : générer les alias optionel
+        return new ParseSuccess<String>(input, null);
     }
 
     public String getId() {
