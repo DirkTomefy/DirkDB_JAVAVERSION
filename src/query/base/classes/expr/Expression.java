@@ -15,6 +15,7 @@ import query.base.classes.operand.BinaryOp;
 import query.base.classes.operand.other.ArithmeticOp;
 import query.base.classes.operand.other.CompareOp;
 import query.base.classes.operand.other.LogicalOp;
+import query.base.helper.ParserNomUtil;
 import query.err.parsing.AfterIsOrIsNotErr;
 import query.token.Token;
 import query.token.TokenKind;
@@ -80,8 +81,8 @@ public interface Expression {
                 break;
 
             String oldInput = input;
-            try (ParseSuccess<Token> next = Tokenizer.scanBinopToken(input)) {
-                if (next == null)
+            ParseSuccess<Token> next = ParserNomUtil.opt(Tokenizer::scanBinopToken, input);
+                if (next.matched() == null)
                     break;
 
                 Token token = next.matched();
@@ -110,12 +111,7 @@ public interface Expression {
                     input = oldInput;
                 }
                 break;
-            } catch (Exception e) {
-                break;
             }
-
-        }
-
         return new ParseSuccess<>(input, current);
     }
 

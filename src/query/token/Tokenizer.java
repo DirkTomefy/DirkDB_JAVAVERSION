@@ -178,7 +178,7 @@ public class Tokenizer {
         return input -> {
             ParseSuccess<String> success = ParserNomUtil.alt(
                     ParserNomUtil.tag("("),
-                    ParserNomUtil.tag(")")).apply(input);
+                    ParserNomUtil.tag(")")).apply(input.trim());
             return new ParseSuccess<>(success.remaining(), Token.other(success.matched()));
         };
     }

@@ -82,6 +82,6 @@ public interface SelectFields {
     }
 
     public static void main(String[] args) throws ParseNomException {
-        System.out.println("select : \n" + SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 ao@ table"));
+        System.out.println("select : \n" + SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 ao@ ( alaivo * ao@ table_etoile ) ANTSO t1 rehefa (1=1)"));
     }
 }
