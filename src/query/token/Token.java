@@ -51,6 +51,12 @@ public class Token {
     public static Token selectSign(){
         return new Token(TokenKind.SELECT, null);
     }
+    public static Token comma(){
+        return new Token(TokenKind.COMMA, null);
+    }
+    public static Token asSign(){
+        return new Token(TokenKind.AS, null);
+    }
     @Override
     public String toString() {
         return value == null ? status.name() : status.name() + "("+value.getClass().getSimpleName()+"." + value + ")";

@@ -10,4 +10,9 @@ public class TableNameOrigin extends TableOriginWithAlias {
         super(id, alias);
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "TableNameOrigin [name=" + name + ", id=" + id + ", alias=" + alias + "]";
+    }
 }

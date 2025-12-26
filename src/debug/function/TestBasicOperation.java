@@ -3,9 +3,9 @@ package debug.function;
 import java.util.Arrays;
 import java.util.Vector;
 
-import base.Domain;
-import base.Relation;
-import base.domains.VARCHAR;
+// import base.Domain;
+// import base.Relation;
+// import base.domains.VARCHAR;
 import base.err.RelationDomainSizeErr;
 
 public class TestBasicOperation {

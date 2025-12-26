@@ -1,9 +1,9 @@
 package debug.function;
 
-import base.Relation;
-import base.err.EvalErr;
-import base.err.ParseNomException;
-import base.err.RelationDomainSizeErr;
+// import base.Relation;
+// import base.err.EvalErr;
+// import base.err.ParseNomException;
+// import base.err.RelationDomainSizeErr;
 
 public class TestJointureExterne {
 

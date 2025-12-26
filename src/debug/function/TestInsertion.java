@@ -1,14 +1,14 @@
 package debug.function;
 
-import java.util.Arrays;
-import java.util.Vector;
+// import java.util.Arrays;
+// import java.util.Vector;
 
-import base.Domain;
-import base.Relation;
-import base.domains.CHAR;
-import base.domains.VARCHAR;
-import base.err.DomainOutOfBonds;
-import base.err.DomainSupportErr;
+// import base.Domain;
+// import base.Relation;
+// import base.domains.CHAR;
+// import base.domains.VARCHAR;
+// import base.err.DomainOutOfBonds;
+// import base.err.DomainSupportErr;
 
 public class TestInsertion {
 

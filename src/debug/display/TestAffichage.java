@@ -1,12 +1,12 @@
 package debug.display;
-import java.util.*;
+// import java.util.*;
 
-import base.Domain;
+// import base.Domain;
  
-import base.Relation;
-import base.domains.DATE;
-import base.domains.NUMBER;
-import base.domains.VARCHAR;
+// import base.Relation;
+// import base.domains.DATE;
+// import base.domains.NUMBER;
+// import base.domains.VARCHAR;
 
 public class TestAffichage {
 //     public static void main(String[] args) {

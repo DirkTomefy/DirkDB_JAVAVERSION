@@ -7,6 +7,7 @@ import query.base.classes.expr.PrefixedExpr;
 import query.base.classes.expr.PrimitiveExpr;
 import query.base.classes.operand.PrefixedOp;
 import query.base.classes.operand.other.ArithmeticOp;
+import query.main.common.QualifiedIdentifier;
 import query.token.Token;
 import query.token.Tokenizer;
 
@@ -38,7 +39,7 @@ public class FactorHelper {
     }
 
     public static ParseSuccess<Expression> handleId(Token t, String rest) {
-        String val = (String) t.getValue();
+        QualifiedIdentifier val = (QualifiedIdentifier) t.getValue();
         return new ParseSuccess<>(rest, PrimitiveExpr.id(val));
     }
 

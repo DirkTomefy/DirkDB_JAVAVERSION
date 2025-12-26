@@ -5,9 +5,14 @@ import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.base.helper.ParserNomUtil;
 import query.main.common.FieldSelectedList;
+import query.main.common.QualifiedIdentifier;
+import query.main.select.SelectRqst;
 import query.main.select.element.classes.AllField;
+import query.main.select.element.classes.FieldElementWithAlias;
+import query.main.select.element.err.AliasWithSourceCodeException;
 import query.main.select.token.SelectTokenizer;
 import query.token.Token;
+import query.token.Tokenizer;
 
 public interface SelectFields {
     public static ParseSuccess<SelectFields> parse(String input) throws ParseNomException {
@@ -22,26 +27,61 @@ public interface SelectFields {
 
     public static ParseSuccess<FieldSelectedList> parseFieldList(String input) throws ParseNomException {
         ParseSuccess<Expression> expr = Expression.parseExpression.apply(input);
-        input=expr.remaining();
-        FieldSelectedList fields = new FieldSelectedList();
-        loop : while (true) {
+        input = expr.remaining();
+        FieldSelectedList fields = new FieldSelectedList(expr.matched());
+        loop: while (true) {
             try (ParseSuccess<Token> t = SelectTokenizer.scanFieldsToken(input)) {
+                input = t.remaining();
                 switch (t.matched().status) {
-                    case COMMA->{
-                        // TODO
+
+                    // après une virgule : nouvelle expression
+                    case COMMA -> {
+                        ParseSuccess<Expression> expr_after_comma = Expression.parseExpression.apply(input);
+                        input = expr_after_comma.remaining();
+                        fields.add(new FieldElementWithAlias(expr_after_comma.matched(), null));
                     }
-                    case ID->{
-                        // TODO
+
+                    // alias implicite : SELECT name username
+                    case ID -> {
+                        QualifiedIdentifier q = (QualifiedIdentifier) t.matched().value;
+                        handleAliasForLast(fields, q, input);
                     }
-                    case AS->{
-                        // TODO
+
+                    // alias explicite avec AS : SELECT name AS username
+                    case AS -> {
+                        ParseSuccess<QualifiedIdentifier> q = ParserNomUtil.identifier1().apply(input.trim());
+                        input = q.remaining();
+                        handleAliasForLast(fields, q.matched(), input);
                     }
-                    default->{
+                    default -> {
+                        System.out.println("break for default token :"+t );
                         break loop;
                     }
                 }
+                if (Tokenizer.codonStop(input)){
+                    break loop;
+                }else{
+                    continue loop;
+                }
+
+            } catch (ParseNomException e) {
+                System.out.println("input"+input);
+                e.printStackTrace();
+                break loop;
             }
         }
         return new ParseSuccess<FieldSelectedList>(input, fields);
+    }
+
+    public static void handleAliasForLast(FieldSelectedList fields, QualifiedIdentifier q, String input)
+            throws AliasWithSourceCodeException {
+        if (q.origin() == null) {
+            fields.getLast().setAlias(q.name());
+        } else {
+            throw new AliasWithSourceCodeException(input);
+        }
+    }
+     public static void main(String[] args) throws ParseNomException {
+        System.out.println("select : \n"+SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 "));
     }
 }

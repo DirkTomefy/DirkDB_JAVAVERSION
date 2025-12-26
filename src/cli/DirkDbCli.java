@@ -15,7 +15,6 @@ public class DirkDbCli {
         Scanner scanner = new Scanner(System.in);
         System.out.print("|DirkDB > ");
         String _=scanner.nextLine();
-        // scanner.close();
     }
     private static void printCopyright() {
         System.out.println("========================================");

@@ -30,7 +30,7 @@ public class PrimitiveExpr implements Expression {
         return new PrimitiveExpr(PrimitiveKind.NUMBER, valueDouble);
     }
 
-    public static PrimitiveExpr id(String valueString) {
+    public static PrimitiveExpr id(QualifiedIdentifier valueString) {
         return new PrimitiveExpr(PrimitiveKind.ID, valueString);
     }
 

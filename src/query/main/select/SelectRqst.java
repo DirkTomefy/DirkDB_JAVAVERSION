@@ -4,7 +4,6 @@ import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.base.helper.ParserNomUtil;
-import query.main.select.element.err.AliasNeededException;
 import query.main.select.element.interfaces.SelectFields;
 import query.main.select.element.interfaces.TableOriginWithAlias;
 import query.main.select.token.SelectTokenizer;
@@ -53,4 +52,11 @@ public class SelectRqst extends TableOriginWithAlias {
             return Expression.parseExpression.apply(whereToken.remaining());
         }
     }
+
+    @Override
+    public String toString() {
+        return "SelectRqst (fields=" + fields + "\nfrom (" + from + ") \nwhere (" + where + ")\n";
+    }
+    
+   
 }

@@ -1,16 +1,16 @@
 package debug.function;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Vector;
+// import java.util.Arrays;
+// import java.util.Date;
+// import java.util.Vector;
 
-import base.Domain;
-import base.Relation;
-import base.domains.DATE;
-import base.domains.NUMBER;
-import base.domains.VARCHAR;
-import base.err.EvalErr;
-import base.err.ParseNomException;
+// import base.Domain;
+// import base.Relation;
+// import base.domains.DATE;
+// import base.domains.NUMBER;
+// import base.domains.VARCHAR;
+// import base.err.EvalErr;
+// import base.err.ParseNomException;
 
 public class TestSelection {
         // public static Relation makeRelationOne() {
