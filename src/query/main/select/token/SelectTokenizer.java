@@ -35,7 +35,9 @@ public class SelectTokenizer extends Tokenizer {
     }
 
     public static ParseSuccess<Token> scanAsToken(String input) throws ParseNomException {
-        ParseSuccess<String> success = ParserNomUtil.tagNoCase("antso").apply(input.trim());
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("antso"))
+                .apply(input.trim());
         return new ParseSuccess<>(success.remaining(), Token.asSign());
     }
 

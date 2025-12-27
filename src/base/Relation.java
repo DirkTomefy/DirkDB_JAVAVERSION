@@ -228,7 +228,7 @@ public class Relation {
                 newIndividus.add(newInd);
             }
         }
-
+        // System.out.println("fieldName dans produit cartésien  rel1 : "+rel1.fieldName + "/rel2 : "+rel2.fieldName );
         return new Relation(nv_nom, fieldName, newDomaines, newIndividus);
     }
 
@@ -255,7 +255,7 @@ public class Relation {
     public Relation jointureExterneGauche(Relation tojoin, Expression condition,SelectCtx ctx)
             throws ParseNomException, EvalErr {
         Relation produit = produitCartesien(this, tojoin);
-        Relation jointureInterne = produit.selection(condition,ctx);
+        Relation jointureInterne = condition!=null ? produit.selection(condition,ctx) : produit;
         String newName = this.name + "_left_join_" + tojoin.name;
 
         Vector<Domain> newDomains = new Vector<>();

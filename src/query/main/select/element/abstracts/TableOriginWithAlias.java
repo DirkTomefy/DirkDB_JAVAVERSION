@@ -5,6 +5,7 @@ import base.err.EvalErr;
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.helper.ParserNomUtil;
+import query.err.eval.AmbigousAliasErr;
 import query.err.parsing.token.TokenNotFound;
 import query.main.common.QualifiedIdentifier;
 import query.main.select.SelectRqst;
@@ -14,6 +15,7 @@ import query.main.select.element.err.AliasNeededException;
 import query.main.select.token.SelectTokenizer;
 import query.token.Token;
 import query.token.Tokenizer;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public abstract class TableOriginWithAlias {
@@ -92,6 +94,8 @@ public abstract class TableOriginWithAlias {
         }
         return rel;
     }
+
+    public abstract void makeAliasAsTableOrigin(LinkedHashMap<String,String> aliasMap) throws AmbigousAliasErr;
 
     public String getId() {
         return id;

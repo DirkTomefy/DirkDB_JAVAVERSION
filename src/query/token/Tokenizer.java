@@ -105,9 +105,10 @@ public class Tokenizer {
 
     public static ParserNom<Token> tagLogicalOp() {
         return input -> {
+            ParseSuccess<String> maybediez = ParserNomUtil.opt(ParserNomUtil.tag("#"), input); 
             ParseSuccess<String> success = ParserNomUtil.alt(
                     ParserNomUtil.tagNoCase("ary"),
-                    ParserNomUtil.tagNoCase("na")).apply(input);
+                    ParserNomUtil.tagNoCase("na")).apply(maybediez.remaining());
             return mapToLogicalOpToken(success);
         };
     }

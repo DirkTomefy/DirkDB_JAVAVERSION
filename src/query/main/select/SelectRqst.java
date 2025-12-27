@@ -10,6 +10,7 @@ import cli.AppContext;
 import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.base.helper.ParserNomUtil;
+import query.err.eval.AmbigousAliasErr;
 import query.main.select.element.abstracts.SelectFields;
 import query.main.select.element.abstracts.TableOriginWithAlias;
 import query.main.select.element.classes.AllField;
@@ -31,13 +32,13 @@ public class SelectRqst extends TableOriginWithAlias {
         this.where = where;
     }
 
-    public SelectCtx makeSelectCtx(AppContext context) {
+    public SelectCtx makeSelectCtx(AppContext context) throws AmbigousAliasErr {
         LinkedHashMap<String, String> aliasMap = new LinkedHashMap<>();
         if (from != null) {
-            aliasMap.put(from.getAlias(), from.getId());
+            from.makeAliasAsTableOrigin(aliasMap);
         }
         for (JoinElement joinElement : joins) {
-            aliasMap.put(joinElement.getTableOrigin().getAlias(), joinElement.getTableOrigin().getId());
+            joinElement.getTableOrigin().makeAliasAsTableOrigin(aliasMap);
         }
         return new SelectCtx(aliasMap, context);
     }
@@ -106,8 +107,6 @@ public class SelectRqst extends TableOriginWithAlias {
         }
     }
 
-   
-
     @Override
     public String toString() {
         return "SelectRqst [fields=" + fields + ", from=" + from + ", joins=" + joins + ", where=" + where + "]";
@@ -116,6 +115,15 @@ public class SelectRqst extends TableOriginWithAlias {
     @Override
     public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr {
         return this.eval(context.getAppcontext());
+    }
+
+    @Override
+    public void makeAliasAsTableOrigin(LinkedHashMap<String, String> aliasMap) throws AmbigousAliasErr {
+        if (aliasMap.containsKey(alias)) {
+            throw new AmbigousAliasErr("Alias '" + alias + "' déjà utilisé");
+        } else {
+            aliasMap.put(alias, id);
+        }
     }
 
 }

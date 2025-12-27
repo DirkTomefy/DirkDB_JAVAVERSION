@@ -37,6 +37,8 @@ public class ProjectionHelper {
                 if (field.getExpr() instanceof PrimitiveExpr maybeQid && field.getAlias() == null) {
                     if (maybeQid.getValue() instanceof QualifiedIdentifier qid) {
                         newFieldName.add(qid);
+                    }else{
+                        newFieldName.add(new QualifiedIdentifier(null, field.getExpr().toString()));     
                     }
                 } else if (field.getAlias() != null) {
                     newFieldName.add(new QualifiedIdentifier(null, field.getAlias()));
@@ -44,6 +46,7 @@ public class ProjectionHelper {
                     newFieldName.add(new QualifiedIdentifier(null, field.getExpr().toString()));
                 }
             }
+
             return newFieldName;
         } else {
             throw new IllegalArgumentException(

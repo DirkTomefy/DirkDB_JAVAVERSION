@@ -61,29 +61,30 @@ public class JoinElement {
         }
     }
 
-    public Relation evalJoinElement(Relation tojoin, SelectCtx ctx) throws ParseNomException, EvalErr {
+    public Relation evalJoinElement(Relation src, SelectCtx ctx) throws ParseNomException, EvalErr {
         Relation result = tableOrigin.evalAsTableOriginAndHandleId(ctx);
         switch (op) {
             case FULL:
-                result = result.jointureExternePleine(tojoin, onCondition, ctx);
+                result = result.jointureExternePleine(src, onCondition, ctx);
                 break;
             case INNER:
-                result = result.jointureInterne(tojoin, onCondition, ctx);
+                result = result.jointureInterne(src, onCondition, ctx);
                 break;
             case LEFT:
-                result = result.jointureExterneGauche(tojoin, onCondition, ctx);
+                result = result.jointureExterneGauche(src, onCondition, ctx);
                 break;
             case NATURAL:
-                result = result.jointureNaturelle(tojoin, onCondition, ctx);
+                result = result.jointureNaturelle(src, onCondition, ctx);
                 break;
             case RIGHT:
-                result = result.jointureExterneDroite(tojoin, onCondition, ctx);
+                result = result.jointureExterneDroite(src, onCondition, ctx);
                 break;
             default:
-                result = result.jointureInterne(tojoin, onCondition, ctx);
+                result = result.jointureInterne(src, onCondition, ctx);
                 break;
 
         }
+     
         return result;
     }
 

@@ -1,7 +1,5 @@
 package query.main.common;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import query.err.eval.AmbigousNameErr;
@@ -9,12 +7,16 @@ import query.err.eval.FieldNotFoundErr;
 import query.main.select.element.classes.SelectCtx;
 
 public class QualifiedIdentifier {
-   String origin ; String name;
-   
+   String origin;
+   String name;
 
    public QualifiedIdentifier(String origin, String name) {
       this.origin = origin;
       this.name = name;
+   }
+
+   public static QualifiedIdentifier buildFromName(String name) {
+      return new QualifiedIdentifier(null, name);
    }
 
    public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row, SelectCtx ctx)
@@ -37,7 +39,6 @@ public class QualifiedIdentifier {
 
    public int getIndex(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
-
       String resolvedOrigin = resolveOrigin(ctx);
 
       if (resolvedOrigin != null && !resolvedOrigin.isEmpty()) {
@@ -56,6 +57,7 @@ public class QualifiedIdentifier {
          return ctx.getAliasmap().get(this.getOrigin());
       }
       
+
       return this.getOrigin();
    }
 
@@ -75,24 +77,19 @@ public class QualifiedIdentifier {
       }
 
       // Dernier recours: chercher sans origine si unique
-      return findUniqueFieldWithoutOrigin(fieldName);
+      throw new IllegalAccessError("HAIKO!! "+resolvedOrigin);
    }
 
    private int findIndexWithoutOrigin(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
 
       SearchResult result = countFieldOccurrences(fieldName, this.name);
-
       if (result.count == 1) {
          return result.foundIndex;
+      } else {
+         throw new AmbigousNameErr(
+               "Le champ '" + name + "' est ambigu. Il apparaît " + result.count + " fois dans la relation.");
       }
-
-      if (result.count > 1) {
-         return resolveAmbiguity(fieldName, ctx, result.count);
-      }
-
-      // Si non trouvé, essayer avec origine implicite
-      return tryWithImplicitOrigin(fieldName, ctx);
    }
 
    // ========== MÉTHODES HELPER PRIVÉES ==========
@@ -100,6 +97,7 @@ public class QualifiedIdentifier {
    private int findExactMatch(Vector<QualifiedIdentifier> fieldName, String originToMatch, String nameToMatch) {
       for (int i = 0; i < fieldName.size(); i++) {
          QualifiedIdentifier currentQid = fieldName.get(i);
+         // System.out.println(""+currentQid);
          if (nameToMatch.equals(currentQid.getName()) && originToMatch.equals(currentQid.getOrigin())) {
             return i;
          }
@@ -107,25 +105,6 @@ public class QualifiedIdentifier {
       return -1;
    }
 
-   private int findUniqueFieldWithoutOrigin(Vector<QualifiedIdentifier> fieldName) throws FieldNotFoundErr {
-      int count = 0;
-      int foundIndex = -1;
-
-      for (int i = 0; i < fieldName.size(); i++) {
-         QualifiedIdentifier currentQid = fieldName.get(i);
-         if (this.name.equals(currentQid.getName()) &&
-               (currentQid.getOrigin() == null || currentQid.getOrigin().isEmpty())) {
-            count++;
-            foundIndex = i;
-         }
-      }
-
-      if (count == 1) {
-         return foundIndex;
-      }
-
-      throw new FieldNotFoundErr(this);
-   }
 
    private SearchResult countFieldOccurrences(Vector<QualifiedIdentifier> fieldName, String fieldNameToSearch) {
       int count = 0;
@@ -138,61 +117,9 @@ public class QualifiedIdentifier {
             foundIndex = i;
          }
       }
+      // System.out.println("count : "+count);
 
       return new SearchResult(count, foundIndex);
-   }
-
-   private int resolveAmbiguity(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx, int totalCount)
-         throws AmbigousNameErr {
-
-      if (ctx != null && ctx.getAliasmap() != null) {
-         Map<String, Integer> originCounts = countOccurrencesByResolvedOrigin(fieldName, ctx);
-
-         if (originCounts.size() == 1) {
-            // Toutes les occurrences viennent de la même table après résolution
-            return findFirstMatchingIndex(fieldName, this.name);
-         }
-      }
-
-      throw new AmbigousNameErr(
-            "Le champ '" + name + "' est ambigu. Il apparaît " + totalCount + " fois dans la relation.");
-   }
-
-   private Map<String, Integer> countOccurrencesByResolvedOrigin(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx) {
-      Map<String, Integer> originCounts = new HashMap<>();
-
-      for (QualifiedIdentifier currentQid : fieldName) {
-         if (this.name.equals(currentQid.getName())) {
-            String resolvedOrigin = currentQid.getOrigin();
-            if (resolvedOrigin != null && ctx.getAliasmap().containsKey(resolvedOrigin)) {
-               resolvedOrigin = ctx.getAliasmap().get(resolvedOrigin);
-            }
-            originCounts.put(resolvedOrigin, originCounts.getOrDefault(resolvedOrigin, 0) + 1);
-         }
-      }
-
-      return originCounts;
-   }
-
-   private int findFirstMatchingIndex(Vector<QualifiedIdentifier> fieldName, String nameToFind) {
-      for (int i = 0; i < fieldName.size(); i++) {
-         if (nameToFind.equals(fieldName.get(i).getName())) {
-            return i;
-         }
-      }
-      return -1;
-   }
-
-   private int tryWithImplicitOrigin(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx)
-         throws AmbigousNameErr, FieldNotFoundErr {
-
-      if (ctx != null && ctx.getAliasmap() != null && ctx.getAliasmap().size() == 1) {
-         String implicitOrigin = ctx.getAliasmap().keySet().iterator().next();
-         QualifiedIdentifier implicitQid = new QualifiedIdentifier(implicitOrigin, this.name);
-         return implicitQid.findIndexWithOrigin(fieldName, implicitOrigin, ctx);
-      }
-
-      throw new FieldNotFoundErr(this);
    }
 
    // ========== MÉTHODES PUBLIQUES UTILITAIRES ==========
@@ -234,5 +161,9 @@ public class QualifiedIdentifier {
       this.name = name;
    }
 
-   
+   @Override
+   public String toString() {
+      return "QualifiedIdentifier [origin=" + origin + ", name=" + name + "]";
+   }
+
 }
