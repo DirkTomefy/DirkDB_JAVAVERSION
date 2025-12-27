@@ -1,8 +1,12 @@
 package query.main.select;
 
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import base.Relation;
+import base.err.EvalErr;
 import base.err.ParseNomException;
+import cli.AppContext;
 import query.base.ParseSuccess;
 import query.base.classes.expr.Expression;
 import query.base.helper.ParserNomUtil;
@@ -10,6 +14,7 @@ import query.main.select.element.abstracts.SelectFields;
 import query.main.select.element.abstracts.TableOriginWithAlias;
 import query.main.select.element.classes.AllField;
 import query.main.select.element.classes.JoinElement;
+import query.main.select.element.classes.SelectCtx;
 import query.main.select.token.SelectTokenizer;
 import query.token.Token;
 
@@ -24,6 +29,43 @@ public class SelectRqst extends TableOriginWithAlias {
         this.from = from;
         this.joins = joins;
         this.where = where;
+    }
+
+    public SelectCtx makeSelectCtx(AppContext context) {
+        LinkedHashMap<String, String> aliasMap = new LinkedHashMap<>();
+        if (from != null) {
+            aliasMap.put(from.getAlias(), from.getId());
+        }
+        for (JoinElement joinElement : joins) {
+            aliasMap.put(joinElement.getTableOrigin().getAlias(), joinElement.getTableOrigin().getId());
+        }
+        return new SelectCtx(aliasMap, context);
+    }
+
+    public Relation eval(AppContext context) throws ParseNomException, EvalErr {
+        Relation result = null;
+        SelectCtx selectCtx = makeSelectCtx(context);
+        if (from == null) {
+            result = Relation.makeDualRelation();
+        } else {
+            result = from.evalAsTableOriginAndHandleId(selectCtx);
+        }
+        if (joins != null)
+            result = evalJoins(result, selectCtx);
+        if (where != null)
+            result = result.selection(where, selectCtx);
+        result = result.projection(fields, selectCtx);
+        return result;
+    }
+
+    public Relation evalJoins(Relation fromRelation, SelectCtx ctx) throws ParseNomException, EvalErr {
+        Relation lastResult = fromRelation;
+        if (joins != null) {
+            for (JoinElement joinElement : joins) {
+                lastResult = joinElement.evalJoinElement(lastResult, ctx);
+            }
+        }
+        return lastResult;
     }
 
     public static ParseSuccess<SelectRqst> parseSelect(String input) throws ParseNomException {
@@ -64,11 +106,16 @@ public class SelectRqst extends TableOriginWithAlias {
         }
     }
 
-    // TODO mettre une fonction eval
+   
 
     @Override
     public String toString() {
         return "SelectRqst [fields=" + fields + ", from=" + from + ", joins=" + joins + ", where=" + where + "]";
+    }
+
+    @Override
+    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr {
+        return this.eval(context.getAppcontext());
     }
 
 }

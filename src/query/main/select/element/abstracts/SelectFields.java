@@ -74,8 +74,8 @@ public interface SelectFields {
 
     public static void handleAliasForLast(FieldSelectedList fields, QualifiedIdentifier q, String input)
             throws AliasWithSourceCodeException {
-        if (q.origin() == null) {
-            fields.getLast().setAlias(q.name());
+        if (q.getOrigin() == null) {
+            fields.getLast().setAlias(q.getName());
         } else {
             throw new AliasWithSourceCodeException(input);
         }

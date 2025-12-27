@@ -8,7 +8,14 @@ import query.err.eval.AmbigousNameErr;
 import query.err.eval.FieldNotFoundErr;
 import query.main.select.element.classes.SelectCtx;
 
-public record QualifiedIdentifier(String origin, String name) {
+public class QualifiedIdentifier {
+   String origin ; String name;
+   
+
+   public QualifiedIdentifier(String origin, String name) {
+      this.origin = origin;
+      this.name = name;
+   }
 
    public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row, SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
@@ -41,15 +48,15 @@ public record QualifiedIdentifier(String origin, String name) {
    }
 
    private String resolveOrigin(SelectCtx ctx) {
-      if (this.origin() == null || this.origin().isEmpty()) {
+      if (this.getOrigin() == null || this.getOrigin().isEmpty()) {
          return null;
       }
 
-      if (ctx != null && ctx.getAliasmap() != null && ctx.getAliasmap().containsKey(this.origin())) {
-         return ctx.getAliasmap().get(this.origin());
+      if (ctx != null && ctx.getAliasmap() != null && ctx.getAliasmap().containsKey(this.getOrigin())) {
+         return ctx.getAliasmap().get(this.getOrigin());
       }
       
-      return this.origin();
+      return this.getOrigin();
    }
 
    private int findIndexWithOrigin(Vector<QualifiedIdentifier> fieldName, String resolvedOrigin, SelectCtx ctx)
@@ -61,8 +68,8 @@ public record QualifiedIdentifier(String origin, String name) {
          return index;
 
       // Recherche avec alias original (si différent)
-      if (!this.origin().equals(resolvedOrigin)) {
-         index = findExactMatch(fieldName, this.origin(), this.name);
+      if (!this.getOrigin().equals(resolvedOrigin)) {
+         index = findExactMatch(fieldName, this.getOrigin(), this.name);
          if (index != -1)
             return index;
       }
@@ -93,7 +100,7 @@ public record QualifiedIdentifier(String origin, String name) {
    private int findExactMatch(Vector<QualifiedIdentifier> fieldName, String originToMatch, String nameToMatch) {
       for (int i = 0; i < fieldName.size(); i++) {
          QualifiedIdentifier currentQid = fieldName.get(i);
-         if (nameToMatch.equals(currentQid.name()) && originToMatch.equals(currentQid.origin())) {
+         if (nameToMatch.equals(currentQid.getName()) && originToMatch.equals(currentQid.getOrigin())) {
             return i;
          }
       }
@@ -106,8 +113,8 @@ public record QualifiedIdentifier(String origin, String name) {
 
       for (int i = 0; i < fieldName.size(); i++) {
          QualifiedIdentifier currentQid = fieldName.get(i);
-         if (this.name.equals(currentQid.name()) &&
-               (currentQid.origin() == null || currentQid.origin().isEmpty())) {
+         if (this.name.equals(currentQid.getName()) &&
+               (currentQid.getOrigin() == null || currentQid.getOrigin().isEmpty())) {
             count++;
             foundIndex = i;
          }
@@ -126,7 +133,7 @@ public record QualifiedIdentifier(String origin, String name) {
 
       for (int i = 0; i < fieldName.size(); i++) {
          QualifiedIdentifier currentQid = fieldName.get(i);
-         if (fieldNameToSearch.equals(currentQid.name())) {
+         if (fieldNameToSearch.equals(currentQid.getName())) {
             count++;
             foundIndex = i;
          }
@@ -155,8 +162,8 @@ public record QualifiedIdentifier(String origin, String name) {
       Map<String, Integer> originCounts = new HashMap<>();
 
       for (QualifiedIdentifier currentQid : fieldName) {
-         if (this.name.equals(currentQid.name())) {
-            String resolvedOrigin = currentQid.origin();
+         if (this.name.equals(currentQid.getName())) {
+            String resolvedOrigin = currentQid.getOrigin();
             if (resolvedOrigin != null && ctx.getAliasmap().containsKey(resolvedOrigin)) {
                resolvedOrigin = ctx.getAliasmap().get(resolvedOrigin);
             }
@@ -169,7 +176,7 @@ public record QualifiedIdentifier(String origin, String name) {
 
    private int findFirstMatchingIndex(Vector<QualifiedIdentifier> fieldName, String nameToFind) {
       for (int i = 0; i < fieldName.size(); i++) {
-         if (nameToFind.equals(fieldName.get(i).name())) {
+         if (nameToFind.equals(fieldName.get(i).getName())) {
             return i;
          }
       }
@@ -210,4 +217,22 @@ public record QualifiedIdentifier(String origin, String name) {
          this.foundIndex = foundIndex;
       }
    }
+
+   public String getOrigin() {
+      return origin;
+   }
+
+   public void setOrigin(String origin) {
+      this.origin = origin;
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   
 }

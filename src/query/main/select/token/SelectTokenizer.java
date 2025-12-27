@@ -16,7 +16,7 @@ public class SelectTokenizer extends Tokenizer {
 
     public static ParseSuccess<Token> scanFromToken(String input) throws ParseNomException {
         ParseSuccess<List<String>> success = ParserNomUtil
-                .tuple(true, ParserNomUtil.tag("#"), ParserNomUtil.tagNoCase("ao"),
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("ao"),
                         ParserNomUtil.optParser(ParserNomUtil.tag("@")))
                 .apply(input.trim());
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
@@ -24,7 +24,7 @@ public class SelectTokenizer extends Tokenizer {
 
     public static ParseSuccess<Token> scanWhereToken(String input) throws ParseNomException {
         ParseSuccess<List<String>> success = ParserNomUtil
-                .tuple(true, ParserNomUtil.tag("#"), ParserNomUtil.tagNoCase("rehefa"))
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("rehefa"))
                 .apply(input.trim());
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
     }
@@ -64,7 +64,7 @@ public class SelectTokenizer extends Tokenizer {
 
     public static ParseSuccess<Token> scanJoinsToken(String input) throws ParseNomException {
         ParseSuccess<List<String>> success = ParserNomUtil
-                .tuple(true, ParserNomUtil.tag("#"), ParserNomUtil.tagNoCase("tonona"))
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("tonona"))
                 .apply(input.trim());;
         ParseSuccess<String> joinIndicator = ParserNomUtil.opt(ParserNomUtil.tag(":"), success.remaining().trim());
         if (joinIndicator.matched() != null) {
@@ -86,7 +86,7 @@ public class SelectTokenizer extends Tokenizer {
     }
 
     public static void main(String[] args) throws ParseNomException {
-        System.out.println("" + scanFromToken("#ao  @"));
+        System.out.println("" + scanFromToken("#ao @"));
     }
 
 }

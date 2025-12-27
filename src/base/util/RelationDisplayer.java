@@ -42,7 +42,7 @@ public class RelationDisplayer {
         // 1) Largeur max par colonne (noms + domaines + valeurs)
         for (int i = 0; i < colCount; i++) {
             QualifiedIdentifier header = columns.get(i);
-            String h1=debug ? header.name() : header.origin()+header.name();
+            String h1=debug ? header.getName() : header.getOrigin()+header.getName();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
                 h1 += " (" + domaines.get(i) + ")";
             }
@@ -75,7 +75,7 @@ public class RelationDisplayer {
         List<String> headerValues = new ArrayList<>();
         for (int i = 0; i < colCount; i++) {
             QualifiedIdentifier h = columns.get(i);
-            String h2=debug ? h.name() : h.origin()+h.name();
+            String h2=debug ? h.getName() : h.getOrigin()+h.getName();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
                 h2+=" (" + domaines.get(i) + ")";
             }

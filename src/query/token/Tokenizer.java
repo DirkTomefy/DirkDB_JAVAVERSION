@@ -153,7 +153,7 @@ public class Tokenizer {
     public static ParserNom<Token> tagId() {
         return input -> {
             ParseSuccess<QualifiedIdentifier> success = ParserNomUtil.identifier1(input);
-            if(success.matched().origin()==null && isPrivatized(success.matched().name())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
+            if(success.matched().getOrigin()==null && isPrivatized(success.matched().getName())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
             return new ParseSuccess<>(success.remaining(), Token.id(success.matched()));
         };
     }

@@ -90,6 +90,16 @@ public class Relation {
         this.individus = individus;
     }
 
+    public static Relation makeDualRelation(){
+        String name="dual";
+        Vector<QualifiedIdentifier> id=new Vector<>();
+        id.add(new QualifiedIdentifier(null, name));
+        Vector<Domain> domains = new Vector<>();
+        domains.add(Domain.makeUniversalDomain());
+
+        return new Relation(name, id, domains, new Vector<>());
+    }
+
     public boolean isValidDomain(Relation rel2) {
         if (this.domaines.size() == rel2.domaines.size())
             return true;

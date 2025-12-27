@@ -1,10 +1,14 @@
 package query.main.select.element.abstracts;
 
+import base.Relation;
+import base.err.EvalErr;
 import base.err.ParseNomException;
 import query.base.ParseSuccess;
 import query.base.helper.ParserNomUtil;
 import query.err.parsing.token.TokenNotFound;
+import query.main.common.QualifiedIdentifier;
 import query.main.select.SelectRqst;
+import query.main.select.element.classes.SelectCtx;
 import query.main.select.element.classes.TableNameOrigin;
 import query.main.select.element.err.AliasNeededException;
 import query.main.select.token.SelectTokenizer;
@@ -77,6 +81,16 @@ public abstract class TableOriginWithAlias {
     public static ParseSuccess<String> parseExplicitAlias(String input) throws ParseNomException{
         ParseSuccess<Token> aliasSign=SelectTokenizer.scanAsToken(input);
         return ParserNomUtil.tagName(aliasSign.remaining().trim());
+    }
+
+    public abstract Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr ;
+
+    public Relation evalAsTableOriginAndHandleId(SelectCtx context) throws ParseNomException, EvalErr{
+        Relation rel=evalAsTableOrigin0(context);
+        for (QualifiedIdentifier colum : rel.getFieldName() ) {
+            colum.setOrigin(id);
+        }
+        return rel;
     }
 
     public String getId() {
