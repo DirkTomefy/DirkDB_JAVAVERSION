@@ -1,6 +1,6 @@
 package query.main.select.element.classes;
 
-import query.main.select.element.interfaces.TableOriginWithAlias;
+import query.main.select.element.abstracts.TableOriginWithAlias;
 
 public class TableNameOrigin extends TableOriginWithAlias {
 

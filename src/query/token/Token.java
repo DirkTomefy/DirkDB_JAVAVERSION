@@ -3,17 +3,17 @@ package query.token;
 import query.base.classes.operand.BinaryOp;
 import query.base.classes.operand.PrefixedOp;
 import query.main.common.QualifiedIdentifier;
+import query.main.select.element.enums.JoinOp;
 
 public class Token {
     public TokenKind status;
     public Object value;
 
-
     public Token(TokenKind status, Object value) {
         this.status = status;
         this.value = value;
     }
-   
+
     public Object getValue() {
         return value;
     }
@@ -43,24 +43,49 @@ public class Token {
     }
 
     public static Token prefixedop(PrefixedOp op) {
-        return new Token( TokenKind.PREFIXEDOP, op );
-    }
-    public static Token nullvalue(){
-        return new Token(TokenKind.NULLVALUE, null);
-    }
-    public static Token selectSign(){
-        return new Token(TokenKind.SELECT, null);
-    }
-    public static Token comma(){
-        return new Token(TokenKind.COMMA, null);
-    }
-    public static Token asSign(){
-        return new Token(TokenKind.AS, null);
-    }
-    @Override
-    public String toString() {
-        return value == null ? status.name() : status.name() + "("+value.getClass().getSimpleName()+"." + value + ")";
+        return new Token(TokenKind.PREFIXEDOP, op);
     }
 
+    public static Token nullvalue() {
+        return new Token(TokenKind.NULLVALUE, null);
+    }
+
+    public static Token selectSign() {
+        return new Token(TokenKind.SELECT, null);
+    }
+
+    public static Token comma() {
+        return new Token(TokenKind.COMMA, null);
+    }
+
+    public static Token asSign() {
+        return new Token(TokenKind.AS, null);
+    }
+
+    public static Token rightJoin() {
+        return new Token(TokenKind.JOIN, JoinOp.RIGHT);
+    }
+
+    public static Token leftJoin() {
+        return new Token(TokenKind.JOIN, JoinOp.LEFT);
+    }
+
+    public static Token innerJoin() {
+        return new Token(TokenKind.JOIN, JoinOp.INNER);
+    }
+
+    public static Token fullJoin() {
+        return new Token(TokenKind.JOIN, JoinOp.FULL);
+    }
+
+    public static Token naturalJoin() {
+        return new Token(TokenKind.JOIN, JoinOp.NATURAL);
+    }
+
+    @Override
+    public String toString() {
+        return value == null ? status.name()
+                : status.name() + "(" + value.getClass().getSimpleName() + "." + value + ")";
+    }
 
 }

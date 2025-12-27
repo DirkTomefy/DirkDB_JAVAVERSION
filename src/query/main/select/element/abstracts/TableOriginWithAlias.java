@@ -1,4 +1,4 @@
-package query.main.select.element.interfaces;
+package query.main.select.element.abstracts;
 
 import base.err.ParseNomException;
 import query.base.ParseSuccess;

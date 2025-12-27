@@ -11,8 +11,8 @@ import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
 import query.base.classes.expr.Expression;
 import  query.main.common.QualifiedIdentifier;
+import query.main.select.element.abstracts.SelectFields;
 import query.main.select.element.classes.SelectCtx;
-import query.main.select.element.interfaces.SelectFields;
 
 public class Relation {
 

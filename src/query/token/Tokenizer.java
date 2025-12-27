@@ -70,8 +70,8 @@ public class Tokenizer {
 
     public static ParseSuccess<Token> mapToLogicalOpToken(ParseSuccess<String> success) throws ParseNomException {
         LogicalOp op = switch (success.matched().toLowerCase()) {
-            case "and" -> LogicalOp.AND;
-            case "or" -> LogicalOp.OR;
+            case "ary" -> LogicalOp.AND;
+            case "na" -> LogicalOp.OR;
             default -> throw new ParseNomException(success.remaining(), "Unknown operator: " + success.matched());
         };
         return new ParseSuccess<>(success.remaining(), Token.binop(op));
@@ -98,7 +98,7 @@ public class Tokenizer {
                     ParserNomUtil.tag("<"),
                     ParserNomUtil.tag(">"),
                     ParserNomUtil.tag("="),
-                    ParserNomUtil.tagNoCase("is")).apply(input);
+                    ParserNomUtil.tagNoCase("dia")).apply(input);
             return mapToCompareOpToken(success, input);
         };
     }
@@ -106,8 +106,8 @@ public class Tokenizer {
     public static ParserNom<Token> tagLogicalOp() {
         return input -> {
             ParseSuccess<String> success = ParserNomUtil.alt(
-                    ParserNomUtil.tagNoCase("and"),
-                    ParserNomUtil.tagNoCase("or")).apply(input);
+                    ParserNomUtil.tagNoCase("ary"),
+                    ParserNomUtil.tagNoCase("na")).apply(input);
             return mapToLogicalOpToken(success);
         };
     }
@@ -125,14 +125,14 @@ public class Tokenizer {
     public static ParserNom<Token> tagIsNot() {
         return input -> {
             ParseSuccess<List<String>> successList = ParserNomUtil.tuple(
-                    ParserNomUtil.tagNoCase("is"),
+                    ParserNomUtil.tagNoCase("dia"),
                     ParserNomUtil.multispace1(),
                     ParserNomUtil::tagName).apply(input);
 
             String combined = String.join("", successList.matched()).replace(" ", "");
 
             return switch (combined.toLowerCase()) {
-                case "isnot" -> new ParseSuccess<>(successList.remaining(), Token.binop(CompareOp.IsNot));
+                case "diatsy" -> new ParseSuccess<>(successList.remaining(), Token.binop(CompareOp.IsNot));
                 default -> throw new ParseNomException(input, "Keyword expected");
             };
         };

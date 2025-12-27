@@ -2,7 +2,7 @@ package query.main.select.element.classes;
 import java.util.Vector;
 
 import query.base.classes.expr.Expression;
-import query.main.select.element.interfaces.SelectFields;
+import query.main.select.element.abstracts.SelectFields;
 
 public class FieldSelectedList extends Vector<FieldElementWithAlias> implements SelectFields {
 

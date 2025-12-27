@@ -10,11 +10,11 @@ import query.err.eval.AmbigousAliasErr;
 import query.err.eval.AmbigousNameErr;
 import query.err.eval.FieldNotFoundErr;
 import query.main.common.QualifiedIdentifier;
+import query.main.select.element.abstracts.SelectFields;
 import query.main.select.element.classes.AllField;
 import query.main.select.element.classes.FieldElementWithAlias;
 import query.main.select.element.classes.FieldSelectedList;
 import query.main.select.element.classes.SelectCtx;
-import query.main.select.element.interfaces.SelectFields;
 
 
 public class ProjectionHelper {
