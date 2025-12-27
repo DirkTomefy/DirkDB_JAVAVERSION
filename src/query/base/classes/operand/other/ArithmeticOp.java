@@ -9,6 +9,7 @@ import query.base.classes.expr.Expression;
 import query.base.classes.operand.BinaryOp;
 import query.base.helper.ParserNomUtil;
 import query.err.eval.DivisionByZeroErr;
+import query.main.select.element.classes.SelectCtx;
 
 public enum ArithmeticOp implements BinaryOp {
     ADD,
@@ -17,10 +18,10 @@ public enum ArithmeticOp implements BinaryOp {
     DIV;
 
     @Override
-    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right)
+    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right, SelectCtx ctx)
             throws EvalErr {
-        Object leftValue = left.eval(relation,row);
-        Object rightValue = right.eval(relation,row);
+        Object leftValue = left.eval(relation,row,ctx);
+        Object rightValue = right.eval(relation,row,ctx);
 
         double leftDouble = toDouble(leftValue);
         double rightDouble = toDouble(rightValue);

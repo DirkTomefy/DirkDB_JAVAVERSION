@@ -3,17 +3,18 @@ package query.main.common;
 import java.util.Vector;
 import query.err.eval.AmbigousNameErr;
 import query.err.eval.FieldNotFoundErr;
+import query.main.select.element.classes.SelectCtx;
 
 public record QualifiedIdentifier(String origin, String name) {
 
-   public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row)
+   public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row,SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
 
-      int index = getIndex(fieldName);
-      return getValueFromARow(fieldName, row, index);
+      int index = getIndex(fieldName,ctx);
+      return getValueFromARow(fieldName, row, index,ctx);
    }
 
-   public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row, int index) {
+   public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row, int index,SelectCtx ctx) {
       if (index < 0 || index >= row.size()) {
          throw new IndexOutOfBoundsException("L'index " + index + " invalide pour la ligne de taille: " + row.size());
       }
@@ -21,20 +22,20 @@ public record QualifiedIdentifier(String origin, String name) {
       return row.get(index);
    }
 
-   public int getIndex(Vector<QualifiedIdentifier> fieldName)
+   public int getIndex(Vector<QualifiedIdentifier> fieldName,SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
 
       // Vérifier si le QualifiedIdentifier a une origine spécifiée
       if (this.origin() != null && !this.origin().isEmpty()) {
          // Chercher uniquement dans le champ correspondant à l'origine
-         return getIndexByOriginAndName(fieldName);
+         return getIndexByOriginAndName(fieldName,ctx);
       } else {
          // Pas d'origine spécifiée, vérifier s'il y a ambiguïté
-         return getIndexByNameOnly(fieldName);
+         return getIndexByNameOnly(fieldName,ctx);
       }
    }
 
-   private int getIndexByOriginAndName(Vector<QualifiedIdentifier> fieldName)
+   private int getIndexByOriginAndName(Vector<QualifiedIdentifier> fieldName,SelectCtx ctx)
          throws FieldNotFoundErr {
 
       for (int i = 0; i < fieldName.size(); i++) {
@@ -47,7 +48,7 @@ public record QualifiedIdentifier(String origin, String name) {
       throw new FieldNotFoundErr(this);
    }
 
-   private int getIndexByNameOnly(Vector<QualifiedIdentifier> fieldName)
+   private int getIndexByNameOnly(Vector<QualifiedIdentifier> fieldName,SelectCtx ctx)
          throws AmbigousNameErr, FieldNotFoundErr {
 
       int foundIndex = -1;
@@ -75,10 +76,4 @@ public record QualifiedIdentifier(String origin, String name) {
       throw new FieldNotFoundErr(this);
    }
 
-   // Version alternative de getValueFromARow qui utilise getIndex
-   public Object getValueFromARow2(Vector<QualifiedIdentifier> fieldName, Vector<Object> row)
-         throws AmbigousNameErr, FieldNotFoundErr {
-      int index = getIndex(fieldName);
-      return row.get(index);
-   }
 }

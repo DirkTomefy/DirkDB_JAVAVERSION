@@ -10,6 +10,7 @@ import base.err.EvalErr;
 import query.err.eval.NullValueErr;
 import query.err.eval.TypeMismatchErr;
 import query.main.common.QualifiedIdentifier;
+import query.main.select.element.classes.SelectCtx;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;
@@ -46,9 +47,9 @@ public class PrimitiveExpr implements Expression {
     }
 
     @Override
-    public Object eval(Relation r, Vector<Object> row) throws EvalErr {
+    public Object eval(Relation r, Vector<Object> row,SelectCtx ctx) throws EvalErr {
         return switch (type) {
-            case ID -> evalId(r, row);
+            case ID -> evalId(r, row,ctx);
             case NULLVALUE -> evalNullValue();
             case NUMBER -> evalNumber();
             case STRING -> evalString();
@@ -56,11 +57,11 @@ public class PrimitiveExpr implements Expression {
         };
     }
 
-    private Object evalId(Relation relation, Vector<Object> row) throws EvalErr {
+    private Object evalId(Relation relation, Vector<Object> row,SelectCtx ctx) throws EvalErr {
         QualifiedIdentifier idFieldName = (QualifiedIdentifier) value;
-        int index = idFieldName.getIndex(relation.getFieldName());
+        int index = idFieldName.getIndex(relation.getFieldName(),ctx);
         Domain d = relation.getDomaines().get(index);
-        Object idValue = idFieldName.getValueFromARow(relation.getFieldName(), row, index);
+        Object idValue = idFieldName.getValueFromARow(relation.getFieldName(), row, index,ctx);
         String maybeReturn = handleStringDomain(d, idValue);
         if (maybeReturn != null) {
             return maybeReturn;

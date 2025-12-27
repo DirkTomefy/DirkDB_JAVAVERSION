@@ -232,7 +232,7 @@ public class Relation {
         Vector<Vector<Object>> selectedInd = new Vector<>();
         Relation result = new Relation(newName, this.fieldName, this.domaines, selectedInd);
         for (Vector<Object> individual : individus) {
-            Object resultEval = condition.eval(this, individual);
+            Object resultEval = condition.eval(this, individual,ctx);
             boolean conditionMet = Expression.ObjectIntoBoolean(resultEval);
 
             if (conditionMet) {

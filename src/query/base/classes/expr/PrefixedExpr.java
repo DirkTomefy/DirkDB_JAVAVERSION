@@ -5,6 +5,7 @@ import java.util.Vector;
 import base.Relation;
 import base.err.EvalErr;
 import query.base.classes.operand.PrefixedOp;
+import query.main.select.element.classes.SelectCtx;
 
 public class PrefixedExpr implements Expression {
     private PrefixedOp op;
@@ -41,8 +42,8 @@ public class PrefixedExpr implements Expression {
 
 
     @Override
-    public Object eval(Relation relation, Vector<Object> row) throws EvalErr {
-        Object value = expr.eval(relation,row);
+    public Object eval(Relation relation, Vector<Object> row,SelectCtx ctx) throws EvalErr {
+        Object value = expr.eval(relation,row,ctx);
         return switch (op) {
             case NOT -> evalNot(value);
             case NEG -> evalNeg(value);

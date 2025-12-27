@@ -4,6 +4,7 @@ import java.util.Vector;
 import base.Relation;
 import base.err.EvalErr;
 import query.base.classes.operand.BinaryOp;
+import query.main.select.element.classes.SelectCtx;
 
 public class BinaryExpr implements Expression {
     private final Expression left;
@@ -26,7 +27,7 @@ public class BinaryExpr implements Expression {
 
 
     @Override
-    public Object eval(Relation relation,  Vector<Object> row) throws EvalErr {
-        return this.op.applyByCtx(relation,row, left, right);
+    public Object eval(Relation relation,  Vector<Object> row, SelectCtx ctx) throws EvalErr {
+        return this.op.applyByCtx(relation,row, left, right,ctx);
     }
 }

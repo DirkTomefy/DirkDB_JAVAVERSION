@@ -8,6 +8,7 @@ import query.base.classes.expr.PrimitiveExpr;
 import query.base.classes.expr.PrimitiveKind;
 import query.base.classes.operand.BinaryOp;
 import query.err.eval.InvalidArgumentErr;
+import query.main.select.element.classes.SelectCtx;
 
 public enum CompareOp implements BinaryOp {
     Eq,
@@ -25,15 +26,15 @@ public enum CompareOp implements BinaryOp {
     }
 
     @Override
-    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right)
+    public Object applyByCtx(Relation relation, Vector<Object> row, Expression left, Expression right, SelectCtx ctx)
             throws EvalErr {
         return switch (this) {
-            case Is, IsNot -> evalIsComparison(relation, row, left, right);
-            default -> evalStandardComparison(relation, row, left, right);
+            case Is, IsNot -> evalIsComparison(relation, row, left, right,ctx);
+            default -> evalStandardComparison(relation, row, left, right,ctx);
         };
     }
 
-    private Object evalIsComparison(Relation relation, Vector<Object> row, Expression left, Expression right)
+    private Object evalIsComparison(Relation relation, Vector<Object> row, Expression left, Expression right, SelectCtx ctx)
             throws EvalErr {
         if (!(right instanceof PrimitiveExpr)) {
             throw new InvalidArgumentErr("IS/IS NOT", "right operand must be a primitive null value");
@@ -44,16 +45,16 @@ public enum CompareOp implements BinaryOp {
             throw new InvalidArgumentErr("IS/IS NOT", "right operand must be a null value");
         }
 
-        Object leftValue = left.eval(relation,row);
+        Object leftValue = left.eval(relation,row,ctx);
         boolean isNull = (leftValue == null);
 
         return (this == Is) ? isNull : !isNull;
     }
 
-    private Object evalStandardComparison(Relation relation, Vector<Object> row, Expression left, Expression right)
+    private Object evalStandardComparison(Relation relation, Vector<Object> row, Expression left, Expression right, SelectCtx ctx)
             throws EvalErr {
-        Object leftValue = left.eval(relation,row);
-        Object rightValue = right.eval(relation,row);
+        Object leftValue = left.eval(relation,row,ctx);
+        Object rightValue = right.eval(relation,row,ctx);
 
         if (leftValue == null || rightValue == null) {
             return false;

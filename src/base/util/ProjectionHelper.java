@@ -56,7 +56,7 @@ public class ProjectionHelper {
             for (FieldElementWithAlias field : list) {
                 if (field.getExpr() instanceof PrimitiveExpr maybeQid) {
                     if (maybeQid.getValue() instanceof QualifiedIdentifier qid) {
-                        int index = qid.getIndex(src.getFieldName());
+                        int index = qid.getIndex(src.getFieldName(),ctx);
                         newDomains.add(src.getDomaines().get(index));
                     }
                 } else {
@@ -81,12 +81,12 @@ public class ProjectionHelper {
                     Object primitiveValue = primitiveExpr.getValue();
 
                     if (primitiveValue instanceof QualifiedIdentifier qid) {
-                        value = qid.getValueFromARow(src.getFieldName(), row);
+                        value = qid.getValueFromARow(src.getFieldName(), row,ctx);
                     } else {
                         value = primitiveValue;
                     }
                 } else {
-                    value = fieldElement.getExpr().eval(src, row);
+                    value = fieldElement.getExpr().eval(src, row,ctx);
                 }
 
                 projectedRow.add(value);
