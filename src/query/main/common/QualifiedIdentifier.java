@@ -48,7 +48,7 @@ public record QualifiedIdentifier(String origin, String name) {
       if (ctx != null && ctx.getAliasmap() != null && ctx.getAliasmap().containsKey(this.origin())) {
          return ctx.getAliasmap().get(this.origin());
       }
-
+      
       return this.origin();
    }
 

@@ -6,6 +6,7 @@ import base.Domain;
 import base.Relation;
 import base.err.EvalErr;
 import query.base.classes.expr.PrimitiveExpr;
+import query.err.eval.AmbigousAliasErr;
 import query.err.eval.AmbigousNameErr;
 import query.err.eval.FieldNotFoundErr;
 import query.main.common.QualifiedIdentifier;
@@ -50,7 +51,7 @@ public class ProjectionHelper {
         }
     }
 
-    public Vector<Domain> makeDomains() throws AmbigousNameErr, FieldNotFoundErr {
+    public Vector<Domain> makeDomains() throws AmbigousNameErr, FieldNotFoundErr, AmbigousAliasErr {
         if (field instanceof FieldSelectedList list) {
             Vector<Domain> newDomains = new Vector<>();
             for (FieldElementWithAlias field : list) {
