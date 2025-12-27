@@ -34,7 +34,7 @@ public enum ArithmeticOp implements BinaryOp {
             return ((Number) value).doubleValue();
         }else if (value instanceof String s){
             try {
-                ParseSuccess<Double> a=ParserNomUtil.decimal1().apply(s); 
+                ParseSuccess<Double> a=ParserNomUtil.decimal1(s); 
                 return a.matched();   
             } catch (ParseNomException e) {}
             

@@ -30,7 +30,7 @@ public interface SelectFields {
         input = expr.remaining();
         FieldSelectedList fields = new FieldSelectedList(expr.matched());
         loop: while (true) {
-            ParseSuccess<Token> t = ParserNomUtil.opt(SelectTokenizer::scanFieldsToken, input);
+            ParseSuccess<Token> t = ParserNomUtil.opt(SelectTokenizer::scanFieldsToken, input.trim());
             if (t.matched() == null) {
                 break;
             } else {
@@ -52,7 +52,7 @@ public interface SelectFields {
 
                     // alias explicite avec AS : SELECT name AS username
                     case AS -> {
-                        ParseSuccess<QualifiedIdentifier> q = ParserNomUtil.identifier1().apply(input.trim());
+                        ParseSuccess<QualifiedIdentifier> q = ParserNomUtil.identifier1(input.trim());
                         input = q.remaining();
                         handleAliasForLast(fields, q.matched(), input);
                     }
@@ -82,6 +82,6 @@ public interface SelectFields {
     }
 
     public static void main(String[] args) throws ParseNomException {
-        System.out.println("select : \n" + SelectRqst.parseSelect("alaivo 1+1 antso u3 , u1 ao@ ( alaivo * ao@ table_etoile ) ANTSO t1 tonona @ t2  #ka t2.u1=t3.u2 #rehefa (1=1) ary 1 dia tsy null"));
+        System.out.println("select : \n" + SelectRqst.parseSelect("alaivo 1+1 antso u3 , t1.u1  l #ao@ ( alaivo * #ao@ table_etoile ) t1 #tonona:avia@ t2"));
     }
 }

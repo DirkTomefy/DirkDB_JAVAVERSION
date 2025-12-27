@@ -10,7 +10,7 @@ public class ParserNomUtilHelper {
 
     // Parse la partie entière (au moins un chiffre)
     public static ParseSuccess<String> parseIntegerPart(String input) throws ParseNomException {
-        return ParserNomUtil.digit1().apply(input);
+        return ParserNomUtil.digit1(input);
     }
 
     public static ParseSuccess<String> parseOriginPart(String input) throws ParseNomException {
@@ -32,7 +32,7 @@ public class ParserNomUtilHelper {
         return ParserNomUtil.opt(inp -> {
             if (!inp.startsWith("."))
                 return new ParseSuccess<>(inp, null);
-            ParseSuccess<String> digits = ParserNomUtil.digit1().apply(inp.substring(1));
+            ParseSuccess<String> digits = ParserNomUtil.digit1(inp.substring(1));
             String frac = "." + digits.matched();
             return new ParseSuccess<>(digits.remaining(), frac);
         }, input);

@@ -124,9 +124,9 @@ public class Tokenizer {
 
     public static ParserNom<Token> tagIsNot() {
         return input -> {
-            ParseSuccess<List<String>> successList = ParserNomUtil.tuple(
+            ParseSuccess<List<String>> successList = ParserNomUtil.tuple(false,
                     ParserNomUtil.tagNoCase("dia"),
-                    ParserNomUtil.multispace1(),
+                    ParserNomUtil::multispace1,
                     ParserNomUtil::tagName).apply(input);
 
             String combined = String.join("", successList.matched()).replace(" ", "");
@@ -152,7 +152,7 @@ public class Tokenizer {
     // === tagId ===
     public static ParserNom<Token> tagId() {
         return input -> {
-            ParseSuccess<QualifiedIdentifier> success = ParserNomUtil.identifier1().apply(input);
+            ParseSuccess<QualifiedIdentifier> success = ParserNomUtil.identifier1(input);
             if(success.matched().origin()==null && isPrivatized(success.matched().name())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
             return new ParseSuccess<>(success.remaining(), Token.id(success.matched()));
         };
@@ -161,7 +161,7 @@ public class Tokenizer {
     // === tagNumber ===
     public static ParserNom<Token> tagNumber() {
         return input -> {
-            ParseSuccess<Double> success = ParserNomUtil.decimal1().apply(input);
+            ParseSuccess<Double> success = ParserNomUtil.decimal1(input);
             return new ParseSuccess<>(success.remaining(), Token.number(success.matched()));
         };
     }

@@ -38,50 +38,45 @@ public class ParserNomUtil {
     }
 
     // === MULTISPACE1 ===
-    public static ParserNom<String> multispace1() {
-        return input -> {
-            int i = 0;
-            while (i < input.length() && Character.isWhitespace(input.charAt(i)))
-                i++;
-            if (i == 0)
-                throw new ParseNomException(input, "Expected at least one whitespace");
-            return new ParseSuccess<>(input.substring(i), input.substring(0, i));
-        };
+    public static ParseSuccess<String> multispace1(String input) throws ParseNomException {
+        int i = 0;
+        while (i < input.length() && Character.isWhitespace(input.charAt(i)))
+            i++;
+        if (i == 0)
+            throw new ParseNomException(input, "Expected at least one whitespace");
+        return new ParseSuccess<>(input.substring(i), input.substring(0, i));
+
     }
 
     // === MULTISPACE0 ===
-    public static ParserNom<String> multispace0() {
-        return input -> {
-            int i = 0;
-            while (i < input.length() && Character.isWhitespace(input.charAt(i))) {
-                i++;
-            }
-            String matched = input.substring(0, i);
-            String remaining = input.substring(i);
-            return new ParseSuccess<>(remaining, matched);
-        };
+    public static ParseSuccess<String> multispace0(String input) {
+        int i = 0;
+        while (i < input.length() && Character.isWhitespace(input.charAt(i))) {
+            i++;
+        }
+        String matched = input.substring(0, i);
+        String remaining = input.substring(i);
+        return new ParseSuccess<>(remaining, matched);
+
     }
 
     // === DIGIT1 ===
-    public static ParserNom<String> digit1() {
-        return input -> {
+    public static ParseSuccess<String> digit1(String input) throws ParseNomException {
             int i = 0;
             while (i < input.length() && Character.isDigit(input.charAt(i)))
                 i++;
             if (i == 0)
                 throw new ParseNomException(input, "Expected at least one digit");
             return new ParseSuccess<>(input.substring(i), input.substring(0, i));
-        };
+        
     }
 
     // === DIGIT0 ===
-    public static ParserNom<String> digit0() {
-        return input -> {
+    public static ParseSuccess<String> digit0(String input) {
             int i = 0;
             while (i < input.length() && Character.isDigit(input.charAt(i)))
                 i++;
             return new ParseSuccess<>(input.substring(i), input.substring(0, i));
-        };
     }
 
     // === OPT ===
@@ -93,25 +88,31 @@ public class ParserNomUtil {
         }
     }
 
-    // === DECIMAL1 ===
-    public static ParserNom<Double> decimal1() {
-        return input -> {
-            ParseSuccess<String> intPartRes = ParserNomUtilHelper.parseIntegerPart(input);
-            ParseSuccess<String> fracPartRes = ParserNomUtilHelper.parseFractionPart(intPartRes.remaining());
-            return ParserNomUtilHelper.combineIntegerAndFraction(intPartRes, fracPartRes);
+    public static<T> ParserNom<T> optParser(ParserNom<T> parser){
+        return input->{
+            return opt(parser, input);
         };
     }
 
+    // === DECIMAL1 ===
+    public static ParseSuccess<Double> decimal1(String input) throws ParseNomException {
+            ParseSuccess<String> intPartRes = ParserNomUtilHelper.parseIntegerPart(input);
+            ParseSuccess<String> fracPartRes = ParserNomUtilHelper.parseFractionPart(intPartRes.remaining());
+            return ParserNomUtilHelper.combineIntegerAndFraction(intPartRes, fracPartRes);
+       
+    }
+
     // === IDENTIFIER1 ===
-    public static ParserNom<QualifiedIdentifier> identifier1(){
-        return input->{
-             ParseSuccess<String> originPartRes = ParserNomUtilHelper.parseOriginPart(input);
+    public static ParseSuccess<QualifiedIdentifier> identifier1(String input) throws ParseNomException {
+            ParseSuccess<String> originPartRes = ParserNomUtilHelper.parseOriginPart(input);
             ParseSuccess<String> simpleNamePartRes = ParserNomUtilHelper.parseSimpleNamePart(originPartRes.remaining());
             return ParserNomUtilHelper.combineOriginAndName(originPartRes, simpleNamePartRes);
-        };
+        
     }
+
     // === TAKEWHILE1 ===
-    public static ParseSuccess<String> takeWhile1(java.util.function.Function<Character, Boolean> predicate, String input) throws ParseNomException {
+    public static ParseSuccess<String> takeWhile1(java.util.function.Function<Character, Boolean> predicate,
+            String input) throws ParseNomException {
         int i = 0;
         while (i < input.length() && predicate.apply(input.charAt(i)))
             i++;
@@ -158,15 +159,23 @@ public class ParserNomUtil {
     }
 
     @SafeVarargs
-    public static <T> ParserNom<List<T>> tuple(ParserNom<T>... parsers) {
+    public static <T> ParserNom<List<T>> tuple(boolean trimMod, ParserNom<T>... parsers) {
         return input -> {
             List<T> results = new ArrayList<>();
             String rest = input;
-
+            if (trimMod) {
+                rest = rest.trim();
+            }
             for (ParserNom<T> parser : parsers) {
                 ParseSuccess<T> result = parser.apply(rest);
                 results.add(result.matched());
-                rest = result.remaining();
+                if (trimMod) {
+                    rest = result.remaining().trim();
+
+                } else {
+                    rest = result.remaining();
+
+                }
             }
 
             return new ParseSuccess<>(rest, results);
