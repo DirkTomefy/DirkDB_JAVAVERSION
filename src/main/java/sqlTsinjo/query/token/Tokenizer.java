@@ -1,0 +1,224 @@
+package sqlTsinjo.query.token;
+
+import java.util.List;
+
+import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.query.base.ParseSuccess;
+import sqlTsinjo.query.base.ParserNom;
+import sqlTsinjo.query.base.classes.operand.PrefixedOp;
+import sqlTsinjo.query.base.classes.operand.other.ArithmeticOp;
+import sqlTsinjo.query.base.classes.operand.other.CompareOp;
+import sqlTsinjo.query.base.classes.operand.other.LogicalOp;
+import sqlTsinjo.query.base.helper.ParserNomUtil;
+import sqlTsinjo.query.err.parsing.token.TokenNotFound;
+import sqlTsinjo.query.main.common.QualifiedIdentifier;
+
+public class Tokenizer {
+    public static final String[] privatizedToken = new String[] { "null" };
+
+    public static boolean isPrivatized(String t){
+        for (String string : privatizedToken) {  
+            if(string.equalsIgnoreCase(t)){
+                return true;
+            } 
+        }
+        return false;
+    }
+
+    public static ParseSuccess<Token> mapToBinOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
+        ArithmeticOp op = switch (success.matched()) {
+            case "+" -> ArithmeticOp.ADD;
+            case "-" -> ArithmeticOp.MIN;
+            case "*" -> ArithmeticOp.MUL;
+            case "/" -> ArithmeticOp.DIV;
+            default -> throw new ParseNomException(oldInput, "Unknown operator: " + success.matched());
+        };
+        return new ParseSuccess<>(success.remaining(), Token.binop(op));
+    }
+
+    public static ParseSuccess<Token> mapToCompareOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
+        CompareOp op = switch (success.matched()) {
+            case "=" -> CompareOp.Eq;
+            case "!=" -> CompareOp.Neq;
+            case ">=" -> CompareOp.Gte;
+            case ">" -> CompareOp.Gt;
+            case "<=" -> CompareOp.Lte;
+            case "<" -> CompareOp.Lt;
+            default -> {
+                if ("is".equalsIgnoreCase(success.matched()))
+                    yield CompareOp.Is;
+                else
+                    throw new ParseNomException(oldInput,
+                            "Unknown operator: " + success.matched());
+            }
+        };
+        return new ParseSuccess<>(success.remaining(), Token.binop(op));
+    }
+
+    public static ParseSuccess<Token> mapToPrefixedOpToken(ParseSuccess<String> success, String oldInput)
+            throws ParseNomException {
+        PrefixedOp op = switch (success.matched()) {
+            case "-" -> PrefixedOp.NEG;
+            case "!" -> PrefixedOp.NOT;
+            default -> throw new ParseNomException(oldInput,
+                    "Unknown operator: " + success.matched());
+        };
+        return new ParseSuccess<>(success.remaining(), Token.prefixedop(op));
+    }
+
+    public static ParseSuccess<Token> mapToLogicalOpToken(ParseSuccess<String> success) throws ParseNomException {
+        LogicalOp op = switch (success.matched().toLowerCase()) {
+            case "ary" -> LogicalOp.AND;
+            case "na" -> LogicalOp.OR;
+            default -> throw new ParseNomException(success.remaining(), "Unknown operator: " + success.matched());
+        };
+        return new ParseSuccess<>(success.remaining(), Token.binop(op));
+    }
+
+    // === Parsers ===
+    public static ParserNom<Token> tagArithmOp() {
+        return input -> {
+            ParseSuccess<String> success = ParserNomUtil.alt(
+                    ParserNomUtil.tag("+"),
+                    ParserNomUtil.tag("-"),
+                    ParserNomUtil.tag("*"),
+                    ParserNomUtil.tag("/")).apply(input);
+            return mapToBinOpToken(success, input);
+        };
+    }
+
+    public static ParserNom<Token> tagCompareOp() {
+        return input -> {
+            ParseSuccess<String> success = ParserNomUtil.alt(
+                    ParserNomUtil.tag("<="),
+                    ParserNomUtil.tag(">="),
+                    ParserNomUtil.tag("!="),
+                    ParserNomUtil.tag("<"),
+                    ParserNomUtil.tag(">"),
+                    ParserNomUtil.tag("="),
+                    ParserNomUtil.tagNoCase("dia")).apply(input);
+            return mapToCompareOpToken(success, input);
+        };
+    }
+
+    public static ParserNom<Token> tagLogicalOp() {
+        return input -> {
+            ParseSuccess<String> maybediez = ParserNomUtil.opt(ParserNomUtil.tag("#"), input); 
+            ParseSuccess<String> success = ParserNomUtil.alt(
+                    ParserNomUtil.tagNoCase("ary"),
+                    ParserNomUtil.tagNoCase("na")).apply(maybediez.remaining());
+            return mapToLogicalOpToken(success);
+        };
+    }
+
+    public static ParserNom<Token> tagPrefixedOp() {
+        return input -> {
+            ParseSuccess<String> s = ParserNomUtil.alt(
+                    ParserNomUtil.tag("!"),
+                    ParserNomUtil.tag("-")).apply(input);
+
+            return mapToPrefixedOpToken(s, input);
+        };
+    }
+
+    public static ParserNom<Token> tagIsNot() {
+        return input -> {
+            ParseSuccess<List<String>> successList = ParserNomUtil.tuple(false,
+                    ParserNomUtil.tagNoCase("dia"),
+                    ParserNomUtil::multispace1,
+                    ParserNomUtil::tagName).apply(input);
+
+            String combined = String.join("", successList.matched()).replace(" ", "");
+
+            return switch (combined.toLowerCase()) {
+                case "diatsy" -> new ParseSuccess<>(successList.remaining(), Token.binop(CompareOp.IsNot));
+                default -> throw new ParseNomException(input, "Keyword expected");
+            };
+        };
+    }
+
+    // === tagString ===
+    public static ParserNom<Token> tagString() {
+        return input -> {
+            ParseSuccess<String> success = ParserNomUtil.alt(
+                    ParserNomUtil.tagString('"'),
+                    ParserNomUtil.tagString('\'')).apply(input);
+
+            return new ParseSuccess<>(success.remaining(), new Token(TokenKind.STRING, success.matched()));
+        };
+    }
+
+    // === tagId ===
+    public static ParserNom<Token> tagId() {
+        return input -> {
+            ParseSuccess<QualifiedIdentifier> success = ParserNomUtil.identifier1(input);
+            if(success.matched().getOrigin()==null && isPrivatized(success.matched().getName())) throw new ParseNomException(input, "Can not use this '"+success.matched()+"' as an ID because it's a privatized token");
+            return new ParseSuccess<>(success.remaining(), Token.id(success.matched()));
+        };
+    }
+
+    // === tagNumber ===
+    public static ParserNom<Token> tagNumber() {
+        return input -> {
+            ParseSuccess<Double> success = ParserNomUtil.decimal1(input);
+            return new ParseSuccess<>(success.remaining(), Token.number(success.matched()));
+        };
+    }
+
+    // === tagNullValue ===
+    public static ParserNom<Token> tagNullValue() {
+        return input -> {
+            ParseSuccess<String> success = ParserNomUtil.tagNoCase("null").apply(input);
+            return new ParseSuccess<>(success.remaining(), Token.nullvalue());
+        };
+    }
+
+    public static ParserNom<Token> tagParensToken() {
+        return input -> {
+            ParseSuccess<String> success = ParserNomUtil.alt(
+                    ParserNomUtil.tag("("),
+                    ParserNomUtil.tag(")")).apply(input.trim());
+            return new ParseSuccess<>(success.remaining(), Token.other(success.matched()));
+        };
+    }
+
+    public static ParseSuccess<Token> scanFactorToken(String input) throws TokenNotFound {
+        input = input.trim();
+
+        try {
+            ParseSuccess<Token> t = ParserNomUtil.alt(
+                    tagString(),
+                    tagId(),
+                    tagNumber(),
+                    tagNullValue(),
+                    tagParensToken(),
+                    tagPrefixedOp()).apply(input);
+            return t;
+        } catch (ParseNomException e) {
+            throw new TokenNotFound(input);
+        }
+    }
+
+    public static ParseSuccess<Token> scanBinopToken(String input) throws TokenNotFound {
+        input=input.trim();
+        try {
+            ParseSuccess<Token> t = ParserNomUtil.alt(
+                    tagIsNot(),
+                    tagLogicalOp(),
+                    tagCompareOp(),
+                    tagArithmOp()).apply(input);
+            return t;
+        } catch (ParseNomException e) {
+            throw new TokenNotFound(input);
+        }
+    }
+
+    public static boolean codonStop(String input) {
+        return input.trim().startsWith(")") || input.trim().isEmpty();
+    }
+    public static boolean startsWithFactor(String input){
+        return input.trim().startsWith("(");
+    }
+}
