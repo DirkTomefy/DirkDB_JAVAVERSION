@@ -65,26 +65,26 @@ public class JoinElement {
         Relation result = tableOrigin.evalAsTableOriginAndHandleId(ctx);
         switch (op) {
             case FULL:
-                result = result.jointureExternePleine(src, onCondition, ctx);
+                result = src.jointureExternePleine(result, onCondition, ctx);
                 break;
             case INNER:
-                result = result.jointureInterne(src, onCondition, ctx);
+                result = src.jointureInterne(result, onCondition, ctx);
                 break;
             case LEFT:
-                result = result.jointureExterneGauche(src, onCondition, ctx);
+                result = src.jointureExterneGauche(result, onCondition, ctx);
                 break;
             case NATURAL:
-                result = result.jointureNaturelle(src, onCondition, ctx);
+                result = src.jointureNaturelle(result, onCondition, ctx);
                 break;
             case RIGHT:
-                result = result.jointureExterneDroite(src, onCondition, ctx);
+                result = src.jointureExterneDroite(result, onCondition, ctx);
                 break;
             default:
-                result = result.jointureInterne(src, onCondition, ctx);
+                result = src.jointureInterne(result, onCondition, ctx);
                 break;
 
         }
-     
+
         return result;
     }
 

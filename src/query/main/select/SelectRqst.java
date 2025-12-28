@@ -19,7 +19,7 @@ import query.main.select.element.classes.SelectCtx;
 import query.main.select.token.SelectTokenizer;
 import query.token.Token;
 
-public class SelectRqst extends TableOriginWithAlias {
+public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
     SelectFields fields;
     TableOriginWithAlias from;
     Vector<JoinElement> joins;
@@ -43,6 +43,7 @@ public class SelectRqst extends TableOriginWithAlias {
         return new SelectCtx(aliasMap, context);
     }
 
+    @Override
     public Relation eval(AppContext context) throws ParseNomException, EvalErr {
         Relation result = null;
         SelectCtx selectCtx = makeSelectCtx(context);

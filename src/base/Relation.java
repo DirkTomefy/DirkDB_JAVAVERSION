@@ -10,7 +10,7 @@ import base.err.RelationDomainSizeErr;
 import base.util.ProjectionHelper;
 import base.util.RelationDisplayer;
 import query.base.classes.expr.Expression;
-import  query.main.common.QualifiedIdentifier;
+import query.main.common.QualifiedIdentifier;
 import query.main.select.element.abstracts.SelectFields;
 import query.main.select.element.classes.SelectCtx;
 
@@ -19,19 +19,17 @@ public class Relation {
     String name;
 
     Vector<QualifiedIdentifier> fieldName;
-   
 
     Vector<Domain> domaines = new Vector<>();
     Vector<Vector<Object>> individus = new Vector<>();
 
-     public Vector<QualifiedIdentifier> getFieldName() {
+    public Vector<QualifiedIdentifier> getFieldName() {
         return fieldName;
     }
 
     public void setFieldName(Vector<QualifiedIdentifier> fieldName) {
         this.fieldName = fieldName;
     }
-
 
     public static boolean indEquals(Vector<Object> ind1, Vector<Object> ind2) {
         if (ind1 == null || ind2 == null)
@@ -46,6 +44,11 @@ public class Relation {
                 continue;
             if (v1 == null || v2 == null)
                 return false;
+            if(v1 instanceof char[] value)
+                v1=new String(value);
+            if(v2 instanceof char[] value)
+                v2=new String(value);
+
             if (!v1.equals(v2))
                 return false;
         }
@@ -83,16 +86,17 @@ public class Relation {
         this.individus = new Vector<>();
     }
 
-    public Relation(String name, Vector<QualifiedIdentifier> fieldName, Vector<Domain> domaines, Vector<Vector<Object>> individus) {
+    public Relation(String name, Vector<QualifiedIdentifier> fieldName, Vector<Domain> domaines,
+            Vector<Vector<Object>> individus) {
         this.name = name;
         this.fieldName = fieldName;
         this.domaines = domaines;
         this.individus = individus;
     }
 
-    public static Relation makeDualRelation(){
-        String name="dual";
-        Vector<QualifiedIdentifier> id=new Vector<>();
+    public static Relation makeDualRelation() {
+        String name = "dual";
+        Vector<QualifiedIdentifier> id = new Vector<>();
         id.add(new QualifiedIdentifier(null, name));
         Vector<Domain> domains = new Vector<>();
         domains.add(Domain.makeUniversalDomain());
@@ -172,11 +176,9 @@ public class Relation {
 
     public static Relation intersection(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.getName() + "_inter_" + rel2.getName();
-        Vector<Domain> newDomaines = rel1.domaines;
         Vector<Vector<Object>> newIndividus = new Vector<>();
-        Vector<QualifiedIdentifier> fieldName = rel1.fieldName;
         if (rel1.isValidDomain(rel2)) {
-            Relation result = new Relation(nvNom, fieldName, newDomaines, newIndividus);
+            Relation result = new Relation(nvNom,rel1.fieldName , rel1.getDomaines(), newIndividus);
             for (Vector<Object> i1 : rel1.individus) {
                 if (rel2.contains(i1)) {
                     result.appendIfNotExist(i1);
@@ -228,21 +230,20 @@ public class Relation {
                 newIndividus.add(newInd);
             }
         }
-        // System.out.println("fieldName dans produit cartésien  rel1 : "+rel1.fieldName + "/rel2 : "+rel2.fieldName );
         return new Relation(nv_nom, fieldName, newDomaines, newIndividus);
     }
 
-    public Relation projection(SelectFields fields,SelectCtx ctx) throws EvalErr {
-        ProjectionHelper helper =new ProjectionHelper(this, fields,ctx);         
+    public Relation projection(SelectFields fields, SelectCtx ctx) throws EvalErr {
+        ProjectionHelper helper = new ProjectionHelper(this, fields, ctx);
         return helper.executeProjection();
     }
 
-    public Relation selection(Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr {
+    public Relation selection(Expression condition, SelectCtx ctx) throws ParseNomException, EvalErr {
         String newName = this.name + "_selection";
         Vector<Vector<Object>> selectedInd = new Vector<>();
         Relation result = new Relation(newName, this.fieldName, this.domaines, selectedInd);
         for (Vector<Object> individual : individus) {
-            Object resultEval = condition.eval(this, individual,ctx);
+            Object resultEval = condition.eval(this, individual, ctx);
             boolean conditionMet = Expression.ObjectIntoBoolean(resultEval);
 
             if (conditionMet) {
@@ -252,10 +253,10 @@ public class Relation {
         return result;
     }
 
-    public Relation jointureExterneGauche(Relation tojoin, Expression condition,SelectCtx ctx)
+    public Relation jointureExterneGauche(Relation tojoin, Expression condition, SelectCtx ctx)
             throws ParseNomException, EvalErr {
         Relation produit = produitCartesien(this, tojoin);
-        Relation jointureInterne = condition!=null ? produit.selection(condition,ctx) : produit;
+        Relation jointureInterne = condition != null ? produit.selection(condition, ctx) : produit;
         String newName = this.name + "_left_join_" + tojoin.name;
 
         Vector<Domain> newDomains = new Vector<>();
@@ -313,30 +314,48 @@ public class Relation {
         return result;
     }
 
-    public Relation jointureExterneDroite(Relation tojoin, Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr {
-        return tojoin.jointureExterneGauche(this, condition,ctx);
+    public Relation jointureExterneDroite(Relation tojoin, Expression condition, SelectCtx ctx)
+            throws ParseNomException, EvalErr {
+        return tojoin.jointureExterneGauche(this, condition, ctx);
     }
 
-    public Relation jointureExternePleine(Relation tojoin, Expression condition,SelectCtx ctx)
+    public Relation jointureExternePleine(Relation tojoin, Expression condition, SelectCtx ctx)
             throws ParseNomException, EvalErr, RelationDomainSizeErr {
 
         // LEFT OUTER JOIN
-        Relation leftJoin = this.jointureExterneGauche(tojoin, condition,ctx);
+        Relation leftJoin = this.jointureExterneGauche(tojoin, condition, ctx);
 
         // RIGHT OUTER JOIN
-        Relation rightJoin = this.jointureExterneDroite(tojoin, condition,ctx);
+        Relation rightJoin = this.jointureExterneDroite(tojoin, condition, ctx);
 
         // UNION des deux (supprime les doublons)
         return Relation.union(leftJoin, rightJoin);
     }
 
-    public Relation jointureNaturelle(Relation tojoin, Expression condition,SelectCtx ctx) {
+    public Relation jointureNaturelle(Relation tojoin, Expression condition, SelectCtx ctx) {
         return null;
     }
 
-    public Relation jointureInterne(Relation tojoin, Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr {
-        return produitCartesien(this, tojoin).selection(condition,ctx);
+    public Relation jointureInterne(Relation tojoin, Expression condition, SelectCtx ctx)
+            throws ParseNomException, EvalErr {
+        return condition != null ? produitCartesien(this, tojoin).selection(condition, ctx)
+                : produitCartesien(this, tojoin);
     }
+
+    public Relation unionWithCondition(Relation rel2, Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr{ 
+        return condition != null ? union(this, rel2).selection(condition, ctx)
+                : union(this, rel2);
+    }
+
+    public Relation intersectionWithCondition(Relation rel2, Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr{ 
+        return condition != null ? intersection(this, rel2).selection(condition, ctx)
+                : intersection(this, rel2);
+    }
+    public Relation differenceWithCondition(Relation rel2, Expression condition,SelectCtx ctx) throws ParseNomException, EvalErr{ 
+        return condition != null ? difference(this, rel2).selection(condition, ctx)
+                : difference(this, rel2);
+    }
+
 
     @Override
     public String toString() {

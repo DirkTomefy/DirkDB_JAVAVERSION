@@ -36,16 +36,11 @@ public interface Expression {
 
     Map<BinaryOp, SpecialBinOpHandler> BINOP_HANDLER = initHandler();
     
-    // Object eval(Relation relation, Vector<Object> row) throws EvalErr;
-
+   
     
-    //TODO REMPLIR CETTE FONCTION :
     Object eval(Relation relation, Vector<Object> row, SelectCtx ctx) throws EvalErr;
-    
-    // default boolean evalToBoolean(Relation relation, Vector<Object> row) throws EvalErr {
-    //     return ObjectIntoBoolean(eval(relation, row));
-    // }
 
+    
     public static boolean ObjectIntoBoolean(Object e) {
         if (e == null)
             return false;

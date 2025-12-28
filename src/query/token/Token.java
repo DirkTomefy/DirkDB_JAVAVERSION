@@ -3,6 +3,7 @@ package query.token;
 import query.base.classes.operand.BinaryOp;
 import query.base.classes.operand.PrefixedOp;
 import query.main.common.QualifiedIdentifier;
+import query.main.select.element.enums.BasicRowOp;
 import query.main.select.element.enums.JoinOp;
 
 public class Token {
@@ -82,6 +83,15 @@ public class Token {
         return new Token(TokenKind.JOIN, JoinOp.NATURAL);
     }
 
+    public static Token union(){
+        return new Token(TokenKind.RELATIONOP, BasicRowOp.UNION);
+    }
+    public static Token intersection(){
+        return new Token(TokenKind.RELATIONOP, BasicRowOp.INTERSECTION);
+    }
+     public static Token difference(){
+        return new Token(TokenKind.RELATIONOP, BasicRowOp.DIFFERENCE);
+    }
     @Override
     public String toString() {
         return value == null ? status.name()

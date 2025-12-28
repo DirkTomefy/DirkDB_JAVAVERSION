@@ -13,6 +13,7 @@ public enum TokenKind {
     COMMA,
     FROM,
     AS,
-    JOIN
+    JOIN,
+    RELATIONOP
     ;
 }

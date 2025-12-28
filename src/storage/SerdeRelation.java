@@ -8,7 +8,7 @@ import base.err.ParseNomException;
 import cli.AppContext;
 import debug.function.TestSelection;
 import query.base.ParseSuccess;
-import query.main.select.SelectRqst;
+import query.main.select.SelectExpr;
 public class SerdeRelation {
     AppContext appContext;
     String tableName;
@@ -31,7 +31,7 @@ public class SerdeRelation {
     }
 
     public static void main(String[] args) throws ParseNomException, EvalErr {
-        ParseSuccess<SelectRqst> select=SelectRqst.parseSelect("Alaivo c1.Nom #ao@ code c1  #tonona:avia@ code c3");
+        ParseSuccess<SelectExpr> select=SelectExpr.parseExpr("Alaivo * #ao@ code c1 \n #atifitra@ (Alaivo * #ao@ code) ");
         System.out.println(""+select);
         Relation r = select.matched().eval(new AppContext("test", null));
         System.out.println(""+r.toStringDebug());

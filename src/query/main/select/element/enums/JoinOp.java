@@ -5,5 +5,5 @@ public enum JoinOp {
     INNER,
     LEFT,
     RIGHT,
-    NATURAL
+    NATURAL;
 }
