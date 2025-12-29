@@ -112,6 +112,9 @@ public class Token {
     public static Token updateSign(String tableName){
         return new Token(TokenKind.UPDATE, tableName );
     }
+    public static Token deleteSign(String tableName){
+        return new Token(TokenKind.DELETE , tableName);
+    }
 
     @Override
     public String toString() {

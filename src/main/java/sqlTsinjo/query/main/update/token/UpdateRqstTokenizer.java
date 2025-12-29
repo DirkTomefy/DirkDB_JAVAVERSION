@@ -3,7 +3,6 @@ package sqlTsinjo.query.main.update.token;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
-import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 
 public class UpdateRqstTokenizer {
@@ -16,8 +15,5 @@ public class UpdateRqstTokenizer {
         ParseSuccess<String> sign =ParserNomUtil.tagNoCase("ova").apply(input.trim());
         return new ParseSuccess<>(sign.remaining(),Token.updateSign(null));
     }
-    public static ParseSuccess<Token> scanWhereToken(String input) throws ParseNomException{
-        ParseSuccess<Token> t = SelectTokenizer.scanWhereToken(input.trim());
-        return new ParseSuccess<Token>(t.remaining(), Token.updateSign(null));
-    }
+   
 }

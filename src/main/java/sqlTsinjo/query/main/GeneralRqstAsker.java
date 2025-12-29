@@ -9,6 +9,8 @@ import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.err.parsing.CommandAvailableNotFound;
+import sqlTsinjo.query.main.delete.DeleteRqst;
+import sqlTsinjo.query.main.delete.token.DeleteRqstTokenizer;
 import sqlTsinjo.query.main.insert.InsertRqst;
 import sqlTsinjo.query.main.insert.token.InsertRqstTokenizer;
 import sqlTsinjo.query.main.select.SelectExpr;
@@ -23,44 +25,48 @@ import sqlTsinjo.query.token.Token;
 public class GeneralRqstAsker {
     public static String askRequest(String input, AppContext ctx) throws ParseNomException, EvalErr, IOException {
         ParseSuccess<Token> token = scanTokenForRequest(input);
-        
+
         switch (token.matched().status) {
             case CREATEDATABASE:
                 ParseSuccess<CreateObjectRqst> createdatabase = CreateObjectRqst.parseCreate(input);
                 createdatabase.matched().eval(ctx);
-                input=createdatabase.remaining();
-                String databaseName = (String)((CreateDataBaseRqst) createdatabase.matched()).getDatabaseName();
-                System.out.println("Ny tahiry : "+ databaseName + " dia voaforona soamantsara ");
+                input = createdatabase.remaining();
+                String databaseName = (String) ((CreateDataBaseRqst) createdatabase.matched()).getDatabaseName();
+                System.out.println("Ny tahiry : " + databaseName + " dia voaforona soamantsara ");
                 break;
             case CREATETABLE:
                 ParseSuccess<CreateObjectRqst> createTable = CreateObjectRqst.parseCreate(input);
                 createTable.matched().eval(ctx);
-                input=createTable.remaining();
+                input = createTable.remaining();
                 break;
             case SELECT:
                 ParseSuccess<SelectExpr> select = SelectExpr.parseExpr(input);
-                Relation rel=select.matched().eval(ctx);
-                System.out.println("\n"+rel+"\n");
-                input=select.remaining();
+                Relation rel = select.matched().eval(ctx);
+                System.out.println("\n" + rel + "\n");
+                input = select.remaining();
                 break;
             case USEDATABASE:
                 ctx.setDatabaseName((String) token.matched().value);
-                input=token.remaining();
-                System.out.println("Ny tahiry : "+ctx.getDatabaseName()+ " dia miasa ankehitriny");
+                input = token.remaining();
+                System.out.println("Ny tahiry : " + ctx.getDatabaseName() + " dia miasa ankehitriny");
                 break;
-            
+
             case INSERTINTO:
-               ParseSuccess<InsertRqst> insert = InsertRqst.parseInsert(input);
-               insert.matched().eval(ctx);
-               input=insert.remaining();
+                ParseSuccess<InsertRqst> insert = InsertRqst.parseInsert(input);
+                insert.matched().eval(ctx);
+                input = insert.remaining();
                 break;
-            case UPDATE :
+            case UPDATE:
                 ParseSuccess<UpdateRqst> update = UpdateRqst.parseUpdate(input);
                 update.matched().eval(ctx);
-                input=update.remaining();
+                input = update.remaining();
+            case DELETE :
+                ParseSuccess<DeleteRqst> delete = DeleteRqst.parseDelete(input);
+                delete.matched().eval(ctx);
+                input= delete.remaining();
             default:
                 break;
-            
+
         }
         return input;
     }
@@ -74,7 +80,8 @@ public class GeneralRqstAsker {
     public static ParseSuccess<Token> scanTokenForRequest(String input) throws ParseNomException {
         try {
             return ParserNomUtil.alt(GeneralRqstAsker::scanUseDatabaseToken, SelectTokenizer::scanSelectToken,
-                    CreateObjectTokenizer::scanCreateToken,InsertRqstTokenizer::scanRealInsertToken,UpdateRqstTokenizer::scanUpdateToken).apply(input);
+                    CreateObjectTokenizer::scanCreateToken, InsertRqstTokenizer::scanRealInsertToken,
+                    UpdateRqstTokenizer::scanUpdateToken, DeleteRqstTokenizer::scanDeleteToken).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }

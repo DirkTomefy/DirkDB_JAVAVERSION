@@ -8,6 +8,7 @@ import sqlTsinjo.base.err.DomainSupportErr;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.base.err.RelationDomainSizeErr;
+import sqlTsinjo.base.util.DeleteHelper;
 import sqlTsinjo.base.util.InsertHelper;
 import sqlTsinjo.base.util.ProjectionHelper;
 import sqlTsinjo.base.util.RelationDisplayer;
@@ -173,6 +174,10 @@ public class Relation {
     public void update(HashMap<String,Expression> values,Expression condition) throws DomainOutOfBonds, DomainSupportErr, ParseNomException, EvalErr{
         UpdateHelper helper =new UpdateHelper(this);
         helper.update( values, condition);
+    }
+    public void delete(Expression condition) throws ParseNomException, EvalErr{
+        DeleteHelper helper =new DeleteHelper(this);
+        helper.delete(condition);
     }
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;

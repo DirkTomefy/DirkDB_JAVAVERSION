@@ -27,7 +27,10 @@ public enum TokenKind {
     INSERTINTO,
 
     //UPDATE :
-    UPDATE
+    UPDATE,
+
+    //DELETE :
+    DELETE
 
     ;
 }
