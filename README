@@ -1,0 +1,48 @@
+il y a un script .dirkdb pour tester
+CREATE DATABASE : 
+    manamboara tahiry nomdedatabase
+CREATE TABLE :
+    manamboara  tabilao nomdeTable (
+        nomdecolumn type,
+        nomdecolumn type
+    )
+    ny type :   -LAHATSORATRA(taille min , taille max ) (afaka atao (null , null ))
+                -ISA(MIN , MAX ) (afaka atao (null , null ))
+                -DATY
+
+USE TABLE :
+    ampiasao nomdeTable
+SELECT :
+    alaivo field1 , field2 #ao@ table #rehefa condition
+DELETE :
+    fafao ao@ nomdeTable rehefa condition
+UPDATE :
+    HAVAOZY nomdeTable ova column1=value1, column2=value2
+
+
+REQUETE CREATE PLUS AVANCE :
+    COMMENT CRÉER UNE COLUMN HYBRIDE ex : à la fois test et nombre
+        donc on a :
+        manamboara  tabilao nomdeTable (
+            nomdecolumn type1:type2,
+            nomdecolumn type1:type2
+        )
+
+REQUETE SELECT PLUS AVANCE :
+    *sous-requete :
+        -alaivo column1 ao@ (alaivo * ao@ table )
+
+    *join : 
+        remarque : utilise les # avant ao@ ou tonona ou rehefa
+        -alaivo table1.column1 #ao@ table1 #tonona:avia@ table2
+
+            tonona:avia := left join , tonona:avanana := right join , tonona := inner join , tonona:natoraly := natural join 
+    
+    *union :
+        requete select1 #ankambana requete select2
+
+    *difference :
+        requete select1 #analana requete select2
+
+    *intéresection :
+        requete select1 #atifitra requete select2

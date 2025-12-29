@@ -8,7 +8,7 @@ import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.err.eval.AmbigousAliasErr;
 import sqlTsinjo.query.err.parsing.token.TokenNotFound;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
-import sqlTsinjo.query.main.select.SelectRqst;
+import sqlTsinjo.query.main.select.SelectExpr;
 import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 import sqlTsinjo.query.main.select.element.classes.TableNameOrigin;
 import sqlTsinjo.query.main.select.element.err.AliasNeededException;
@@ -38,7 +38,7 @@ public abstract class TableOriginWithAlias {
     public static ParseSuccess<TableOriginWithAlias> parseTableOrigin(String input) throws ParseNomException {
         ParseSuccess<TableOriginWithAlias> origin = parseFromWithoutAlias(input);
         ParseSuccess<String> alias = parseOptionalAlias(origin.remaining());
-        if (alias.matched() == null && origin.matched() instanceof SelectRqst) {
+        if (alias.matched() == null && origin.matched() instanceof SelectExpr) {
             throw new AliasNeededException(alias.matched());
         } else {
             origin.matched().setAlias(alias.matched());
@@ -60,7 +60,7 @@ public abstract class TableOriginWithAlias {
             ParseSuccess<Token> select_sign = ParserNomUtil.opt(SelectTokenizer::scanSelectToken, input);
             if (select_sign.matched() != null) {
                 // * ICI CELA EST UN SUBSELECT*/
-                ParseSuccess<SelectRqst> select = SelectRqst.parseSelect(input);
+                ParseSuccess<SelectExpr> select = SelectExpr.parseExpr(input);
                 select.matched().setId(UUID.randomUUID().toString());
                 return new ParseSuccess<TableOriginWithAlias>(select.remaining(), select.matched());
             } else {

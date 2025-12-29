@@ -62,6 +62,8 @@ public class ProjectionHelper {
                     if (maybeQid.getValue() instanceof QualifiedIdentifier qid) {
                         int index = qid.getIndex(src.getFieldName(),ctx);
                         newDomains.add(src.getDomaines().get(index));
+                    }else{
+                        newDomains.add(Domain.makeUniversalDomain());
                     }
                 } else {
                     newDomains.add(Domain.makeUniversalDomain());

@@ -35,9 +35,9 @@ public class TableNameOrigin extends TableOriginWithAlias {
     @Override
     public void makeAliasAsTableOrigin(LinkedHashMap<String, String> aliasMap) throws AmbigousAliasErr {
         aliasMap.put(name, id );
-        if (aliasMap.containsKey(alias)) {
+        if (alias!=null && aliasMap.containsKey(alias)) {
             throw new AmbigousAliasErr("Alias '" + alias + "' déjà utilisé");
-        } else {
+        } else if(alias!=null){
             aliasMap.put(alias, id);
         }
     }

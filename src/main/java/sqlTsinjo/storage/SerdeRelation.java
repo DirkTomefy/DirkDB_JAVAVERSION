@@ -47,7 +47,7 @@ public class SerdeRelation {
         ParseSuccess<SelectExpr> select = SelectExpr
                 .parseExpr("Alaivo * #ao@ code c1 \n #atifitra@ (Alaivo * #ao@ code) ");
         System.out.println("" + select);
-        Relation r = select.matched().eval(new AppContext("test", null));
+        Relation r = select.matched().eval(new AppContext("test", null,true));
         System.out.println("" + r.toStringDebug());
     }
 }

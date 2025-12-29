@@ -1,14 +1,14 @@
 package sqlTsinjo.query.main.select;
 
 import java.io.IOException;
-
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.cli.AppContext;
+import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 import sqlTsinjo.query.main.select.element.enums.BasicRowOp;
 
-public class SelectBinOpExpr implements SelectExpr {
+public class SelectBinOpExpr extends SelectExpr {
     SelectExpr left;
     BasicRowOp op;
     SelectExpr right;
@@ -44,5 +44,10 @@ public class SelectBinOpExpr implements SelectExpr {
     @Override
     public String toString() {
         return "SelectBinOpExpr [left=" + left + ", op=" + op + ", right=" + right + "]";
+    }
+
+    @Override
+    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr, IOException {
+        return this.eval(context.getAppcontext());
     }
 }

@@ -21,7 +21,7 @@ import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 
-public class SelectRqst extends TableOriginWithAlias implements SelectExpr,InsertRqstValues {
+public class SelectRqst extends SelectExpr implements InsertRqstValues {
     SelectFields fields;
     TableOriginWithAlias from;
     Vector<JoinElement> joins;
@@ -54,10 +54,11 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr,Inser
         SelectCtx selectCtx = makeSelectCtx(context);
         if (from == null) {
             result = Relation.makeDualRelation();
+           
         } else {
             result = from.evalAsTableOriginAndHandleId(selectCtx);
         }
-        if (joins != null)
+        if (joins != null && !joins.isEmpty())
             result = evalJoins(result, selectCtx);
         if (where != null)
             result = result.selection(where, selectCtx);
@@ -118,19 +119,7 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr,Inser
         return "SelectRqst [fields=" + fields + ", from=" + from + ", joins=" + joins + ", where=" + where + "]";
     }
 
-    @Override
-    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr, IOException {
-        return this.eval(context.getAppcontext());
-    }
-
-    @Override
-    public void makeAliasAsTableOrigin(LinkedHashMap<String, String> aliasMap) throws AmbigousAliasErr {
-        if (aliasMap.containsKey(alias)) {
-            throw new AmbigousAliasErr("Alias '" + alias + "' déjà utilisé");
-        } else {
-            aliasMap.put(alias, id);
-        }
-    }
+   
     @Override
     public Vector<Vector<Object>> getMultiplyValues() {
         // TODO Auto-generated method stub

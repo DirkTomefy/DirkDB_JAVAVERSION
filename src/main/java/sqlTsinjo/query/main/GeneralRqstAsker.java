@@ -1,6 +1,8 @@
 package sqlTsinjo.query.main;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
@@ -21,70 +23,178 @@ import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.main.update.UpdateRqst;
 import sqlTsinjo.query.main.update.token.UpdateRqstTokenizer;
 import sqlTsinjo.query.token.Token;
+import sqlTsinjo.query.token.TokenKind;
 
 public class GeneralRqstAsker {
-    public static String askRequest(String input, AppContext ctx) throws ParseNomException, EvalErr, IOException {
-        ParseSuccess<Token> token = scanTokenForRequest(input);
-
-        switch (token.matched().status) {
-            case CREATEDATABASE:
-                ParseSuccess<CreateObjectRqst> createdatabase = CreateObjectRqst.parseCreate(input);
-                createdatabase.matched().eval(ctx);
-                input = createdatabase.remaining();
-                String databaseName = (String) ((CreateDataBaseRqst) createdatabase.matched()).getDatabaseName();
-                System.out.println("Ny tahiry : " + databaseName + " dia voaforona soamantsara ");
-                break;
-            case CREATETABLE:
-                ParseSuccess<CreateObjectRqst> createTable = CreateObjectRqst.parseCreate(input);
-                createTable.matched().eval(ctx);
-                input = createTable.remaining();
-                break;
-            case SELECT:
-                ParseSuccess<SelectExpr> select = SelectExpr.parseExpr(input);
-                Relation rel = select.matched().eval(ctx);
-                System.out.println("\n" + rel + "\n");
-                input = select.remaining();
-                break;
-            case USEDATABASE:
-                ctx.setDatabaseName((String) token.matched().value);
-                input = token.remaining();
-                System.out.println("Ny tahiry : " + ctx.getDatabaseName() + " dia miasa ankehitriny");
-                break;
-
-            case INSERTINTO:
-                ParseSuccess<InsertRqst> insert = InsertRqst.parseInsert(input);
-                insert.matched().eval(ctx);
-                input = insert.remaining();
-                break;
-            case UPDATE:
-                ParseSuccess<UpdateRqst> update = UpdateRqst.parseUpdate(input);
-                update.matched().eval(ctx);
-                input = update.remaining();
-            case DELETE :
-                ParseSuccess<DeleteRqst> delete = DeleteRqst.parseDelete(input);
-                delete.matched().eval(ctx);
-                input= delete.remaining();
-            default:
-                break;
-
-        }
-        return input;
+    
+    // Interface pour les handlers de requêtes
+    @FunctionalInterface
+    private interface RequestHandler {
+        void handle(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException;
     }
-
+    
+    // Registre des handlers
+    private static final Map<TokenKind, RequestHandler> HANDLERS = new HashMap<>();
+    
+    static {
+        // Initialisation des handlers
+        HANDLERS.put(TokenKind.CREATEDATABASE, GeneralRqstAsker::handleCreateDatabase);
+        HANDLERS.put(TokenKind.CREATETABLE, GeneralRqstAsker::handleCreateTable);
+        HANDLERS.put(TokenKind.SELECT, GeneralRqstAsker::handleSelect);
+        HANDLERS.put(TokenKind.USEDATABASE, GeneralRqstAsker::handleUseDatabase);
+        HANDLERS.put(TokenKind.INSERTINTO, GeneralRqstAsker::handleInsert);
+        HANDLERS.put(TokenKind.UPDATE, GeneralRqstAsker::handleUpdate);
+        HANDLERS.put(TokenKind.DELETE, GeneralRqstAsker::handleDelete);
+    }
+    
+    public static void askRequest(String input, AppContext ctx) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<Token> token = scanTokenForRequest(input);
+        TokenKind status = token.matched().status;
+        
+        RequestHandler handler = HANDLERS.get(status);
+        if (handler != null) {
+            handler.handle(input, ctx, token.matched());
+        } else {
+            handleUnknownCommand(status);
+        }
+    }
+    
+    // ========== IMPLÉMENTATIONS DES HANDLERS ==========
+    
+    private static void handleCreateDatabase(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
+        validateNoRemaining(result);
+        
+        result.matched().eval(ctx);
+        
+        String databaseName = extractDatabaseName(result.matched());
+        printSuccess("Ny tahiry : " + databaseName + " dia voaforona soamantsara");
+    }
+    
+    private static void handleCreateTable(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
+        validateNoRemaining(result);
+        
+        result.matched().eval(ctx);
+        printSuccess("Ny tabilao dia voaforona soamantsara");
+    }
+    
+    private static void handleSelect(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<SelectExpr> result = SelectExpr.parseExpr(input);
+        validateNoRemaining(result);
+        
+        Relation relation = result.matched().eval(ctx);
+        displayRelation(relation, ctx);
+    }
+    
+    private static void handleUseDatabase(String input, AppContext ctx, Token token) 
+            throws ParseNomException {
+        
+        String databaseName = (String) token.value;
+        validateNoRemaining(input);
+        
+        ctx.setDatabaseName(databaseName);
+        printSuccess("Ny tahiry : " + databaseName + " dia miasa ankehitriny");
+    }
+    
+    private static void handleInsert(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<InsertRqst> result = InsertRqst.parseInsert(input);
+        validateNoRemaining(result);
+        
+        result.matched().eval(ctx);
+        printSuccess("Tafinditra ny fiovana ny tabilao");
+    }
+    
+    private static void handleUpdate(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<UpdateRqst> result = UpdateRqst.parseUpdate(input);
+        validateNoRemaining(result);
+        
+        result.matched().eval(ctx);
+        printSuccess("Tafinditra ny fiovana ny tabilao");
+    }
+    
+    private static void handleDelete(String input, AppContext ctx, Token token) 
+            throws ParseNomException, EvalErr, IOException {
+        
+        ParseSuccess<DeleteRqst> result = DeleteRqst.parseDelete(input);
+        validateNoRemaining(result);
+        
+        result.matched().eval(ctx);
+        printSuccess("Tafinditra ny fiovana ny tabilao");
+    }
+    
+    private static void handleUnknownCommand(TokenKind status) {
+        System.err.println("Commande non gérée: " + status);
+        // Ou lancer une exception selon vos besoins
+        throw new UnsupportedOperationException("Commande non supportée: " + status);
+    }
+    
+    // ========== MÉTHODES UTILITAIRES ==========
+    
+    private static void validateNoRemaining(ParseSuccess<?> result) throws ParseNomException {
+        if (!result.remaining().trim().isEmpty()) {
+            ParseNomException.buildRemainingException(result.remaining());
+        }
+    }
+    
+    private static void validateNoRemaining(String input) throws ParseNomException {
+        if (!input.trim().isEmpty()) {
+            ParseNomException.buildRemainingException(input);
+        }
+    }
+    
+    private static String extractDatabaseName(CreateObjectRqst request) {
+        if (request instanceof CreateDataBaseRqst) {
+            return (String) ((CreateDataBaseRqst) request).getDatabaseName();
+        }
+        return "Inconnu";
+    }
+    
+    private static void displayRelation(Relation relation, AppContext ctx) {
+        String output = ctx.isDebugMode() 
+            ? relation.toStringDebug() 
+            : relation.toString();
+        
+        System.out.println("\n" + output + "\n");
+    }
+    
+    private static void printSuccess(String message) {
+        System.out.println(message);
+    }
+    
+    // ========== MÉTHODES DE TOKENISATION ==========
+    
     public static ParseSuccess<Token> scanUseDatabaseToken(String input) throws ParseNomException {
         ParseSuccess<String> useSign = ParserNomUtil.tagNoCase("AMPIASAO").apply(input.trim());
         ParseSuccess<String> databaseName = ParserNomUtil.tagName(useSign.remaining().trim());
         return new ParseSuccess<>(databaseName.remaining(), Token.useDatabase(databaseName.matched()));
     }
-
+    
     public static ParseSuccess<Token> scanTokenForRequest(String input) throws ParseNomException {
         try {
-            return ParserNomUtil.alt(GeneralRqstAsker::scanUseDatabaseToken, SelectTokenizer::scanSelectToken,
-                    CreateObjectTokenizer::scanCreateToken, InsertRqstTokenizer::scanRealInsertToken,
-                    UpdateRqstTokenizer::scanUpdateToken, DeleteRqstTokenizer::scanDeleteToken).apply(input);
+            return ParserNomUtil.alt(
+                GeneralRqstAsker::scanUseDatabaseToken,
+                SelectTokenizer::scanSelectToken,
+                CreateObjectTokenizer::scanCreateToken,
+                InsertRqstTokenizer::scanRealInsertToken,
+                UpdateRqstTokenizer::scanUpdateToken,
+                DeleteRqstTokenizer::scanDeleteToken
+            ).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }
-
     }
 }

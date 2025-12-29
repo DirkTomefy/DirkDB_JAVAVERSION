@@ -8,9 +8,9 @@ import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.main.GeneralRqstAsker;
 
 public class DirkDbCli {
-    
-    public static void main(String[] args)  {
-        AppContext context = new AppContext(null, "Tomefy");
+
+    public static void main(String[] args) {
+        AppContext context = new AppContext(null, "Tomefy", true);
         printCopyright();
 
         // On utilise un seul Scanner pour toute la durée de l'application
@@ -25,13 +25,18 @@ public class DirkDbCli {
                     break;
                 }
 
-                if (request.trim().isEmpty()) continue;
+                if (request.trim().isEmpty())
+                    continue;
 
                 try {
                     GeneralRqstAsker.askRequest(request, context);
                 } catch (ParseNomException | EvalErr | IOException e) {
-                    // Affichage plus propre de l'erreur
-                    System.err.println("Error: " + e.getMessage());
+                    if (context.debugMode) {
+                        e.printStackTrace();
+                    } else {
+                        System.err.println("Error: " + e.getMessage());
+
+                    }
                 }
             }
         } // Le scanner se ferme automatiquement ici à la fin du programme

@@ -7,12 +7,14 @@ public class AppContext {
     String databaseName;
     String userName;
     Vector<File> lokedFile;
+    boolean debugMode;
     
     
-    public AppContext(String databaseName, String userName) {
+    public AppContext(String databaseName, String userName,boolean debugMode) {
         this.databaseName = databaseName;
         this.userName = userName;
         this.lokedFile =new Vector<>();
+        this.debugMode=debugMode;
     }
     public String getDatabaseName() {
         return databaseName;
@@ -31,5 +33,11 @@ public class AppContext {
     }
     public void setLokedFile(Vector<File> lokedFile) {
         this.lokedFile = lokedFile;
+    }
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
     }
 }

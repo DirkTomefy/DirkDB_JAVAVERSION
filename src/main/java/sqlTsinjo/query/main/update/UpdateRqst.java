@@ -31,16 +31,17 @@ public class UpdateRqst {
         SerdeRelation serde=new SerdeRelation(ctx, tableName);
         Relation rel=serde.deserializeRelation();
         rel.update(newValues, expr);
-        //TODO : transaction
         serde.serializeRelation(rel);
     }
 
     public static ParseSuccess<UpdateRqst> parseUpdate(String input) throws ParseNomException {
         ParseSuccess<Token> keywordAndTableName = UpdateRqstTokenizer.scanUpdateToken(input.trim());
         var t1 = UpdateRqstTokenizer.scanSetToken(keywordAndTableName.remaining().trim());
+        
         ParseSuccess<HashMap<String, Expression>> set = UpdateRqst.parseValues(t1.remaining().trim());
+        
+        System.out.println("ParseUpdate\n");
         ParseSuccess<Expression> expr = SelectRqst.parseOptionalWhere(set.remaining());
-
         return new ParseSuccess<UpdateRqst>(expr.remaining(),
                 new UpdateRqst((String) keywordAndTableName.matched().value, set.matched(), expr.matched() ));
     }

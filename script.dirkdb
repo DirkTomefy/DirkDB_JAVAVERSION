@@ -1,0 +1,66 @@
+# please : copier ce script ligne par ligne et non en entier 
+# ne pas mettre les commentaires please
+# creation de la base de donnée : 
+manamboara tahiry test
+
+#utiliser la database :
+ampiasao test 
+
+#creation de la table :
+manamboara tabilao user ( id LAHATSORATRA(null,null):ISA(null,null) , name LAHATSORATRA(null,null) , age ISA(10,100)  )
+manamboara tabilao userBanie ( id LAHATSORATRA(null,null):ISA(null,null) , status  LAHATSORATRA(null,null)  )
+
+#tester :
+alaivo * ao@ user
+
+#initiation des donnée : 
+manampia ao@ user (id,name,age) sanda (1,'Dirk',null)
+manampia ao@ user (id,name, age ) sanda (2 , 'RakotoBanie', null)
+manampia ao@ user (id,name, age ) sanda (3 , 'RakotoTsyBanie',null)
+manampia ao@ user (id,name, age ) sanda (4 , 'AlfredTsyBanie',null)
+manampia ao@ user (id,name, age ) sanda (5 , 'JimmyBanie',null)
+manampia ao@ user (id,name, age ) sanda (6 , 'HafaIndray',null)
+
+
+manampia ao@ userBanie (id ) sanda (2)
+manampia ao@ userBanie (id) sanda (5)
+manampia ao@ userBanie (id) sanda (19)
+
+
+#test des unions :
+alaivo id #ao@ user #ankambana@ alaivo id #ao@ userBanie 
+
+#test des différence:
+alaivo id #ao@ user #analana@ alaivo id #ao@ userBanie 
+alaivo id #ao@ userBanie #analana@ alaivo id #ao@ user 
+
+#test de intéresection : 
+alaivo id #ao@ user #atifitra@ alaivo id #ao@ userBanie 
+
+#test des unions et différence et intéresection ensemble : 
+alaivo id #ao@ userBanie #atifitra@ alaivo id #ao@ userBanie #analana@ (alaivo id #ao@ userBanie)
+
+
+#testsousrequete :
+alaivo p #ao @  ( alaivo id antso p #ao@ userBanie #atifitra@ alaivo id #ao@ userBanie #ankambana@ (alaivo id #ao@ userBanie) ) antso table1
+
+alaivo p #ao @ (alaivo 1 antso p ) table1
+
+#testjointure:
+    #natural join :
+alaivo * #ao @ user #tonona:natoraly@ userBanie
+    #left join : 
+alaivo * #ao @ user #tonona:avia @ userBanie b #ka b.id = user.id
+    #right join :
+alaivo * #ao @ user #tonona:avanana @ userBanie b #ka b.id = user.id
+    #full : 
+alaivo * #ao @ user #tonona:feno @ userBanie b #ka b.id = user.id
+
+#update :
+    havaozy  user ova name = "RakotoIzayVoaOva" , age = 100 rehefa id = 2
+
+#delete :
+    fafao #ao@ user rehefa 1!=1 
+
+#join à plusieurs :
+alaivo u1.id,u2.id,u3.id #ao @ user u1 #tonona @ user u2 #ka u1.id = u2.id #tonona @ user u3 #ka u1.id=u3.id
