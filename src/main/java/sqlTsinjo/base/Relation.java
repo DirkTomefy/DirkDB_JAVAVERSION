@@ -7,10 +7,12 @@ import sqlTsinjo.base.err.DomainSupportErr;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.base.err.RelationDomainSizeErr;
+import sqlTsinjo.base.util.InsertHelper;
 import sqlTsinjo.base.util.ProjectionHelper;
 import sqlTsinjo.base.util.RelationDisplayer;
 import sqlTsinjo.query.base.classes.expr.Expression;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
+import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
 import sqlTsinjo.query.main.select.element.abstracts.SelectFields;
 import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 
@@ -160,6 +162,10 @@ public class Relation {
             throw new DomainSupportErr("N'insérer jamais un individu null (c'est stupide)");
         this.supportsWithErr(ind);
         this.individus.add(ind);
+    }
+    public void insert(Vector<String> field, InsertRqstValues values) throws DomainOutOfBonds, DomainSupportErr, EvalErr{
+        InsertHelper helper = new InsertHelper(this);
+        helper.insert(field, values);
     }
 
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {

@@ -21,6 +21,9 @@ public enum TokenKind {
     CREATEDATABASE,
 
     //USE :
-    USEDATABASE
+    USEDATABASE,
+
+    //INSERT :
+    INSERTINTO
     ;
 }

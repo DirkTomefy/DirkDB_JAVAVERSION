@@ -12,6 +12,7 @@ import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.classes.expr.Expression;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.err.eval.AmbigousAliasErr;
+import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
 import sqlTsinjo.query.main.select.element.abstracts.SelectFields;
 import sqlTsinjo.query.main.select.element.abstracts.TableOriginWithAlias;
 import sqlTsinjo.query.main.select.element.classes.AllField;
@@ -20,7 +21,7 @@ import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 
-public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
+public class SelectRqst extends TableOriginWithAlias implements SelectExpr,InsertRqstValues {
     SelectFields fields;
     TableOriginWithAlias from;
     Vector<JoinElement> joins;
@@ -129,6 +130,11 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
         } else {
             aliasMap.put(alias, id);
         }
+    }
+    @Override
+    public Vector<Vector<Object>> getMultiplyValues() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getmupltiplyValues'");
     }
 
 }

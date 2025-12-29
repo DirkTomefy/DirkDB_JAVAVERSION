@@ -9,6 +9,8 @@ import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.err.parsing.CommandAvailableNotFound;
+import sqlTsinjo.query.main.insert.InsertRqst;
+import sqlTsinjo.query.main.insert.token.InsertRqstTokenizer;
 import sqlTsinjo.query.main.select.SelectExpr;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.main.sqlobject.create.CreateDataBaseRqst;
@@ -44,7 +46,14 @@ public class GeneralRqstAsker {
                 input=token.remaining();
                 System.out.println("Ny tahiry : "+ctx.getDatabaseName()+ " dia miasa ankehitriny");
                 break;
+            
+            case INSERTINTO:
+               ParseSuccess<InsertRqst> insert = InsertRqst.parseInsert(input);
+               insert.matched().eval(ctx);
+               input=insert.remaining();
+                break;
             default:
+                break;
             
         }
         return input;
@@ -59,7 +68,7 @@ public class GeneralRqstAsker {
     public static ParseSuccess<Token> scanTokenForRequest(String input) throws ParseNomException {
         try {
             return ParserNomUtil.alt(GeneralRqstAsker::scanUseDatabaseToken, SelectTokenizer::scanSelectToken,
-                    CreateObjectTokenizer::scanCreateToken).apply(input);
+                    CreateObjectTokenizer::scanCreateToken,InsertRqstTokenizer::scanRealInsertToken).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }

@@ -2,10 +2,7 @@ package sqlTsinjo.query.base.classes.expr;
 
 import java.util.Vector;
 
-import sqlTsinjo.base.Domain;
-
 import sqlTsinjo.base.Relation;
-import sqlTsinjo.base.domains.abstracts.DBString;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.query.err.eval.NullValueErr;
 import sqlTsinjo.query.err.eval.TypeMismatchErr;
@@ -60,7 +57,6 @@ public class PrimitiveExpr implements Expression {
     private Object evalId(Relation relation, Vector<Object> row,SelectCtx ctx) throws EvalErr {
         QualifiedIdentifier idFieldName = (QualifiedIdentifier) value;
         int index = idFieldName.getIndex(relation.getFieldName(),ctx);
-        Domain d = relation.getDomaines().get(index);
         Object idValue = idFieldName.getValueFromARow(relation.getFieldName(), row, index,ctx);
         String maybeReturn = handleVarcharAndChar(idValue);
         if (maybeReturn != null) {

@@ -106,6 +106,9 @@ public class Token {
     public static Token useDatabase(String databaseName) {
         return new Token(TokenKind.USEDATABASE, databaseName);
     }
+    public static Token insertSign(){
+        return new Token(TokenKind.INSERTINTO, null );
+    }
 
     @Override
     public String toString() {
