@@ -16,6 +16,8 @@ import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.main.sqlobject.create.CreateDataBaseRqst;
 import sqlTsinjo.query.main.sqlobject.create.CreateObjectRqst;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
+import sqlTsinjo.query.main.update.UpdateRqst;
+import sqlTsinjo.query.main.update.token.UpdateRqstTokenizer;
 import sqlTsinjo.query.token.Token;
 
 public class GeneralRqstAsker {
@@ -52,6 +54,10 @@ public class GeneralRqstAsker {
                insert.matched().eval(ctx);
                input=insert.remaining();
                 break;
+            case UPDATE :
+                ParseSuccess<UpdateRqst> update = UpdateRqst.parseUpdate(input);
+                update.matched().eval(ctx);
+                input=update.remaining();
             default:
                 break;
             
@@ -68,7 +74,7 @@ public class GeneralRqstAsker {
     public static ParseSuccess<Token> scanTokenForRequest(String input) throws ParseNomException {
         try {
             return ParserNomUtil.alt(GeneralRqstAsker::scanUseDatabaseToken, SelectTokenizer::scanSelectToken,
-                    CreateObjectTokenizer::scanCreateToken,InsertRqstTokenizer::scanRealInsertToken).apply(input);
+                    CreateObjectTokenizer::scanCreateToken,InsertRqstTokenizer::scanRealInsertToken,UpdateRqstTokenizer::scanUpdateToken).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }

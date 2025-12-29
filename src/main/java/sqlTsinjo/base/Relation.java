@@ -1,5 +1,6 @@
 package sqlTsinjo.base;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import sqlTsinjo.base.err.DomainOutOfBonds;
@@ -10,6 +11,7 @@ import sqlTsinjo.base.err.RelationDomainSizeErr;
 import sqlTsinjo.base.util.InsertHelper;
 import sqlTsinjo.base.util.ProjectionHelper;
 import sqlTsinjo.base.util.RelationDisplayer;
+import sqlTsinjo.base.util.UpdateHelper;
 import sqlTsinjo.query.base.classes.expr.Expression;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
@@ -168,6 +170,10 @@ public class Relation {
         helper.insert(field, values);
     }
 
+    public void update(HashMap<String,Expression> values,Expression condition) throws DomainOutOfBonds, DomainSupportErr, ParseNomException, EvalErr{
+        UpdateHelper helper =new UpdateHelper(this);
+        helper.update( values, condition);
+    }
     public static Relation union(Relation rel1, Relation rel2) throws RelationDomainSizeErr {
         String nvNom = rel1.name + "_Union_" + rel2.name;
         Vector<Domain> newDomaines = new Vector<>();

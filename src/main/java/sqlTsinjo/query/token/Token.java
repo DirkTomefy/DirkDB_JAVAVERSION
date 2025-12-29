@@ -109,6 +109,9 @@ public class Token {
     public static Token insertSign(){
         return new Token(TokenKind.INSERTINTO, null );
     }
+    public static Token updateSign(String tableName){
+        return new Token(TokenKind.UPDATE, tableName );
+    }
 
     @Override
     public String toString() {
