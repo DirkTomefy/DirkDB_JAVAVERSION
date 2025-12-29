@@ -62,7 +62,7 @@ public class PrimitiveExpr implements Expression {
         int index = idFieldName.getIndex(relation.getFieldName(),ctx);
         Domain d = relation.getDomaines().get(index);
         Object idValue = idFieldName.getValueFromARow(relation.getFieldName(), row, index,ctx);
-        String maybeReturn = handleStringDomain(d, idValue);
+        String maybeReturn = handleVarcharAndChar(idValue);
         if (maybeReturn != null) {
             return maybeReturn;
         } else {
@@ -70,16 +70,10 @@ public class PrimitiveExpr implements Expression {
         }
     }
 
-    private String handleStringDomain(Domain d, Object idvalue) {
-        DBString<?> dbs = d.getStringVersion();
-        if (dbs == null)
-            return null;
-
-        String s = dbs.intoStringValue(idvalue);
-        if (s == null)
-            return null;
-
-        return s;
+    private String handleVarcharAndChar( Object idvalue) {
+        if(idvalue instanceof char[] c) return new String(c);
+        if(idvalue instanceof String s) return s;
+        return null;
     }
 
     private Object evalNumber() throws EvalErr {

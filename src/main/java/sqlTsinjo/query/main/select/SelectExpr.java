@@ -1,5 +1,9 @@
 package sqlTsinjo.query.main.select;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
@@ -11,8 +15,9 @@ import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.Tokenizer;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public interface SelectExpr {
-    public Relation eval(AppContext context) throws ParseNomException, EvalErr ;
+    public Relation eval(AppContext context) throws ParseNomException, EvalErr, IOException ;
     public static ParseSuccess<SelectExpr> parseExpr(String input) throws ParseNomException {
         return parseBinaryExpr(input);
     }

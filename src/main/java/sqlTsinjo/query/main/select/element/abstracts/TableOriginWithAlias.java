@@ -15,9 +15,14 @@ import sqlTsinjo.query.main.select.element.err.AliasNeededException;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.Tokenizer;
+
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class TableOriginWithAlias {
     protected String id;
     protected String alias;
@@ -85,9 +90,9 @@ public abstract class TableOriginWithAlias {
         return ParserNomUtil.tagName(aliasSign.remaining().trim());
     }
 
-    public abstract Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr ;
+    public abstract Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr,  IOException ;
 
-    public Relation evalAsTableOriginAndHandleId(SelectCtx context) throws ParseNomException, EvalErr{
+    public Relation evalAsTableOriginAndHandleId(SelectCtx context) throws ParseNomException, EvalErr, IOException{
         Relation rel=evalAsTableOrigin0(context);
         for (QualifiedIdentifier colum : rel.getFieldName() ) {
             colum.setOrigin(id);

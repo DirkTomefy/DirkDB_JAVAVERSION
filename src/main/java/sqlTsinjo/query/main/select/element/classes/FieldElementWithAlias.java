@@ -5,6 +5,8 @@ import sqlTsinjo.query.base.classes.expr.Expression;
 public class FieldElementWithAlias {
     Expression expr;
     String alias;
+    public FieldElementWithAlias() {
+    }
     public FieldElementWithAlias(Expression expr, String alias) {
         this.expr = expr;
         this.alias = alias;

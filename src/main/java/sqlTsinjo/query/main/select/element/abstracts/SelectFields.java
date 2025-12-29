@@ -1,5 +1,7 @@
 package sqlTsinjo.query.main.select.element.abstracts;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.classes.expr.Expression;
@@ -14,6 +16,7 @@ import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.Tokenizer;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public interface SelectFields {
     public static ParseSuccess<SelectFields> parse(String input) throws ParseNomException {
         if (input.trim().startsWith("*")) {

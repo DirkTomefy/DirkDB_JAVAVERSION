@@ -85,6 +85,12 @@ public class Relation {
         this.fieldName = new Vector<>();
         this.individus = new Vector<>();
     }
+    public Relation(String name, Vector<String> fieldRealName, Vector<Domain> domaines) {
+        this.name = name;
+        this.fieldName=QualifiedIdentifier.into(fieldRealName);
+        this.domaines = domaines;
+        this.individus = new Vector<>();
+    }
 
     public Relation(String name, Vector<QualifiedIdentifier> fieldName, Vector<Domain> domaines,
             Vector<Vector<Object>> individus) {
@@ -94,6 +100,7 @@ public class Relation {
         this.individus = individus;
     }
 
+    
     public static Relation makeDualRelation() {
         String name = "dual";
         Vector<QualifiedIdentifier> id = new Vector<>();
@@ -101,7 +108,10 @@ public class Relation {
         Vector<Domain> domains = new Vector<>();
         domains.add(Domain.makeUniversalDomain());
 
-        return new Relation(name, id, domains, new Vector<>());
+        Vector<Vector<Object>> persons=new Vector<>();
+        Vector<Object> row=new Vector<>();
+        persons.add(row);
+        return new Relation(name, id, domains, persons );
     }
 
     public boolean isValidDomain(Relation rel2) {

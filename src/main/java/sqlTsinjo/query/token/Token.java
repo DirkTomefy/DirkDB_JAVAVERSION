@@ -83,15 +83,30 @@ public class Token {
         return new Token(TokenKind.JOIN, JoinOp.NATURAL);
     }
 
-    public static Token union(){
+    public static Token union() {
         return new Token(TokenKind.RELATIONOP, BasicRowOp.UNION);
     }
-    public static Token intersection(){
+
+    public static Token intersection() {
         return new Token(TokenKind.RELATIONOP, BasicRowOp.INTERSECTION);
     }
-     public static Token difference(){
+
+    public static Token difference() {
         return new Token(TokenKind.RELATIONOP, BasicRowOp.DIFFERENCE);
     }
+
+    public static Token createDatabase() {
+        return new Token(TokenKind.CREATEDATABASE, null);
+    }
+
+    public static Token createTable() {
+        return new Token(TokenKind.CREATETABLE, null);
+    }
+
+    public static Token useDatabase(String databaseName) {
+        return new Token(TokenKind.USEDATABASE, databaseName);
+    }
+
     @Override
     public String toString() {
         return value == null ? status.name()

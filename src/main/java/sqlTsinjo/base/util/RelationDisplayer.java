@@ -42,7 +42,7 @@ public class RelationDisplayer {
         // 1) Largeur max par colonne (noms + domaines + valeurs)
         for (int i = 0; i < colCount; i++) {
             QualifiedIdentifier header = columns.get(i);
-            String h1=debug ? header.getName() : header.getOrigin()+header.getName();
+            String h1=!debug ? header.getName() : header.getOrigin()+"."+header.getName();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
                 h1 += " (" + domaines.get(i) + ")";
             }
@@ -68,14 +68,14 @@ public class RelationDisplayer {
         int totalWidth = 2 + Arrays.stream(width).sum() + (3 * colCount);
 
         // 2) En-tête
-        sb.append("Relation: ").append(rel.getName()).append("\n");
+        sb.append("Relation: ").append(rel.getName()).append("\n\n");
         sb.append("=".repeat(totalWidth)).append("\n");
 
         // 3) Ligne en-tête
         List<String> headerValues = new ArrayList<>();
         for (int i = 0; i < colCount; i++) {
             QualifiedIdentifier h = columns.get(i);
-            String h2=debug ? h.getName() : h.getOrigin()+h.getName();
+            String h2=!debug ? h.getName() : h.getOrigin()+"."+h.getName();
             if (debug && domaines != null && i < domaines.size() && domaines.get(i) != null) {
                 h2+=" (" + domaines.get(i) + ")";
             }
@@ -95,7 +95,7 @@ public class RelationDisplayer {
 
         // 5) Ligne finale + résumé
         sb.append("-".repeat(totalWidth)).append("\n");
-        sb.append("Total: ").append(rows != null ? rows.size() : 0).append(" individu(s)");
+        sb.append("\nTotal: ").append(rows != null ? rows.size() : 0).append(" individu(s)");
 
         return sb.toString();
     }

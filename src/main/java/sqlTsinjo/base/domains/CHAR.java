@@ -5,6 +5,9 @@ import sqlTsinjo.base.domains.abstracts.DBString;
 public class CHAR extends DBString<char[]> {
     int limit;
 
+    public CHAR() {
+    }
+
     public CHAR(int limit) {
         this.setClazz(char[].class);
         this.limit = limit;
@@ -36,6 +39,10 @@ public class CHAR extends DBString<char[]> {
     @Override
     public String toString() {
         return "CHAR( " + limit + " )";
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 
 }

@@ -1,5 +1,6 @@
 package sqlTsinjo.query.main.select.element.classes;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import sqlTsinjo.base.Relation;
@@ -61,7 +62,7 @@ public class JoinElement {
         }
     }
 
-    public Relation evalJoinElement(Relation src, SelectCtx ctx) throws ParseNomException, EvalErr {
+    public Relation evalJoinElement(Relation src, SelectCtx ctx) throws ParseNomException, EvalErr, IOException {
         Relation result = tableOrigin.evalAsTableOriginAndHandleId(ctx);
         switch (op) {
             case FULL:

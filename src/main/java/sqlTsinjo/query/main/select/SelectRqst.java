@@ -1,5 +1,6 @@
 package sqlTsinjo.query.main.select;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -25,6 +26,9 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
     Vector<JoinElement> joins;
     Expression where;
 
+    public SelectRqst(){
+        
+    }
     public SelectRqst(SelectFields fields, TableOriginWithAlias from, Vector<JoinElement> joins, Expression where) {
         this.fields = fields;
         this.from = from;
@@ -44,7 +48,7 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
     }
 
     @Override
-    public Relation eval(AppContext context) throws ParseNomException, EvalErr {
+    public Relation eval(AppContext context) throws ParseNomException, EvalErr, IOException {
         Relation result = null;
         SelectCtx selectCtx = makeSelectCtx(context);
         if (from == null) {
@@ -60,7 +64,7 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
         return result;
     }
 
-    public Relation evalJoins(Relation fromRelation, SelectCtx ctx) throws ParseNomException, EvalErr {
+    public Relation evalJoins(Relation fromRelation, SelectCtx ctx) throws ParseNomException, EvalErr, IOException {
         Relation lastResult = fromRelation;
         if (joins != null) {
             for (JoinElement joinElement : joins) {
@@ -114,7 +118,7 @@ public class SelectRqst extends TableOriginWithAlias implements SelectExpr {
     }
 
     @Override
-    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr {
+    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr, IOException {
         return this.eval(context.getAppcontext());
     }
 

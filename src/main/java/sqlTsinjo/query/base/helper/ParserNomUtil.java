@@ -121,6 +121,11 @@ public class ParserNomUtil {
         return new ParseSuccess<>(input.substring(i), input.substring(0, i));
     }
 
+    public static ParserNom<String> takeWhile1(java.util.function.Function<Character, Boolean> predicate){
+        return input->{
+            return takeWhile1(predicate,input);
+        };
+    }
     public static ParseSuccess<String> tagName(String input) throws ParseNomException {
         ParseSuccess<String> firstRes = ParserNomUtilHelper.parseFirstChar(input);
         ParseSuccess<String> restRes = ParserNomUtilHelper.parseRestChars(firstRes.remaining());

@@ -1,21 +1,42 @@
 package sqlTsinjo.cli;
 
+import java.io.IOException;
 import java.util.Scanner;
 
+import sqlTsinjo.base.err.EvalErr;
+import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.query.main.GeneralRqstAsker;
+
 public class DirkDbCli {
-
-    public static void main(String[] args) {
+    
+    public static void main(String[] args)  {
+        AppContext context = new AppContext(null, "Tomefy");
         printCopyright();
-        while (true) {
-            askRequest();
-        }
+
+        // On utilise un seul Scanner pour toute la durée de l'application
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.print("|DirkDB > ");
+                String request = scanner.nextLine();
+
+                // Permettre de quitter proprement la boucle
+                if (request.equalsIgnoreCase("exit") || request.equalsIgnoreCase("quit")) {
+                    System.out.println("Goodbye!");
+                    break;
+                }
+
+                if (request.trim().isEmpty()) continue;
+
+                try {
+                    GeneralRqstAsker.askRequest(request, context);
+                } catch (ParseNomException | EvalErr | IOException e) {
+                    // Affichage plus propre de l'erreur
+                    System.err.println("Error: " + e.getMessage());
+                }
+            }
+        } // Le scanner se ferme automatiquement ici à la fin du programme
     }
 
-    private static void askRequest(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("|DirkDB > ");
-        // String _=scanner.nextLine();
-    }
     private static void printCopyright() {
         System.out.println("========================================");
         System.out.println(" DirkDB SQL Engine - Command Line Tool");
@@ -25,7 +46,7 @@ public class DirkDbCli {
         System.out.println(" Author : Dirk Tomefy");
         System.out.println(" All rights reserved.");
         System.out.println();
-        System.out.println(" DirkDB is a lightweight educational SQL engine.");
+        System.out.println(" Type 'exit' or 'quit' to leave.");
         System.out.println("========================================");
     }
 }

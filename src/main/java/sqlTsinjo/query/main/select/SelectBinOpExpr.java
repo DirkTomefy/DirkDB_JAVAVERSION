@@ -1,5 +1,7 @@
 package sqlTsinjo.query.main.select;
 
+import java.io.IOException;
+
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
@@ -18,7 +20,7 @@ public class SelectBinOpExpr implements SelectExpr {
     }
 
     @Override
-    public Relation eval(AppContext context) throws ParseNomException, EvalErr {
+    public Relation eval(AppContext context) throws ParseNomException, EvalErr, IOException {
         Relation l = left.eval(context);
         Relation r = right.eval(context);
         Relation result = l;

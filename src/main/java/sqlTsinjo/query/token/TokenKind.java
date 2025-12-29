@@ -14,6 +14,13 @@ public enum TokenKind {
     FROM,
     AS,
     JOIN,
-    RELATIONOP
+    RELATIONOP,
+
+    //CREATE :
+    CREATETABLE,
+    CREATEDATABASE,
+
+    //USE :
+    USEDATABASE
     ;
 }

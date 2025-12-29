@@ -1,4 +1,5 @@
 package sqlTsinjo.query.main.select.element.classes;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import sqlTsinjo.base.Relation;
@@ -12,6 +13,9 @@ public class TableNameOrigin extends TableOriginWithAlias {
 
     String name;
 
+    public TableNameOrigin() {
+    }
+
     public TableNameOrigin(String id, String alias, String name) {
         super(id, alias);
         this.name = name;
@@ -23,7 +27,7 @@ public class TableNameOrigin extends TableOriginWithAlias {
     }
 
     @Override
-    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException, EvalErr {
+    public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException,EvalErr, IOException {
         SerdeRelation serdeRelation =new SerdeRelation(context.getAppcontext(),name);
         return serdeRelation.deserializeRelation();
     }

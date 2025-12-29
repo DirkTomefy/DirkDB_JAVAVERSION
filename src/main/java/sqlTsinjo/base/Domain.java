@@ -5,7 +5,6 @@ import java.util.Vector;
 import sqlTsinjo.base.domains.DATE;
 import sqlTsinjo.base.domains.NUMBER;
 import sqlTsinjo.base.domains.VARCHAR;
-import sqlTsinjo.base.domains.abstracts.DBString;
 
 public class Domain {
     Vector<DomainAtom> supports;
@@ -96,13 +95,6 @@ public class Domain {
         return supports;
     }
 
-    public DBString<?> getStringVersion() {
-        for (DomainAtom domainAtom : supports) {
-            if (domainAtom instanceof DBString e)
-                return e;
-        }
-        return null;
-    }
     public static Domain makeUniversalDomain(){
         Domain d=new Domain();
         d.add(new VARCHAR(null));

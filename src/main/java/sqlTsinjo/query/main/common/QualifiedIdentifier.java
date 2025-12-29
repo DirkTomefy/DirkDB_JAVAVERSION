@@ -10,6 +10,9 @@ public class QualifiedIdentifier {
    String origin;
    String name;
 
+   public QualifiedIdentifier() {
+   }
+
    public QualifiedIdentifier(String origin, String name) {
       this.origin = origin;
       this.name = name;
@@ -17,6 +20,14 @@ public class QualifiedIdentifier {
 
    public static QualifiedIdentifier buildFromName(String name) {
       return new QualifiedIdentifier(null, name);
+   }
+
+   public static Vector<QualifiedIdentifier> into(Vector<String> arg){
+      Vector<QualifiedIdentifier> result=new Vector<>();
+      for (String name : arg) {
+            result.add(buildFromName(name));
+      }
+      return result;
    }
 
    public Object getValueFromARow(Vector<QualifiedIdentifier> fieldName, Vector<Object> row, SelectCtx ctx)
