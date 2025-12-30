@@ -100,7 +100,7 @@ public class GeneralRqstAsker {
             throws ParseNomException {
         
         String databaseName = (String) token.value;
-        validateNoRemaining(input);
+        validateNoRemaining(scanUseDatabaseToken(input).remaining());
         
         ctx.setDatabaseName(databaseName);
         printSuccess("Ny tahiry : " + databaseName + " dia miasa ankehitriny");
@@ -146,13 +146,13 @@ public class GeneralRqstAsker {
     
     private static void validateNoRemaining(ParseSuccess<?> result) throws ParseNomException {
         if (!result.remaining().trim().isEmpty()) {
-            ParseNomException.buildRemainingException(result.remaining());
+            throw  ParseNomException.buildRemainingException(result.remaining());
         }
     }
     
     private static void validateNoRemaining(String input) throws ParseNomException {
         if (!input.trim().isEmpty()) {
-            ParseNomException.buildRemainingException(input);
+            throw ParseNomException.buildRemainingException(input);
         }
     }
     
