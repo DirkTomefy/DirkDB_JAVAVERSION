@@ -30,7 +30,10 @@ public enum TokenKind {
     UPDATE,
 
     //DELETE :
-    DELETE
+    DELETE,
+
+    //DROP :
+    DROPOBJECTSQL
 
     ;
 }

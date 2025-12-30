@@ -2,9 +2,9 @@ package sqlTsinjo.query.err.eval;
 
 import sqlTsinjo.base.err.EvalErr;
 
-public class DatabaseAlreadyExistErr extends EvalErr {
+public class DatabaseNotExistErr extends EvalErr {
 
-    public DatabaseAlreadyExistErr(String databaseName) {
+    public DatabaseNotExistErr(String databaseName) {
         super("Le database "+databaseName +" existe déja");
     }
     

@@ -47,7 +47,7 @@ public class Tokenizer {
             case "<=" -> CompareOp.Lte;
             case "<" -> CompareOp.Lt;
             default -> {
-                if ("is".equalsIgnoreCase(success.matched()))
+                if ("dia".equalsIgnoreCase(success.matched()))
                     yield CompareOp.Is;
                 else
                     throw new ParseNomException(oldInput,

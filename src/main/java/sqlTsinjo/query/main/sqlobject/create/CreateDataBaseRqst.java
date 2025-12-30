@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.cli.AppContext;
-import sqlTsinjo.query.err.eval.DatabaseAlreadyExistErr;
+import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 
 public class CreateDataBaseRqst implements CreateObjectRqst{
     String databaseName;
@@ -18,7 +18,7 @@ public class CreateDataBaseRqst implements CreateObjectRqst{
     public void eval(AppContext ctx) throws EvalErr, IOException {
         File path = new File("databases/"+databaseName+"/tables");
         if(path.exists()){
-            throw new DatabaseAlreadyExistErr(databaseName);
+            throw new DatabaseNotExistErr(databaseName);
         }else{
             path.mkdirs();
         }

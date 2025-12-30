@@ -5,6 +5,7 @@ import sqlTsinjo.query.base.classes.operand.PrefixedOp;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.select.element.enums.BasicRowOp;
 import sqlTsinjo.query.main.select.element.enums.JoinOp;
+import sqlTsinjo.query.main.sqlobject.ObjectSQLEnum;
 
 public class Token {
     public TokenKind status;
@@ -114,6 +115,9 @@ public class Token {
     }
     public static Token deleteSign(String tableName){
         return new Token(TokenKind.DELETE , tableName);
+    }
+    public static Token dropObjectSQL(ObjectSQLEnum type){
+        return new Token(TokenKind.DROPOBJECTSQL, type);
     }
 
     @Override

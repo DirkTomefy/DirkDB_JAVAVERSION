@@ -1,22 +1,23 @@
-# please : copier ce script ligne par ligne et non en entier 
-# ne pas mettre les commentaires please
-# creation de la base de donnée : 
+-- please : copier ce script ligne par ligne et non en entier 
+-- ne pas mettre les commentaires please
+-- creation de la base de donnée : 
 manamboara tahiry test;
 
-#utiliser la database :
+-- utiliser la database :
 ampiasao test ;
 
-#creation de la table :
+-- creation de la table :
 manamboara tabilao user (
     id LAHATSORATRA(null,null):ISA(null,null),
-    name LAHATSORATRA(null,null) , age ISA(10,100) 
+    name LAHATSORATRA(null,null) ,
+    age ISA(10,100) 
       );
 manamboara tabilao userBanie ( 
     id LAHATSORATRA(null,null):ISA(null,null) ,
      status  LAHATSORATRA(null,null)
     );
 
-#tester :
+-- tester :
 alaivo * ao@ user
 
 #initiation des donnée : 
@@ -33,44 +34,55 @@ manampia ao@ userBanie (id) sanda (5);
 manampia ao@ userBanie (id) sanda (19);
 
 
-#test des unions :
+-- test des unions :
 alaivo id #ao@ user #ankambana@ alaivo id #ao@ userBanie ;
 
-#test des différence:
+-- test des différence:
 alaivo id #ao@ user #analana@ alaivo id #ao@ userBanie ;
 alaivo id #ao@ userBanie #analana@ alaivo id #ao@ user ;
 
-#test de intéresection : 
+-- test de intéresection : 
 alaivo id #ao@ user #atifitra@ alaivo id #ao@ userBanie ;
 
-#test des unions et différence et intéresection ensemble : 
+-- test des unions et différence et intéresection ensemble : 
 alaivo id #ao@ userBanie #atifitra@ alaivo id #ao@ userBanie #analana@ (alaivo id #ao@ userBanie);
 
 
-#testsousrequete :
+-- testsousrequete :
 alaivo p #ao @  (
      alaivo id antso p #ao@ userBanie #atifitra@ alaivo id #ao@ userBanie #ankambana@ (alaivo id #ao@ userBanie)
       ) antso table1;
 
 alaivo p #ao @ (alaivo 1 antso p ) table1;
 
-#testjointure:
-    #natural join :
+-- testjointure:
+    -- natural join :
 alaivo * #ao @ user #tonona:natoraly@ userBanie;
-    #left join : 
+    -- left join : 
 alaivo * #ao @ user #tonona:avia @ userBanie b #ka b.id = user.id;
-    #right join :
+    -- right join :
 alaivo * #ao @ user #tonona:avanana @ userBanie b #ka b.id = user.id;
-    #full : 
+    -- full : 
 alaivo * #ao @ user #tonona:feno @ userBanie b #ka b.id = user.id;
 
-#update :
+-- update :
     havaozy  user ova name = "RakotoIzayVoaOva" , age = 100 rehefa id = 2;
 
-#delete :
+-- delete :
     fafao #ao@ user rehefa 1!=1 ;
 
-#join à plusieurs :
+-- join à plusieurs :
 alaivo u1.id,u2.id,u3.id #ao @ user u1
- #tonona @ user u2 
-#tonona @ user u3 #ka u1.id=u3.id #ary u1.id = u2.id;
+    #tonona @ user u2 
+    #tonona @ user u3 #ka u1.id=u3.id #ary u1.id = u2.id;
+
+-- test is null et is not null
+    alaivo * ao@user # rehefa name dia null
+    alaivo * ao@user # rehefa age dia tsy null
+
+-- test not 
+    alaivo * ao@ user #rehefa  ! (1!=1)
+
+-- drop table 
+    ravao ny tabilao user
+    ravao ny tahiry test
