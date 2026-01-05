@@ -17,47 +17,49 @@ public class DirkDbCli {
             StringBuilder requestBuilder = new StringBuilder();
 
             while (true) {
-                // Afficher le prompt seulement si on commence une nouvelle requête
+                // Asehoy ny prompt raha vao manomboka fangatahana vaovao
                 if (requestBuilder.length() == 0) {
                     System.out.print("|DirkDB > ");
                 } else {
-                    System.out.print("        > "); // Indentation pour les lignes suivantes
+                    System.out.print("        > "); // Fanalavirana ho an'ny andalana manaraka
                 }
 
                 String line = scanner.nextLine();
 
-                // Commandes de contrôle
+                // Baiko fanaraha-maso
                 if (requestBuilder.length() == 0) {
-                    if (line.equalsIgnoreCase("exit") || line.equalsIgnoreCase("quit")) {
-                        System.out.println("Goodbye!");
+                    if (line.equalsIgnoreCase("miala") || line.equalsIgnoreCase("mivaoka")) {
+                        System.out.println("Veloma ary!");
                         break;
                     }
-                    if (line.equalsIgnoreCase("clear")) {
-                        System.out.print("\033[H\033[2J"); // Clear console
+                    if (line.equalsIgnoreCase("diovy") || line.equalsIgnoreCase("!")) {
+                        System.out.print("\033[H\033[2J"); // Mamafa ny efijery
                         System.out.flush();
                         continue;
                     }
-                    if (line.equalsIgnoreCase("help")) {
+                    if (line.equalsIgnoreCase("vonjy") || line.equalsIgnoreCase("?")) {
                         showHelp();
                         continue;
                     }
                 }
 
-                // Ajouter la ligne (sauf si c'est une commande d'annulation)
+                // Fanafoanana fangatahana
                 if (line.equalsIgnoreCase("\\c") || line.equalsIgnoreCase("cancel")) {
-                    System.out.println("Query cancelled.");
+                    System.out.println("Nofoanana ny fangatahana.");
                     requestBuilder.setLength(0);
                     continue;
                 }
 
-                // Ajouter la ligne à la requête
+                // Ampiana ao amin'ny fangatahana
                 requestBuilder.append(line).append(" ");
 
-                // Vérifier si la requête est terminée (se termine par un point-virgule)
+                // Hijery raha vita ny fangatahana (mifarana amin'ny ;)
                 String currentRequest = requestBuilder.toString().trim();
                 if (currentRequest.endsWith(";")) {
-                    // Retirer le point-virgule final
-                    String fullRequest = currentRequest.substring(0, currentRequest.length() - 1).trim();
+                    // Esorina ny teboka famaranana
+                    String fullRequest = currentRequest
+                            .substring(0, currentRequest.length() - 1)
+                            .trim();
 
                     if (!fullRequest.isEmpty()) {
                         try {
@@ -66,12 +68,12 @@ public class DirkDbCli {
                             if (context.debugMode) {
                                 e.printStackTrace();
                             } else {
-                                System.err.println("Error: " + e.getMessage());
+                                System.err.println("Hadisoana : " + e.getMessage());
                             }
                         }
                     }
 
-                    // Réinitialiser pour la prochaine requête
+                    // Averina ho aotra ho an'ny fangatahana manaraka
                     requestBuilder.setLength(0);
                 }
             }
@@ -79,25 +81,25 @@ public class DirkDbCli {
     }
 
     private static void showHelp() {
-        System.out.println("\nCommands:");
-        System.out.println("  exit, quit  - Exit the program");
-        System.out.println("  clear       - Clear the screen");
-        System.out.println("  help        - Show this help");
-        System.out.println("  \\c, cancel  - Cancel current multiline query");
-        System.out.println("\nEnter SQL statements ending with ; for multiline queries.");
+        System.out.println("\nBaiko misy:");
+        System.out.println("  miala, mivaoka  - Hiala amin'ny programa");
+        System.out.println("  diovy       - Mamafa ny efijery");
+        System.out.println("  vonjy        - Mampiseho ity fanazavana ity");
+        System.out.println("  \\c, cancel  - Manafoana ny fangatahana maromaro andalana");
+        System.out.println("\nAmpidiro ny baiko SQL mifarana amin'ny ; raha andalana maromaro.");
         System.out.println();
     }
 
     private static void printCopyright() {
         System.out.println("========================================");
-        System.out.println(" DirkDB SQL Engine - Command Line Tool");
-        System.out.println(" Version 1.0.0");
+        System.out.println(" DirkDB SQL Engine - Fitaovana anaty terminal");
+        System.out.println(" Dika 1.0.0");
         System.out.println();
-        System.out.println(" Copyright (c) 2025");
-        System.out.println(" Author : Dirk Tomefy");
-        System.out.println(" All rights reserved.");
+        System.out.println(" Zo rehetra voatokana © 2025");
+        System.out.println(" Mpamorona : Dirk Tomefy");
+        System.out.println(" Voaaro avokoa ny zo rehetra.");
         System.out.println();
-        System.out.println(" Type 'exit' or 'quit' to leave.");
+        System.out.println(" Soraty 'miala' na 'mivaoka' raha hiala.");
         System.out.println("========================================");
     }
 }

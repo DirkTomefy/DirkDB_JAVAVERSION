@@ -5,7 +5,6 @@ import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
-import sqlTsinjo.query.err.eval.DataBaseNotFound;
 import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.err.eval.TableNotFound;
@@ -27,7 +26,7 @@ public class DropRequest {
         ObjectSQLEnum sqlObject = (ObjectSQLEnum) t.matched().value;
         return new ParseSuccess<>(name.remaining(), new DropRequest(name.matched(),sqlObject));
     }
-    public  void eval(AppContext ctx) throws DataBaseNotFound, DatabaseNotExistErr, IOException, TableNotFound, NoDatabaseSelect{
+    public  void eval(AppContext ctx) throws DatabaseNotExistErr, IOException, TableNotFound, NoDatabaseSelect{
         SerdeRelation serde =new SerdeRelation(ctx, null );
         switch (objectType) {
             case DATABASE:

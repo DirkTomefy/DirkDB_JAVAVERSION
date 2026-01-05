@@ -5,7 +5,7 @@ import sqlTsinjo.base.err.EvalErr;
 public class DatabaseNotExistErr extends EvalErr {
 
     public DatabaseNotExistErr(String databaseName) {
-        super("Le database "+databaseName +" existe déja");
+        super("Tsy misy ny tahiry : "+databaseName );
     }
     
 }

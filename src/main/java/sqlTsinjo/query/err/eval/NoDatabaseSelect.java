@@ -5,7 +5,7 @@ import sqlTsinjo.base.err.EvalErr;
 public class NoDatabaseSelect extends EvalErr{
 
     public NoDatabaseSelect() {
-        super("Aucune database sélécitioné");
+        super("Tsy nisafidy tahiry ianao");
     }
     
 }

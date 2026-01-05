@@ -14,7 +14,6 @@ import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
-import sqlTsinjo.query.err.eval.DataBaseNotFound;
 import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.err.eval.TableNotFound;
@@ -64,12 +63,12 @@ public class SerdeRelation {
         return file.exists();
     }
 
-    public void dropDatabase(String databaseName) throws IOException, DataBaseNotFound, DatabaseNotExistErr {
+    public void dropDatabase(String databaseName) throws IOException, DatabaseNotExistErr {
         if (databaseName.equals(appContext.getDatabaseName()))
             appContext.setDatabaseName(null);
         File file = new File("databases/" + databaseName);
         if (!file.exists()) {
-            throw new DataBaseNotFound(databaseName);
+            throw new DatabaseNotExistErr(databaseName);
         } else {
             Path pathToBeDeleted = Paths.get(file.getPath());
 
