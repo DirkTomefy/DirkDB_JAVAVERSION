@@ -21,11 +21,13 @@ import sqlTsinjo.query.main.insert.InsertRqst;
 import sqlTsinjo.query.main.insert.token.InsertRqstTokenizer;
 import sqlTsinjo.query.main.select.SelectExpr;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
+import sqlTsinjo.query.main.sqlobject.ObjectSQLEnum;
 import sqlTsinjo.query.main.sqlobject.create.CreateDataBaseRqst;
 import sqlTsinjo.query.main.sqlobject.create.CreateObjectRqst;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.main.sqlobject.drop.DropRequest;
 import sqlTsinjo.query.main.sqlobject.drop.token.DropRequestTokenizer;
+import sqlTsinjo.query.main.sqlobject.show.token.ShowRequestTokenizer;
 import sqlTsinjo.query.main.update.UpdateRqst;
 import sqlTsinjo.query.main.update.token.UpdateRqstTokenizer;
 import sqlTsinjo.query.token.Token;
@@ -53,6 +55,7 @@ public class GeneralRqstAsker {
         HANDLERS.put(TokenKind.UPDATE, GeneralRqstAsker::handleUpdate);
         HANDLERS.put(TokenKind.DELETE, GeneralRqstAsker::handleDelete);
         HANDLERS.put(TokenKind.DROPOBJECTSQL, GeneralRqstAsker::handleDrop );
+        HANDLERS.put(TokenKind.SHOW,GeneralRqstAsker::handleShow);
     }
 
     public static void askRequest(String input, AppContext ctx)
@@ -67,6 +70,13 @@ public class GeneralRqstAsker {
         } else {
             handleUnknownCommand(status);
         }
+    }
+
+    public static void handleShow(String input, AppContext ctx, Token token) throws ParseNomException, NoDatabaseSelect, IOException{
+        ParseSuccess<Token> asehoy=ShowRequestTokenizer.scanShowObjectSql(input);
+        validateNoRemaining(asehoy);
+        ObjectSQLEnum toShow = (ObjectSQLEnum) asehoy.matched().value;
+        displayRelation(toShow.show(ctx), ctx);
     }
 
     // ========== IMPLÉMENTATIONS DES HANDLERS ==========
@@ -206,7 +216,9 @@ public class GeneralRqstAsker {
                     InsertRqstTokenizer::scanRealInsertToken,
                     UpdateRqstTokenizer::scanUpdateToken,
                     DeleteRqstTokenizer::scanDeleteToken,
-                    DropRequestTokenizer::scanDropObjectSql).apply(input);
+                    DropRequestTokenizer::scanDropObjectSql,
+                    ShowRequestTokenizer::scanShowObjectSql
+                ).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }

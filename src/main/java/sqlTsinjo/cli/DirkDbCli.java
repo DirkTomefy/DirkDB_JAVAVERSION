@@ -10,7 +10,7 @@ import sqlTsinjo.query.main.GeneralRqstAsker;
 public class DirkDbCli {
 
     public static void main(String[] args) {
-        AppContext context = new AppContext(null, "Tomefy", true);
+        AppContext context = new AppContext(null, "Tomefy", false);
         printCopyright();
 
         try (Scanner scanner = new Scanner(System.in)) {

@@ -33,7 +33,9 @@ public enum TokenKind {
     DELETE,
 
     //DROP :
-    DROPOBJECTSQL
+    DROPOBJECTSQL,
 
+    //SHOW :
+    SHOW
     ;
 }

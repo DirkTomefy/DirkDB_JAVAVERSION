@@ -1,9 +1,14 @@
 package sqlTsinjo.base;
 
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
+import sqlTsinjo.base.domains.VARCHAR;
 import sqlTsinjo.base.err.DomainOutOfBonds;
 import sqlTsinjo.base.err.DomainSupportErr;
 import sqlTsinjo.base.err.EvalErr;
@@ -36,6 +41,37 @@ public class Relation {
 
     public void setFieldName(Vector<QualifiedIdentifier> fieldName) {
         this.fieldName = fieldName;
+    }
+
+    public static Relation makeListRelation(Path dossier) throws IOException {
+        String name = "fanasehoana";
+
+        Vector<Domain> domains = new Vector<>();
+        domains.add(new VARCHAR().intoDomain());
+
+        Vector<Vector<Object>> individus = new Vector<>();
+
+        Vector<QualifiedIdentifier> qualifiedIdentifiers = new Vector<>();
+        qualifiedIdentifiers.add(new QualifiedIdentifier(name, "fanasehoana"));
+
+       
+            Files.list(dossier)
+                    .map(path -> path.getFileName().toString())
+                    .map(nom -> nom.split("\\.")[0]) // enlève .json, .txt, etc.
+                    .forEach(nomSansExt -> {
+                        Vector<Object> ligne = new Vector<>();
+                        ligne.add(nomSansExt);
+                        individus.add(ligne);
+                    });
+        
+
+        Relation r = new Relation();
+        r.name = name;
+        r.domaines = domains;
+        r.individus = individus;
+        r.fieldName = qualifiedIdentifiers;
+
+        return r;
     }
 
     public static boolean indEquals(Vector<Object> ind1, Vector<Object> ind2) {

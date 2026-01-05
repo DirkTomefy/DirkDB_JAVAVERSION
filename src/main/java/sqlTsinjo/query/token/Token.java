@@ -120,6 +120,10 @@ public class Token {
         return new Token(TokenKind.DROPOBJECTSQL, type);
     }
 
+    public static Token showListObjectSQL(ObjectSQLEnum type){
+        return new Token(TokenKind.SHOW, type);
+    }
+
     @Override
     public String toString() {
         return value == null ? status.name()
