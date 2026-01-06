@@ -1,11 +1,15 @@
 package sqlTsinjo.base.util;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.DomainOutOfBonds;
 import sqlTsinjo.base.err.DomainSupportErr;
 import sqlTsinjo.base.err.EvalErr;
+import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.base.err.RelationalErr;
+import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
 
@@ -17,11 +21,11 @@ public class InsertHelper {
         this.relation = relation;
     }
     
-    public void insert(Vector<String> fieldNames, InsertRqstValues values) 
-            throws DomainOutOfBonds, DomainSupportErr, EvalErr {
+    public void insert(Vector<String> fieldNames, InsertRqstValues values,AppContext context) 
+            throws ParseNomException, RelationalErr, IOException {
         
         validateParameters(fieldNames, values);
-        Vector<Vector<Object>> allValues = values.getMultiplyValues();
+        Vector<Vector<Object>> allValues = values.getMultiplyValues(context);
         
         if (fieldNames.isEmpty()) {
             insertAllFields(allValues);

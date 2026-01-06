@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 import sqlTsinjo.base.Relation;
-import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.base.err.RelationalErr;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
@@ -36,10 +36,10 @@ public class InsertRqst {
         return result;
     }
 
-    public void eval(AppContext context) throws EvalErr, IOException {
+    public void eval(AppContext context) throws IOException, ParseNomException, RelationalErr {
         SerdeRelation serde = new SerdeRelation(context, table);
         Relation rel = serde.deserializeRelation();
-        rel.insert(fieldName, values);
+        rel.insert(fieldName, values,context);
         System.out.println(" "+this);
         System.out.println(" "+rel );
         serde.serializeRelation(rel);

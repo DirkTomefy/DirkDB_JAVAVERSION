@@ -14,12 +14,14 @@ import sqlTsinjo.base.err.DomainSupportErr;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.base.err.RelationDomainSizeErr;
+import sqlTsinjo.base.err.RelationalErr;
 import sqlTsinjo.base.util.DeleteHelper;
 import sqlTsinjo.base.util.InsertHelper;
 import sqlTsinjo.base.util.NaturalJoinHelper;
 import sqlTsinjo.base.util.ProjectionHelper;
 import sqlTsinjo.base.util.RelationDisplayer;
 import sqlTsinjo.base.util.UpdateHelper;
+import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.classes.expr.Expression;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
@@ -207,10 +209,10 @@ public class Relation {
         this.individus.add(ind);
     }
 
-    public void insert(Vector<String> field, InsertRqstValues values)
-            throws DomainOutOfBonds, DomainSupportErr, EvalErr {
+    public void insert(Vector<String> field, InsertRqstValues values,AppContext context)
+            throws ParseNomException, RelationalErr, IOException {
         InsertHelper helper = new InsertHelper(this);
-        helper.insert(field, values);
+        helper.insert(field, values,context);
     }
 
     public void update(HashMap<String, Expression> values, Expression condition)

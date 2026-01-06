@@ -5,6 +5,9 @@ import java.util.HashSet;
 public class DomainEnum extends DomainAtom {
     HashSet<Object> allowedValue;
 
+    public DomainEnum() {
+    }
+
     public DomainEnum(boolean canBenull, HashSet<Object> allowedValue) {
         this.allowedValue = allowedValue;
     }
@@ -45,5 +48,13 @@ public class DomainEnum extends DomainAtom {
         sb.append("}");
         
         return sb.toString();
+    }
+
+    public HashSet<Object> getAllowedValue() {
+        return allowedValue;
+    }
+
+    public void setAllowedValue(HashSet<Object> allowedValue) {
+        this.allowedValue = allowedValue;
     }
 }

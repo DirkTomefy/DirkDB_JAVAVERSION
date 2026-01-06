@@ -3,6 +3,7 @@ package sqlTsinjo.query.main.insert.element.classes;
 import java.util.Vector;
 
 import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
@@ -63,7 +64,7 @@ public class InsertRqstDefaultValues implements InsertRqstValues {
     }
 
     @Override
-    public Vector<Vector<Object>> getMultiplyValues() {
+    public Vector<Vector<Object>> getMultiplyValues(AppContext context) {
         return this.values;
     }
 }

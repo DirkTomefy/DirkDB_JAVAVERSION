@@ -1,0 +1,94 @@
+manamboara tahiry examen;
+
+ampiasao examen;
+
+
+manamboara tabilao etudiant (
+    idE LAHATSORATRA(null,null),
+    nom LAHATSORATRA(null,null) ,
+    niveau TANISA("L3","M1","L2")
+      );
+
+manampia ao@ etudiant (idE,nom,niveau) sanda ("E1",'Alice',"L3");
+manampia ao@ etudiant (idE,nom,niveau) sanda ("E2",'Bob',"L3");
+manampia ao@ etudiant (idE,nom,niveau) sanda ("E3",'Charly',"M1");
+manampia ao@ etudiant (idE,nom,niveau) sanda ("E4",'Dina',"M1");
+manampia ao@ etudiant (idE,nom,niveau) sanda ("E5",'Evan',"L2");
+
+
+
+manamboara tabilao cours (
+  codeC LAHATSORATRA(null,null),
+  titre  LAHATSORATRA(null,null),
+  type TANISA("OBLIG","OPTION")
+);
+
+manampia ao@ cours (codeC,titre,type) sanda ("C1","Algo","OBLIG");
+manampia ao@ cours (codeC,titre,type) sanda ("C2","BD","OBLIG");
+manampia ao@ cours (codeC,titre,type) sanda ("C3","Web","OPTION");
+manampia ao@ cours (codeC,titre,type) sanda ("C4","IA","OPTION");
+
+
+
+
+
+
+
+manamboara tabilao inscription (
+  idE LAHATSORATRA(null,null),
+  codeC  LAHATSORATRA(null,null),
+  semestre LAHATSORATRA(null,null),
+  note ISA(0,20)
+);
+
+--E1
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E1","C1","S1",14);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E1","C2","S1",11);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E1","C3","S1",9);
+
+--E2
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E2","C1","S1",12);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E2","C3","S1",15);
+
+--E3
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E3","C1","S1",16);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E3","C2","S1",13);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E3","C4","S1",10);
+
+--E4
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E4","C2","S1",8);
+
+--E5
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E5","C1","S1",10);
+manampia ao@ inscription (idE,codeC,semestre,note) sanda ("E5","C2","S2",12);
+
+
+--jointure naturelle
+alaivo * ao@ inscription #tonona:natoraly@ cours #tonona:natoraly@ etudiant;
+alaivo * ao@ inscription #tonona:natoraly@ cours #tonona:natoraly@ etudiant #rehefa idE="E5" na idE="E4" ;
+alaivo * ao@ inscription #tonona:natoraly@ cours #tonona:natoraly@ etudiant #rehefa idE="E1" ary note=14 ;
+alaivo * ao@ inscription #tonona:natoraly@ cours #tonona:natoraly@ etudiant #rehefa idE="E1";
+
+
+--test projection :
+alaivo inscription.idE #ao@ inscription #rehefa idE="E3";
+
+--union manala doublon :
+alaivo inscription.idE #ao@ inscription #rehefa idE="E3" #ankambana alaivo inscription.idE #ao@ inscription #rehefa idE="E2" 
+
+--test selection :
+alaivo idE antso idEtudiant #ao@ inscription
+
+//*Examen 
+
+//question1 : 
+lister nom , codeC quit ont valider un cours obligatoire en S1 , 
+
+//réponse1 :
+alaivo nom , codeC   #ao@ inscription 
+  #tonona:natoraly@ cours 
+  #tonona:natoraly@ etudiant 
+  #rehefa type="OBLIG" ary note >= 10 ary semestre="S1";
+
+
+

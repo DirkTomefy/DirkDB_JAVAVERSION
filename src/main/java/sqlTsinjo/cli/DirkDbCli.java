@@ -1,15 +1,12 @@
 package sqlTsinjo.cli;
 
-import java.io.IOException;
 import java.util.Scanner;
 
-import sqlTsinjo.base.err.EvalErr;
-import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.main.GeneralRqstAsker;
 
 public class DirkDbCli {
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         AppContext context = new AppContext(null, "Tomefy", false);
         printCopyright();
 
@@ -64,7 +61,7 @@ public class DirkDbCli {
                     if (!fullRequest.isEmpty()) {
                         try {
                             GeneralRqstAsker.askRequest(fullRequest, context);
-                        } catch (ParseNomException | EvalErr | IOException e) {
+                        } catch (Exception e) {
                             if (context.debugMode) {
                                 e.printStackTrace();
                             } else {

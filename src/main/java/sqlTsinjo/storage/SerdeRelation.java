@@ -55,7 +55,9 @@ public class SerdeRelation {
 
     public Relation deserializeRelation() throws IOException, TableNotFound, NoDatabaseSelect {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(getTableFile(), Relation.class);
+        Relation retour=mapper.readValue(getTableFile(), Relation.class);
+        retour.setName(tableName);
+        return retour;
     }
 
     public static boolean databaseExist(String databaseName) {

@@ -7,6 +7,7 @@ import java.util.Map;
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
+import sqlTsinjo.base.err.RelationalErr;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
@@ -38,7 +39,7 @@ public class GeneralRqstAsker {
     @FunctionalInterface
     private interface RequestHandler {
         void handle(String input, AppContext ctx, Token token)
-                throws ParseNomException, EvalErr, IOException;
+                throws Exception;
     }
 
     // Registre des handlers
@@ -58,7 +59,7 @@ public class GeneralRqstAsker {
     }
 
     public static void askRequest(String input, AppContext ctx)
-            throws ParseNomException, EvalErr, IOException {
+            throws Exception {
 
         ParseSuccess<Token> token = scanTokenForRequest(input);
         TokenKind status = token.matched().status;
@@ -123,7 +124,7 @@ public class GeneralRqstAsker {
     }
 
     private static void handleInsert(String input, AppContext ctx, Token token)
-            throws ParseNomException, EvalErr, IOException {
+            throws IOException, RelationalErr {
 
         ParseSuccess<InsertRqst> result = InsertRqst.parseInsert(input);
         validateNoRemaining(result);
