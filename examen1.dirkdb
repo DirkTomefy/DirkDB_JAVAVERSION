@@ -31,9 +31,6 @@ manampia ao@ cours (codeC,titre,type) sanda ("C4","IA","OPTION");
 
 
 
-
-
-
 manamboara tabilao inscription (
   idE LAHATSORATRA(null,null),
   codeC  LAHATSORATRA(null,null),
