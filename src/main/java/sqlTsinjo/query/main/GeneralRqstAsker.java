@@ -47,15 +47,14 @@ public class GeneralRqstAsker {
 
     static {
         // Initialisation des handlers
-        HANDLERS.put(TokenKind.CREATEDATABASE, GeneralRqstAsker::handleCreateDatabase);
-        HANDLERS.put(TokenKind.CREATETABLE, GeneralRqstAsker::handleCreateTable);
+        HANDLERS.put(TokenKind.CREATEOBJECTSQL, GeneralRqstAsker::handleCreate);
         HANDLERS.put(TokenKind.SELECT, GeneralRqstAsker::handleSelect);
         HANDLERS.put(TokenKind.USEDATABASE, GeneralRqstAsker::handleUseDatabase);
         HANDLERS.put(TokenKind.INSERTINTO, GeneralRqstAsker::handleInsert);
         HANDLERS.put(TokenKind.UPDATE, GeneralRqstAsker::handleUpdate);
         HANDLERS.put(TokenKind.DELETE, GeneralRqstAsker::handleDelete);
-        HANDLERS.put(TokenKind.DROPOBJECTSQL, GeneralRqstAsker::handleDrop );
-        HANDLERS.put(TokenKind.SHOW,GeneralRqstAsker::handleShow);
+        HANDLERS.put(TokenKind.DROPOBJECTSQL, GeneralRqstAsker::handleDrop);
+        HANDLERS.put(TokenKind.SHOWOBJECTSQL, GeneralRqstAsker::handleShow);
     }
 
     public static void askRequest(String input, AppContext ctx)
@@ -72,36 +71,64 @@ public class GeneralRqstAsker {
         }
     }
 
-    public static void handleShow(String input, AppContext ctx, Token token) throws ParseNomException, NoDatabaseSelect, IOException{
-        ParseSuccess<Token> asehoy=ShowRequestTokenizer.scanShowObjectSql(input);
+    public static void handleShow(String input, AppContext ctx, Token token)
+            throws ParseNomException, NoDatabaseSelect, IOException {
+        ParseSuccess<Token> asehoy = ShowRequestTokenizer.scanShowObjectSql(input);
         validateNoRemaining(asehoy);
         ObjectSQLEnum toShow = (ObjectSQLEnum) asehoy.matched().value;
         displayRelation(toShow.show(ctx), ctx);
     }
 
+    public static void handleCreate(String input, AppContext ctx, Token token)
+            throws ParseNomException, IOException, EvalErr {
+        ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
+        validateNoRemaining(result);
+        result.matched().eval(ctx);
+
+        ObjectSQLEnum toShow = (ObjectSQLEnum) token.value;
+        switch (toShow) {
+            case DATABASE:
+                printSuccess("Ny tahiry : " + result.matched().getName() + " dia voaforona soamantsara");
+                break;
+            case DOMAIN:
+                printSuccess("Ny efitra : " + result.matched().getName() + " dia voaforona soamantsara");
+                break;
+            case TABLE:
+                printSuccess("Ny tabilao : " + result.matched().getName() + " dia voaforona soamantsara");
+                break;
+            default:
+                break;
+
+        }
+
+        // ObjectSQLEnum toShow = (ObjectSQLEnum) create.matched().value;
+        // displayRelation(toShow.show(ctx), ctx);
+    }
+
     // ========== IMPLÉMENTATIONS DES HANDLERS ==========
 
-    private static void handleCreateDatabase(String input, AppContext ctx, Token token)
-            throws ParseNomException, EvalErr, IOException {
+    // private static void handleCreate(String input, AppContext ctx, Token token)
+    // throws ParseNomException, EvalErr, IOException {
 
-        ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
-        validateNoRemaining(result);
+    // ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
+    // validateNoRemaining(result);
 
-        result.matched().eval(ctx);
+    // result.matched().eval(ctx);
 
-        String databaseName = extractDatabaseName(result.matched());
-        printSuccess("Ny tahiry : " + databaseName + " dia voaforona soamantsara");
-    }
+    // String databaseName = extractDatabaseName(result.matched());
+    // printSuccess("Ny tahiry : " + databaseName + " dia voaforona soamantsara");
+    // }
 
-    private static void handleCreateTable(String input, AppContext ctx, Token token)
-            throws ParseNomException, EvalErr, IOException {
+    // private static void handleCreateTable(String input, AppContext ctx, Token
+    // token)
+    // throws ParseNomException, EvalErr, IOException {
 
-        ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
-        validateNoRemaining(result);
+    // ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
+    // validateNoRemaining(result);
 
-        result.matched().eval(ctx);
-        printSuccess("Ny tabilao dia voaforona soamantsara");
-    }
+    // result.matched().eval(ctx);
+    // printSuccess("Ny tabilao dia voaforona soamantsara");
+    // }
 
     private static void handleSelect(String input, AppContext ctx, Token token)
             throws ParseNomException, EvalErr, IOException {
@@ -153,7 +180,7 @@ public class GeneralRqstAsker {
         printSuccess("Tafinditra ny fiovana ny tabilao");
     }
 
-    public static void handleDrop(String input, AppContext ctx, Token token) throws ParseNomException, 
+    public static void handleDrop(String input, AppContext ctx, Token token) throws ParseNomException,
             DatabaseNotExistErr, TableNotFound, NoDatabaseSelect, IOException {
         ParseSuccess<DropRequest> result = DropRequest.parseDropRequest(input);
         validateNoRemaining(result);
@@ -217,8 +244,7 @@ public class GeneralRqstAsker {
                     UpdateRqstTokenizer::scanUpdateToken,
                     DeleteRqstTokenizer::scanDeleteToken,
                     DropRequestTokenizer::scanDropObjectSql,
-                    ShowRequestTokenizer::scanShowObjectSql
-                ).apply(input);
+                    ShowRequestTokenizer::scanShowObjectSql).apply(input);
         } catch (Exception e) {
             throw new CommandAvailableNotFound(input);
         }

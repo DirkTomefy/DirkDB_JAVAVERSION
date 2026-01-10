@@ -96,17 +96,17 @@ public class Token {
         return new Token(TokenKind.RELATIONOP, BasicRowOp.DIFFERENCE);
     }
 
-    public static Token createDatabase() {
-        return new Token(TokenKind.CREATEDATABASE, null);
-    }
+    // public static Token createDatabase() {
+    //     return new Token(TokenKind.CREATEOBJECTSQL, null);
+    // }
 
-    public static Token createTable() {
-        return new Token(TokenKind.CREATETABLE, null);
-    }
+    // public static Token createTable() {
+    //     return new Token(TokenKind.CREATEOBJECTSQL, null);
+    // }
 
-       public static Token createDomain() {
-        return new Token(TokenKind.CREATEDOMAIN, null);
-    }
+    //    public static Token createDomain() {
+    //     return new Token(TokenKind.CREATEOBJECTSQL, null);
+    // }
 
     public static Token useDatabase(String databaseName) {
         return new Token(TokenKind.USEDATABASE, databaseName);
@@ -125,7 +125,10 @@ public class Token {
     }
 
     public static Token showListObjectSQL(ObjectSQLEnum type){
-        return new Token(TokenKind.SHOW, type);
+        return new Token(TokenKind.SHOWOBJECTSQL, type);
+    }
+    public static Token createObjectSQL(ObjectSQLEnum type){
+        return new Token(TokenKind.CREATEOBJECTSQL, type);
     }
 
     @Override

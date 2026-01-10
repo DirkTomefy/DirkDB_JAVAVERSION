@@ -10,7 +10,7 @@ import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 public enum ObjectSQLEnum {
     TABLE,
     DATABASE,
-    DOMAINS
+    DOMAIN
     ;
 
     public Relation show(AppContext ctx) throws NoDatabaseSelect, IOException {
@@ -23,7 +23,7 @@ public enum ObjectSQLEnum {
                 
                 return Relation.makeListRelation(Path.of("databases/",ctx.getDatabaseName(),"tables"));
             
-            case DOMAINS :
+            case DOMAIN :
                 if(ctx.getDatabaseName()==null)
                    throw new NoDatabaseSelect();
                 return Relation.makeListRelation(Path.of("databases/",ctx.getDatabaseName(),"domains"));

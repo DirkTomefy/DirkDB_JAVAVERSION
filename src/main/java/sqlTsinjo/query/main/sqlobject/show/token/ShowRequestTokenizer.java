@@ -30,7 +30,7 @@ public class ShowRequestTokenizer {
                 .tuple(true, ParserNomUtil.tagNoCase("asehoy"), ParserNomUtil.tagNoCase("ny"),
                         ParserNomUtil.tagNoCase("efitra"))
                 .apply(input);
-        return new ParseSuccess<>(success.remaining(), Token.showListObjectSQL(ObjectSQLEnum.DOMAINS));
+        return new ParseSuccess<>(success.remaining(), Token.showListObjectSQL(ObjectSQLEnum.DOMAIN));
     }
 
     public static ParseSuccess<Token> scanShowObjectSql(String input) throws ParseNomException {

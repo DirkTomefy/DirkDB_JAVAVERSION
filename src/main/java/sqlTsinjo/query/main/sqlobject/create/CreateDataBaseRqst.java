@@ -7,20 +7,19 @@ import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.err.eval.DatabaseAlreadyExist;
 
-public class CreateDataBaseRqst implements CreateObjectRqst{
-    String databaseName;
+public class CreateDataBaseRqst extends CreateObjectRqst{
 
-    public CreateDataBaseRqst(String databaseName) {
-        this.databaseName = databaseName;
+    public CreateDataBaseRqst(String name) {
+        this.name = name;
     }
 
     @Override
     public void eval(AppContext ctx) throws EvalErr, IOException {
-        File path = new File("databases/"+databaseName+"/tables");
-        File pathDomains = new File("databases/"+databaseName+"/domains");
+        File path = new File("databases/"+name+"/tables");
+        File pathDomains = new File("databases/"+name+"/domains");
 
         if(path.exists()){
-            throw new DatabaseAlreadyExist(databaseName);
+            throw new DatabaseAlreadyExist(name);
         }else{
             path.mkdirs();
             pathDomains.mkdirs();
@@ -29,6 +28,6 @@ public class CreateDataBaseRqst implements CreateObjectRqst{
     }
 
     public String getDatabaseName() {
-        return databaseName;
+        return name;
     }
 }

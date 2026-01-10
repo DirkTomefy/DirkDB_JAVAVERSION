@@ -23,13 +23,12 @@ import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeRelation;
 
-public class CreateTableRqst implements CreateObjectRqst {
-    String tableName;
+public class CreateTableRqst extends CreateObjectRqst {
     Vector<String> fieldName;
     Vector<Domain> domains;
 
-    public CreateTableRqst(String tableName, Vector<String> fieldName, Vector<Domain> domains) {
-        this.tableName = tableName;
+    public CreateTableRqst(String name, Vector<String> fieldName, Vector<Domain> domains) {
+        this.name = name;
         this.fieldName = fieldName;
         this.domains = domains;
     }
@@ -38,13 +37,13 @@ public class CreateTableRqst implements CreateObjectRqst {
     public void eval(AppContext ctx) throws EvalErr, IOException {
         if (ctx.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        File path = new File("databases/" + ctx.getDatabaseName() + "/tables/" + this.tableName + ".json");
+        File path = new File("databases/" + ctx.getDatabaseName() + "/tables/" + this.name + ".json");
         if (path.exists()) {
-            throw new TableAlreadyExistErr(tableName);
+            throw new TableAlreadyExistErr(name);
         } else {
             path.createNewFile();
-            Relation rel = new Relation(tableName, fieldName, domains);
-            SerdeRelation seralizer = new SerdeRelation(ctx, tableName);
+            Relation rel = new Relation(name, fieldName, domains);
+            SerdeRelation seralizer = new SerdeRelation(ctx, name);
             seralizer.serializeRelation(rel);
         }
 
@@ -100,10 +99,7 @@ public class CreateTableRqst implements CreateObjectRqst {
 
         remaining = remaining.substring(1).trim();
 
-        if (!remaining.isEmpty()) {
-            throw new ParseNomException(remaining, "Fin de commande attendue");
-        }
-
+        
         return new ParseSuccess<>(remaining,
                 new CreateTableRqst(tableName, fieldNames, fieldDomains));
     }
@@ -307,7 +303,7 @@ public class CreateTableRqst implements CreateObjectRqst {
 
     @Override
     public String toString() {
-        return "CreateTableRqst [tableName=" + tableName + ", fieldName=" + fieldName + ", domains=" + domains + "]";
+        return "CreateTableRqst [tableName=" + name + ", fieldName=" + fieldName + ", domains=" + domains + "]";
     }
 
 }

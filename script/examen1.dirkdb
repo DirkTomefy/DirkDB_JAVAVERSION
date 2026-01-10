@@ -2,12 +2,17 @@ manamboara tahiry examen;
 
 ampiasao examen;
 
+manamboara efitra tay(
+    TANISA("L3","M1","L2")
+);
 
 manamboara tabilao etudiant (
     idE LAHATSORATRA(null,null),
     nom LAHATSORATRA(null,null) ,
     niveau TANISA("L3","M1","L2")
       );
+
+
 
 manampia ao@ etudiant (idE,nom,niveau) sanda ("E1",'Alice',"L3");
 manampia ao@ etudiant (idE,nom,niveau) sanda ("E2",'Bob',"L3");

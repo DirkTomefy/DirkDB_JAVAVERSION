@@ -17,9 +17,9 @@ public enum TokenKind {
     RELATIONOP,
 
     //CREATE :
-    CREATETABLE,
-    CREATEDATABASE,
-    CREATEDOMAIN,
+    CREATEOBJECTSQL,
+    // CREATEDATABASE,
+    // CREATEDOMAIN,
 
     //USE :
     USEDATABASE,
@@ -37,6 +37,6 @@ public enum TokenKind {
     DROPOBJECTSQL,
 
     //SHOW :
-    SHOW
+    SHOWOBJECTSQL
     ;
 }
