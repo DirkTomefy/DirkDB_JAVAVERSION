@@ -57,7 +57,8 @@ public class Relation {
         qualifiedIdentifiers.add(new QualifiedIdentifier(name, "fanasehoana"));
 
        
-            Files.list(dossier)
+            if(dossier.toFile().exists()){
+                Files.list(dossier)
                     .map(path -> path.getFileName().toString())
                     .map(nom -> nom.split("\\.")[0]) // enlève .json, .txt, etc.
                     .forEach(nomSansExt -> {
@@ -65,8 +66,7 @@ public class Relation {
                         ligne.add(nomSansExt);
                         individus.add(ligne);
                     });
-        
-
+            }
         Relation r = new Relation();
         r.name = name;
         r.domaines = domains;

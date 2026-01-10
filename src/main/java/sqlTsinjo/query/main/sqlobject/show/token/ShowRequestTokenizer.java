@@ -25,8 +25,16 @@ public class ShowRequestTokenizer {
         return new ParseSuccess<>(success.remaining(), Token.showListObjectSQL(ObjectSQLEnum.DATABASE));
     }
 
+        public static ParseSuccess<Token> scanShowDomainToken(String input) throws ParseNomException {
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.tagNoCase("asehoy"), ParserNomUtil.tagNoCase("ny"),
+                        ParserNomUtil.tagNoCase("efitra"))
+                .apply(input);
+        return new ParseSuccess<>(success.remaining(), Token.showListObjectSQL(ObjectSQLEnum.DOMAINS));
+    }
+
     public static ParseSuccess<Token> scanShowObjectSql(String input) throws ParseNomException {
-        return ParserNomUtil.alt(ShowRequestTokenizer::scanShowDatabaseToken, ShowRequestTokenizer::scanShowTableToken)
+        return ParserNomUtil.alt(ShowRequestTokenizer::scanShowDatabaseToken, ShowRequestTokenizer::scanShowTableToken,ShowRequestTokenizer::scanShowDomainToken)
                 .apply(input);
     }
 }

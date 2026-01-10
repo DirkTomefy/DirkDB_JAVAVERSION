@@ -104,6 +104,10 @@ public class Token {
         return new Token(TokenKind.CREATETABLE, null);
     }
 
+       public static Token createDomain() {
+        return new Token(TokenKind.CREATEDOMAIN, null);
+    }
+
     public static Token useDatabase(String databaseName) {
         return new Token(TokenKind.USEDATABASE, databaseName);
     }

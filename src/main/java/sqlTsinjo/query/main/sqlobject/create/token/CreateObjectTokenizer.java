@@ -20,8 +20,14 @@ public class CreateObjectTokenizer {
         return new ParseSuccess<>(success.remaining(), Token.createDatabase());
     }
 
+     public static ParseSuccess<Token> scanCreateDomainToken(String input) throws ParseNomException {
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.tagNoCase("Manamboara"), ParserNomUtil.tagNoCase("efitra")).apply(input);
+        return new ParseSuccess<>(success.remaining(), Token.createDatabase());
+    }
+
     public static ParseSuccess<Token> scanCreateToken(String input) throws ParseNomException {
-        return ParserNomUtil.alt(CreateObjectTokenizer::scanCreateDatabaseToken, CreateObjectTokenizer::scanCreateTableToken)
+        return ParserNomUtil.alt(CreateObjectTokenizer::scanCreateDatabaseToken, CreateObjectTokenizer::scanCreateTableToken ,CreateObjectTokenizer::scanCreateDomainToken)
                 .apply(input);
     }
 }

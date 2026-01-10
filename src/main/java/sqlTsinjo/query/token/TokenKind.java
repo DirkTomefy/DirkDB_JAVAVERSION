@@ -19,6 +19,7 @@ public enum TokenKind {
     //CREATE :
     CREATETABLE,
     CREATEDATABASE,
+    CREATEDOMAIN,
 
     //USE :
     USEDATABASE,

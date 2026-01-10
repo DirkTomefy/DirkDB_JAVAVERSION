@@ -17,10 +17,13 @@ public class CreateDataBaseRqst implements CreateObjectRqst{
     @Override
     public void eval(AppContext ctx) throws EvalErr, IOException {
         File path = new File("databases/"+databaseName+"/tables");
+        File pathDomains = new File("databases/"+databaseName+"/domains");
+
         if(path.exists()){
             throw new DatabaseAlreadyExist(databaseName);
         }else{
             path.mkdirs();
+            pathDomains.mkdirs();
         }
         
     }

@@ -22,8 +22,12 @@ public enum ObjectSQLEnum {
                    throw new NoDatabaseSelect();
                 
                 return Relation.makeListRelation(Path.of("databases/",ctx.getDatabaseName(),"tables"));
-                
-            //TODO : show object
+            
+            case DOMAINS :
+                if(ctx.getDatabaseName()==null)
+                   throw new NoDatabaseSelect();
+                return Relation.makeListRelation(Path.of("databases/",ctx.getDatabaseName(),"domains"));
+            
             default:
                 throw new IllegalArgumentException("database ou table ");
 
