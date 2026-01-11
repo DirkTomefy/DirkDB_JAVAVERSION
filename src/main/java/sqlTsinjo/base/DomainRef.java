@@ -19,6 +19,8 @@ public class DomainRef extends DomainAtom {
         return domainName;
     }
 
+    //TODO  warning : you can also allow recurssion here !!
+
     public static Domain resolveNonPrimitiveDomain(
             Domain domain,
             SerdeDomain serde) throws  IOException, NoDatabaseSelect, DomainNotFound {

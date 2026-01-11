@@ -69,7 +69,7 @@ public class CreateTableRqst extends CreateObjectRqst {
         // Initialiser les vecteurs
         Vector<String> fieldNames = new Vector<>();
         Vector<Domain> fieldDomains = new Vector<>();
-        // TODO : initialisation mais pas encore utilser
+       
         Vector<HashSet<String>> nonPrimitive = new Vector<>();
         // Vérifier s'il y a des champs (commence par '(')
         if (!remaining.startsWith("(")) {
@@ -134,7 +134,7 @@ public class CreateTableRqst extends CreateObjectRqst {
 
             // Parser le domain atom suivant
             ParseSuccess<DomainAtom> nextAtomParse = parseDomainAtom(remaining);
-            // TODO :
+            
             domainAtoms.add(nextAtomParse.matched());
             remaining = nextAtomParse.remaining().trim();
         }

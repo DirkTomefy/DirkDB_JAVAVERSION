@@ -19,7 +19,7 @@ import sqlTsinjo.storage.SerdeDomain;
 
 public class CreateDomainRqst extends CreateObjectRqst {
     Domain def;
-    // TODO : implémentation d'auto-incremente not null
+    
 
 
     
