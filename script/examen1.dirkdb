@@ -14,12 +14,13 @@ manamboara tabilao etudiant (
 
 
 
-manampia ao@ etudiant (idE,nom,niveau) sanda ("E1",'Alice',"L3");
-manampia ao@ etudiant (idE,nom,niveau) sanda ("E2",'Bob',"L3");
-manampia ao@ etudiant (idE,nom,niveau) sanda ("E3",'Charly',"M1");
-manampia ao@ etudiant (idE,nom,niveau) sanda ("E4",'Dina',"M1");
-manampia ao@ etudiant (idE,nom,niveau) sanda ("E5",'Evan',"L2");
-
+manampia ao@ etudiant (idE,nom,niveau) sanda  
+                        ("E1",'Alice',"L3"),
+                        ("E2",'Bob',"L3"),
+                        ("E3",'Charly',"M1"),
+                         ("E4",'Dina',"M1"),
+                         ("E5",'Evan',"L2")
+                        ;
 
 
 manamboara tabilao cours (
@@ -28,11 +29,11 @@ manamboara tabilao cours (
   type TANISA("OBLIG","OPTION")
 );
 
-manampia ao@ cours (codeC,titre,type) sanda ("C1","Algo","OBLIG");
-manampia ao@ cours (codeC,titre,type) sanda ("C2","BD","OBLIG");
-manampia ao@ cours (codeC,titre,type) sanda ("C3","Web","OPTION");
-manampia ao@ cours (codeC,titre,type) sanda ("C4","IA","OPTION");
-
+manampia ao@ cours (codeC,titre,type) sanda
+                            ("C1","Algo","OBLIG") ,
+                            ("C2","BD","OBLIG") , 
+                            ("C3","Web","OPTION") ,
+                            ("C4","IA","OPTION") ;
 
 
 
@@ -91,6 +92,5 @@ alaivo nom , codeC   #ao@ inscription
   #tonona:natoraly@ cours 
   #tonona:natoraly@ etudiant 
   #rehefa type="OBLIG" ary note >= 10 ary semestre="S1";
-
 
 
