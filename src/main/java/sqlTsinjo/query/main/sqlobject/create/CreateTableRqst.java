@@ -8,6 +8,7 @@ import java.util.Vector;
 import sqlTsinjo.base.Domain;
 import sqlTsinjo.base.DomainAtom;
 import sqlTsinjo.base.DomainEnum;
+import sqlTsinjo.base.DomainRef;
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.domains.DATE;
 import sqlTsinjo.base.domains.NUMBER;
@@ -26,12 +27,19 @@ import sqlTsinjo.storage.SerdeRelation;
 public class CreateTableRqst extends CreateObjectRqst {
     Vector<String> fieldName;
     Vector<Domain> domains;
+    Vector<HashSet<String>> domainNonPrimitive;
 
-    public CreateTableRqst(String name, Vector<String> fieldName, Vector<Domain> domains) {
+    public CreateTableRqst(String name, Vector<String> fieldName, Vector<Domain> domains,
+            Vector<HashSet<String>> domainNonPrimitive) {
         this.name = name;
         this.fieldName = fieldName;
         this.domains = domains;
+        this.domainNonPrimitive = domainNonPrimitive;
     }
+
+    
+
+
 
     @Override
     public void eval(AppContext ctx) throws EvalErr, IOException {
@@ -41,6 +49,7 @@ public class CreateTableRqst extends CreateObjectRqst {
         if (path.exists()) {
             throw new TableAlreadyExistErr(name);
         } else {
+            DomainRef.resolveAllNonPrimitiveDomains(domains, ctx);
             path.createNewFile();
             Relation rel = new Relation(name, fieldName, domains);
             SerdeRelation seralizer = new SerdeRelation(ctx, name);
@@ -60,7 +69,8 @@ public class CreateTableRqst extends CreateObjectRqst {
         // Initialiser les vecteurs
         Vector<String> fieldNames = new Vector<>();
         Vector<Domain> fieldDomains = new Vector<>();
-
+        // TODO : initialisation mais pas encore utilser
+        Vector<HashSet<String>> nonPrimitive = new Vector<>();
         // Vérifier s'il y a des champs (commence par '(')
         if (!remaining.startsWith("(")) {
             throw new ParseNomException(remaining, "Liste de champs attendue après le nom de la table");
@@ -77,6 +87,7 @@ public class CreateTableRqst extends CreateObjectRqst {
             remaining = fieldNameParse.remaining().trim();
 
             // Parser le domaine du champ
+
             ParseSuccess<Domain> domainParse = parseSingleDomain(remaining);
             Domain domain = domainParse.matched();
             remaining = domainParse.remaining().trim();
@@ -99,9 +110,8 @@ public class CreateTableRqst extends CreateObjectRqst {
 
         remaining = remaining.substring(1).trim();
 
-        
         return new ParseSuccess<>(remaining,
-                new CreateTableRqst(tableName, fieldNames, fieldDomains));
+                new CreateTableRqst(tableName, fieldNames, fieldDomains, nonPrimitive));
     }
 
     public static ParseSuccess<Domain> parseSingleDomain(String input) throws ParseNomException {
@@ -124,6 +134,7 @@ public class CreateTableRqst extends CreateObjectRqst {
 
             // Parser le domain atom suivant
             ParseSuccess<DomainAtom> nextAtomParse = parseDomainAtom(remaining);
+            // TODO :
             domainAtoms.add(nextAtomParse.matched());
             remaining = nextAtomParse.remaining().trim();
         }
@@ -134,10 +145,22 @@ public class CreateTableRqst extends CreateObjectRqst {
     }
 
     public static ParseSuccess<DomainAtom> parseDomainAtom(String input) throws ParseNomException {
-        return ParserNomUtil
-                .alt(CreateTableRqst::parseNumber, CreateTableRqst::parseVarChar, CreateTableRqst::parseDate,
-                        CreateTableRqst::parseDomainEnum)
-                .apply(input);
+        try {
+
+            return ParserNomUtil
+                    .alt(
+                            CreateTableRqst::parseNumber,
+                            CreateTableRqst::parseVarChar,
+                            CreateTableRqst::parseDate,
+                            CreateTableRqst::parseDomainEnum)
+                    .apply(input);
+        } catch (ParseNomException e) {
+
+            ParseSuccess<String> nameParse = ParserNomUtil.tagName(input);
+            return new ParseSuccess<>(
+                    nameParse.remaining(),
+                    new DomainRef(nameParse.matched()));
+        }
     }
 
     public static ParseSuccess<DomainAtom> parseNumber(String input) throws ParseNomException {

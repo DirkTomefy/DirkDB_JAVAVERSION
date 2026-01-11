@@ -22,7 +22,6 @@ import sqlTsinjo.query.main.insert.token.InsertRqstTokenizer;
 import sqlTsinjo.query.main.select.SelectExpr;
 import sqlTsinjo.query.main.select.token.SelectTokenizer;
 import sqlTsinjo.query.main.sqlobject.ObjectSQLEnum;
-import sqlTsinjo.query.main.sqlobject.create.CreateDataBaseRqst;
 import sqlTsinjo.query.main.sqlobject.create.CreateObjectRqst;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.main.sqlobject.drop.DropRequest;
@@ -207,12 +206,7 @@ public class GeneralRqstAsker {
         }
     }
 
-    private static String extractDatabaseName(CreateObjectRqst request) {
-        if (request instanceof CreateDataBaseRqst) {
-            return (String) ((CreateDataBaseRqst) request).getDatabaseName();
-        }
-        return "Inconnu";
-    }
+  
 
     private static void displayRelation(Relation relation, AppContext ctx) {
         String output = ctx.isDebugMode()

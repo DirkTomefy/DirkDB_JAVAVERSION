@@ -122,7 +122,6 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
    
     @Override
     public Vector<Vector<Object>> getMultiplyValues(AppContext context) throws  EvalErr, IOException, ParseNomException {
-        //TODO :vérifiez la taille des colones du select
         return this.eval(context).getIndividus();
     }
 

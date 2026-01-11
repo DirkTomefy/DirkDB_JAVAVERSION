@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import sqlTsinjo.base.Domain;
-
+import sqlTsinjo.base.DomainRef;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.cli.AppContext;
@@ -22,7 +22,7 @@ public class CreateDomainRqst extends CreateObjectRqst {
     // TODO : implémentation d'auto-incremente not null
 
 
-    //ParseSuccess<Domain> domainParse = CREATETABLE.parseSingleDomain(remaining);
+    
 
     public CreateDomainRqst(String name, Domain def) {
         this.name = name;
@@ -71,11 +71,12 @@ public class CreateDomainRqst extends CreateObjectRqst {
         if (path.exists()) {
             throw new TableAlreadyExistErr(name);
         } else {
+            SerdeDomain serde = new SerdeDomain(ctx, null);
+            Domain d=DomainRef.resolveNonPrimitiveDomain(def, serde);
             path.getParentFile().mkdirs();
             path.createNewFile();
-            Domain d = this.def;
-            SerdeDomain seralizer = new SerdeDomain(ctx, name);
-            seralizer.serializeDomain(d);
+            serde.setDomainName(name);
+            serde.serializeDomain(d);
         }
     } 
 }

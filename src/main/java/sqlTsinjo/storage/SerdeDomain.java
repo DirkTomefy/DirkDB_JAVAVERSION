@@ -52,7 +52,7 @@ public class SerdeDomain {
         mapper.writerWithDefaultPrettyPrinter().writeValue(getDomainFile(), rel);
     }
 
-    public Domain serializeDomain() throws IOException, TableNotFound, NoDatabaseSelect {
+    public Domain deserializeDomain() throws IOException, TableNotFound, NoDatabaseSelect {
         ObjectMapper mapper = new ObjectMapper();
         Domain retour = mapper.readValue(getDomainFile(), Domain.class);
         return retour;

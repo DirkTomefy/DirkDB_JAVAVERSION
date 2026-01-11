@@ -2,14 +2,14 @@ manamboara tahiry examen;
 
 ampiasao examen;
 
-manamboara efitra tay(
+manamboara efitra niveau_domain(
     TANISA("L3","M1","L2")
 );
 
 manamboara tabilao etudiant (
     idE LAHATSORATRA(null,null),
     nom LAHATSORATRA(null,null) ,
-    niveau TANISA("L3","M1","L2")
+    niveau niveau_domain
       );
 
 
