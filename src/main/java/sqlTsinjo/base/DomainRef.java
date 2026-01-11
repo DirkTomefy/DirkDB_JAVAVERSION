@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 import sqlTsinjo.cli.AppContext;
+import sqlTsinjo.query.err.eval.DomainNotFound;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
-import sqlTsinjo.query.err.eval.TableNotFound;
 import sqlTsinjo.storage.SerdeDomain;
 
 public class DomainRef extends DomainAtom {
@@ -21,7 +21,7 @@ public class DomainRef extends DomainAtom {
 
     public static Domain resolveNonPrimitiveDomain(
             Domain domain,
-            SerdeDomain serde) throws TableNotFound, IOException, NoDatabaseSelect {
+            SerdeDomain serde) throws  IOException, NoDatabaseSelect, DomainNotFound {
 
         Vector<DomainAtom> resolvedAtoms = new Vector<>();
 
@@ -46,7 +46,7 @@ public class DomainRef extends DomainAtom {
 
     public static void resolveAllNonPrimitiveDomains(
             Vector<Domain> domains,
-            AppContext ctx) throws TableNotFound, NoDatabaseSelect, IOException {
+            AppContext ctx) throws  NoDatabaseSelect, IOException, DomainNotFound {
 
 
         SerdeDomain serde = new SerdeDomain(ctx, null);

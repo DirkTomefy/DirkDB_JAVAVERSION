@@ -65,7 +65,7 @@ public class SerdeRelation {
         return file.exists();
     }
 
-    public void dropDatabase(String databaseName) throws IOException, DatabaseNotExistErr {
+    public static void dropDatabase(String databaseName,AppContext appContext) throws IOException, DatabaseNotExistErr {
         if (databaseName.equals(appContext.getDatabaseName()))
             appContext.setDatabaseName(null);
         File file = new File("databases/" + databaseName);
@@ -83,7 +83,7 @@ public class SerdeRelation {
                                 System.err.println("Impossible de supprimer : " + path);
                             }
                         });
-                System.out.println("Dossier supprimé avec succès.");
+                
             } catch (IOException e) {
                 e.printStackTrace();
             }

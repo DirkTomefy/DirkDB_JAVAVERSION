@@ -10,8 +10,8 @@ import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
+import sqlTsinjo.query.err.eval.DomainAlreadyExistErr;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
-import sqlTsinjo.query.err.eval.TableAlreadyExistErr;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeDomain;
@@ -69,7 +69,7 @@ public class CreateDomainRqst extends CreateObjectRqst {
             throw new NoDatabaseSelect();
         File path = new File("databases/" + ctx.getDatabaseName() + "/domains/" + this.name + ".json");
         if (path.exists()) {
-            throw new TableAlreadyExistErr(name);
+            throw new DomainAlreadyExistErr(name);
         } else {
             SerdeDomain serde = new SerdeDomain(ctx, null);
             Domain d=DomainRef.resolveNonPrimitiveDomain(def, serde);

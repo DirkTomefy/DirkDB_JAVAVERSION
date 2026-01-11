@@ -2,13 +2,17 @@ package sqlTsinjo.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import sqlTsinjo.base.Domain;
 import sqlTsinjo.cli.AppContext;
+import sqlTsinjo.query.err.eval.DomainNotFound;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
-import sqlTsinjo.query.err.eval.TableNotFound;
+
 
 public class SerdeDomain {
     AppContext appContext;
@@ -35,26 +39,32 @@ public class SerdeDomain {
         this.domainName = domainName;
     }
 
-    public File getDomainFile() throws TableNotFound, NoDatabaseSelect {
+    public File getDomainFile() throws  NoDatabaseSelect, DomainNotFound {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         String path = "databases/" + appContext.getDatabaseName() + "/domains/" + domainName + ".json";
         File file = new File(path);
         if (!file.exists()) {
-            throw new TableNotFound(appContext.getDatabaseName(), domainName);
+            throw new DomainNotFound(appContext.getDatabaseName(), domainName);
         } else {
             return file;
         }
     }
 
-    public void serializeDomain(Domain rel) throws IOException, TableNotFound, NoDatabaseSelect {
+    public void serializeDomain(Domain rel) throws IOException,  NoDatabaseSelect, DomainNotFound {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(getDomainFile(), rel);
     }
 
-    public Domain deserializeDomain() throws IOException, TableNotFound, NoDatabaseSelect {
+    public Domain deserializeDomain() throws IOException,  NoDatabaseSelect, DomainNotFound {
         ObjectMapper mapper = new ObjectMapper();
         Domain retour = mapper.readValue(getDomainFile(), Domain.class);
         return retour;
+    }
+
+     public void dropDomain() throws  NoDatabaseSelect, IOException, DomainNotFound {
+        File tableFile = getDomainFile();
+        Path path = Paths.get(tableFile.getPath());
+        Files.delete(path);
     }
 }
