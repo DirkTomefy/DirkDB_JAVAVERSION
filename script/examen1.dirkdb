@@ -94,3 +94,18 @@ alaivo nom , codeC   #ao@ inscription
   #rehefa type="OBLIG" ary note >= 10 ary semestre="S1";
 
 
+//téta jointure :
+alaivo etudiant.nom , inscription.codeC   #ao@ inscription 
+  #tonona:@ cours #ka cours.codeC=inscription.codeC
+  #tonona:@ etudiant #ka etudiant.idE=inscription.idE
+  #rehefa type="OBLIG" ary note >= 10 ary semestre="S1";
+
+alaivo etudiant.nom , inscription.codeC   #ao@ inscription 
+  #tonona:@ cours #ka cours.codeC=inscription.codeC
+  #tonona:@ etudiant #ka etudiant.idE=inscription.idE
+  #rehefa note >= 10 na semestre="S1";
+
+alaivo etudiant.nom , inscription.codeC , type  #ao@ inscription 
+  #tonona:@ cours #ka cours.codeC=inscription.codeC
+  #tonona:@ etudiant #ka etudiant.idE=inscription.idE
+  #rehefa (note >= 10 na semestre="S1") ary type="OBLIG";

@@ -1,0 +1,18 @@
+manamboara tahiry test;
+
+ampiasao test;
+
+
+manamboara tabilao notetest (
+    notevaliny ISA(0,5),
+    anarana  TANISA("balita",1)
+    );
+
+manampia ao@ notetest (anarana,notevaliny) sanda ("balita",1);
+manampia ao@ notetest (anarana,notevaliny) sanda (1,2);
+
+manampia ao@ notetest (notevaliny,anarana) sanda (1,1);
+manampia ao@ notetest (notevaliny,anarana) sanda (5,1);
+manampia ao@ notetest (anarana) sanda (1);
+
+
