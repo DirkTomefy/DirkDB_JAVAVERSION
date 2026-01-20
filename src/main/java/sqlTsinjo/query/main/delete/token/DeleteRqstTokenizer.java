@@ -11,6 +11,8 @@ public class DeleteRqstTokenizer {
         ParseSuccess<String> useSign = ParserNomUtil.tagNoCase("fafao").apply(input.trim());
         ParseSuccess<Token> sourceIndicator = SelectTokenizer.scanFromToken(useSign.remaining().trim());
         ParseSuccess<String> databaseName = ParserNomUtil.tagName(sourceIndicator.remaining().trim());
-        return new ParseSuccess<>(databaseName.remaining(), Token.deleteSign(databaseName.matched()));
+        return databaseName.map(d->{
+            return Token.deleteSign(d);
+        });
     }
 }

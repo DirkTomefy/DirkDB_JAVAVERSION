@@ -69,3 +69,9 @@ manampia ao@ CEN (IdCours, IdEtudiant , Note) sanda
                        ("Algo",100,"C"),
                        ("Algo",200,"A")
                        ;
+
+
+                
+alaivo IdCours,count(IdEtudiant) #ao@ CEN #vondrona IdCours; 
+alaivo sum(Note) #vondrona IdCours; 
+alaivo avg(Note) #vondrona IdCours; 

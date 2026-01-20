@@ -39,9 +39,9 @@ public class InsertRqst {
     public void eval(AppContext context) throws IOException, ParseNomException, RelationalErr {
         SerdeRelation serde = new SerdeRelation(context, table);
         Relation rel = serde.deserializeRelation();
-        rel.insert(fieldName, values,context);
-        System.out.println(" "+this);
-        System.out.println(" "+rel );
+        rel.insert(fieldName, values, context);
+        System.out.println(" " + this);
+        System.out.println(" " + rel);
         serde.serializeRelation(rel);
     }
 
@@ -54,7 +54,9 @@ public class InsertRqst {
                     new InsertRqstDefaultValues(defaultValues.matched()));
         } else {
             ParseSuccess<SelectRqst> selectrqst = SelectRqst.parseSelect(input);
-            return new ParseSuccess<>(selectrqst.remaining(), selectrqst.matched());
+            return selectrqst.map(select -> {
+                return (InsertRqstValues) select;
+            });
         }
     }
 

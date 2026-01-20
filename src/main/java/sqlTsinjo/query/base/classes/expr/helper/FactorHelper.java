@@ -3,10 +3,12 @@ package sqlTsinjo.query.base.classes.expr.helper;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.classes.expr.Expression;
+import sqlTsinjo.query.base.classes.expr.FunctionExpr;
 import sqlTsinjo.query.base.classes.expr.PrefixedExpr;
 import sqlTsinjo.query.base.classes.expr.PrimitiveExpr;
 import sqlTsinjo.query.base.classes.operand.PrefixedOp;
 import sqlTsinjo.query.base.classes.operand.other.ArithmeticOp;
+import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.Tokenizer;
@@ -38,9 +40,23 @@ public class FactorHelper {
         throw ParseNomException.buildTokenWrongPlace(t, input);
     }
 
-    public static ParseSuccess<Expression> handleId(Token t, String rest) {
+    public static ParseSuccess<Expression> handleId(Token t, String rest) throws ParseNomException {
         QualifiedIdentifier val = (QualifiedIdentifier) t.getValue();
-        return new ParseSuccess<>(rest, PrimitiveExpr.id(val));
+        String remaining = rest;
+
+        // Détection d'appel de fonction: fn(...)
+        // On n'autorise que les fonctions sans origine (pas de "t1.fn(...)" pour éviter la confusion)
+        if (val.getOrigin() == null) {
+            String trimmed = remaining.trim();
+            if (trimmed.startsWith("(")) {
+                ParseSuccess<java.util.Vector<Expression>> args = ParserNomUtil
+                        .parseListBetweenParentheses(Expression.parseExpression, "Expression")
+                        .apply(trimmed);
+                return new ParseSuccess<>(args.remaining(), new FunctionExpr(val.getName(), args.matched()));
+            }
+        }
+
+        return new ParseSuccess<>(remaining, PrimitiveExpr.id(val));
     }
 
     public static ParseSuccess<Expression> handlePrefixedOp(Token t, String rest) throws ParseNomException {

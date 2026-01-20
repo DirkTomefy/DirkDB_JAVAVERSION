@@ -207,8 +207,6 @@ public class GeneralRqstAsker {
         }
     }
 
-  
-
     private static void displayRelation(Relation relation, AppContext ctx) {
         String output = ctx.isDebugMode()
                 ? relation.toStringDebug()
@@ -226,7 +224,9 @@ public class GeneralRqstAsker {
     public static ParseSuccess<Token> scanUseDatabaseToken(String input) throws ParseNomException {
         ParseSuccess<String> useSign = ParserNomUtil.tagNoCase("AMPIASAO").apply(input.trim());
         ParseSuccess<String> databaseName = ParserNomUtil.tagName(useSign.remaining().trim());
-        return new ParseSuccess<>(databaseName.remaining(), Token.useDatabase(databaseName.matched()));
+        return databaseName.map(matched -> {
+            return Token.useDatabase(matched);
+        });
     }
 
     public static ParseSuccess<Token> scanTokenForRequest(String input) throws ParseNomException {

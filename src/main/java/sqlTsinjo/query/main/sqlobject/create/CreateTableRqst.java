@@ -37,10 +37,6 @@ public class CreateTableRqst extends CreateObjectRqst {
         this.domainNonPrimitive = domainNonPrimitive;
     }
 
-    
-
-
-
     @Override
     public void eval(AppContext ctx) throws EvalErr, IOException {
         if (ctx.getDatabaseName() == null)
@@ -69,7 +65,7 @@ public class CreateTableRqst extends CreateObjectRqst {
         // Initialiser les vecteurs
         Vector<String> fieldNames = new Vector<>();
         Vector<Domain> fieldDomains = new Vector<>();
-       
+
         Vector<HashSet<String>> nonPrimitive = new Vector<>();
         // Vérifier s'il y a des champs (commence par '(')
         if (!remaining.startsWith("(")) {
@@ -134,7 +130,7 @@ public class CreateTableRqst extends CreateObjectRqst {
 
             // Parser le domain atom suivant
             ParseSuccess<DomainAtom> nextAtomParse = parseDomainAtom(remaining);
-            
+
             domainAtoms.add(nextAtomParse.matched());
             remaining = nextAtomParse.remaining().trim();
         }
@@ -157,9 +153,9 @@ public class CreateTableRqst extends CreateObjectRqst {
         } catch (ParseNomException e) {
 
             ParseSuccess<String> nameParse = ParserNomUtil.tagName(input);
-            return new ParseSuccess<>(
-                    nameParse.remaining(),
-                    new DomainRef(nameParse.matched()));
+            return nameParse.map(domainName -> {
+                return new DomainRef(domainName);
+            });
         }
     }
 
@@ -233,7 +229,9 @@ public class CreateTableRqst extends CreateObjectRqst {
 
     public static ParseSuccess<DomainAtom> parseDate(String input) throws ParseNomException {
         ParseSuccess<String> success = ParserNomUtil.tagNoCase("DATY").apply(input.trim());
-        return new ParseSuccess<>(success.remaining(), new DATE());
+        return success.map(_ ->{
+            return new DATE();
+        });
     }
 
     public static ParseSuccess<DomainAtom> parseDomainEnum(String input) throws ParseNomException {

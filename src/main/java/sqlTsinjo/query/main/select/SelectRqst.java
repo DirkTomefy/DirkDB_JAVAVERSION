@@ -12,6 +12,7 @@ import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.base.classes.expr.Expression;
 import sqlTsinjo.query.base.helper.ParserNomUtil;
 import sqlTsinjo.query.err.eval.AmbigousAliasErr;
+import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
 import sqlTsinjo.query.main.select.element.abstracts.SelectFields;
 import sqlTsinjo.query.main.select.element.abstracts.TableOriginWithAlias;
@@ -26,15 +27,18 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
     TableOriginWithAlias from;
     Vector<JoinElement> joins;
     Expression where;
+    Vector<QualifiedIdentifier> groupBy;
 
     public SelectRqst(){
         
     }
-    public SelectRqst(SelectFields fields, TableOriginWithAlias from, Vector<JoinElement> joins, Expression where) {
+    public SelectRqst(SelectFields fields, TableOriginWithAlias from, Vector<JoinElement> joins, Expression where,
+            Vector<QualifiedIdentifier> groupBy) {
         this.fields = fields;
         this.from = from;
         this.joins = joins;
         this.where = where;
+        this.groupBy = groupBy;
     }
 
     public SelectCtx makeSelectCtx(AppContext context) throws AmbigousAliasErr {
@@ -62,6 +66,9 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
             result = evalJoins(result, selectCtx);
         if (where != null)
             result = result.selection(where, selectCtx);
+        if (groupBy != null && !groupBy.isEmpty()) {
+            return result.groupBy(fields, groupBy, selectCtx);
+        }
         result = result.projection(fields, selectCtx);
         return result;
     }
@@ -87,8 +94,9 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
                     "Vous ne pouvez pas faire select all si l'origin de la table n'existe pas");
         }
         ParseSuccess<Expression> where = parseOptionalWhere(joins.remaining());
-        return new ParseSuccess<SelectRqst>(where.remaining(),
-                new SelectRqst(fields.matched(), from.matched(), joins.matched(), where.matched()));
+        ParseSuccess<Vector<QualifiedIdentifier>> groupBy = parseOptionalGroupBy(where.remaining());
+        return new ParseSuccess<SelectRqst>(groupBy.remaining(),
+                new SelectRqst(fields.matched(), from.matched(), joins.matched(), where.matched(), groupBy.matched()));
     }
 
     public static ParseSuccess<TableOriginWithAlias> parseOptionalTableOrigin(String input) throws ParseNomException {
@@ -114,9 +122,23 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         }
     }
 
+    public static ParseSuccess<Vector<QualifiedIdentifier>> parseOptionalGroupBy(String input) throws ParseNomException {
+        ParseSuccess<Token> groupByToken = ParserNomUtil.opt(inp -> {
+            return SelectTokenizer.scanGroupByToken(inp);
+        }, input);
+        if (groupByToken.matched() == null) {
+            return new ParseSuccess<Vector<QualifiedIdentifier>>(input, null);
+        }
+
+        return ParserNomUtil
+                .parseListBetweenParentheses(ParserNomUtil::identifier1, "Identifiant")
+                .apply(groupByToken.remaining());
+    }
+
     @Override
     public String toString() {
-        return "SelectRqst [fields=" + fields + ", from=" + from + ", joins=" + joins + ", where=" + where + "]";
+        return "SelectRqst [fields=" + fields + ", from=" + from + ", joins=" + joins + ", where=" + where
+                + ", groupBy=" + groupBy + "]";
     }
 
    
