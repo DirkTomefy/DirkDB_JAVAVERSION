@@ -1,0 +1,71 @@
+manamboara tahiry examen2;
+
+ampiasao examen2;
+
+manamboara efitra jour_domain(
+    TANISA("Lu","Ma","Me","Jeu","Ve","Sa","Dim")
+);
+
+manamboara efitra cours_domain(
+    TANISA("Archi","Algo","Syst")
+);
+
+manamboara efitra sal_domain(
+    TANISA("S1","S2","S3")
+);
+
+
+manamboara tabilao CJH (
+    IdCours  cours_domain,
+    Jour jour_domain ,
+    heure ISA(null,null)
+      );
+
+manamboara tabilao CS (
+    IdCours cours_domain ,
+    IdSalle sal_domain
+);
+
+manamboara tabilao ENA(
+    IdEtudiant ISA(null,null),
+    Nom LAHATSORATRA(null,null),
+    Adresse LAHATSORATRA(null,null)
+);
+
+manamboara tabilao CEN(
+    IdCours cours_domain,
+    IdEtudiant ISA(null,null),
+    Note LAHATSORATRA(1,3)
+);
+
+asehoy ny tabilao;
+
+manampia ao@ CJH (IdCours,Jour,Heure) sanda  
+                        ("Archi",'Lu',9),
+                        ("Algo",'Ma',9),
+                        ("Algo",'Ve',9),
+                         ("Syst",'Ma',14)
+                        ;
+
+manampia ao@ CS (IdCours,IdSalle) sanda  
+                        ("Archi","S1"),
+                       ("Algo","S2"),
+                       ("Syst","S1")
+                        ;
+
+
+manampia ao@ ENA (IdEtudiant,Nom,Adresse) sanda  
+                        (100,"Toto","Nice"),
+                       (200,"Tata","Paris"),
+                       ("Syst","S1","Rome")
+                        ;
+
+manampia ao@ CEN (IdCours, IdEtudiant , Note) sanda  
+                        ("Archi",100,"A"),
+                       ("Archi",300 ,"A"),
+                       ("Syst",100,"B"),
+                       ("Syst",200,"A"),
+                       ("Syst",300,"B"),
+                       ("Algo",100,"C"),
+                       ("Algo",200,"A")
+                       ;
