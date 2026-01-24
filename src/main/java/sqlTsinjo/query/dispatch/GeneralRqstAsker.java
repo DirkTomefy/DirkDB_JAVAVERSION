@@ -1,4 +1,4 @@
-package sqlTsinjo.query.main;
+package sqlTsinjo.query.dispatch;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,6 +30,7 @@ import sqlTsinjo.query.main.sqlobject.drop.token.DropRequestTokenizer;
 import sqlTsinjo.query.main.sqlobject.show.token.ShowRequestTokenizer;
 import sqlTsinjo.query.main.update.UpdateRqst;
 import sqlTsinjo.query.main.update.token.UpdateRqstTokenizer;
+import sqlTsinjo.query.result.RequestResult;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.TokenKind;
 
@@ -38,7 +39,7 @@ public class GeneralRqstAsker {
     // Interface pour les handlers de requêtes
     @FunctionalInterface
     private interface RequestHandler {
-        void handle(String input, AppContext ctx, Token token)
+        RequestResult handle(String input, AppContext ctx, Token token)
                 throws Exception;
     }
 
@@ -57,7 +58,7 @@ public class GeneralRqstAsker {
         HANDLERS.put(TokenKind.SHOWOBJECTSQL, GeneralRqstAsker::handleShow);
     }
 
-    public static void askRequest(String input, AppContext ctx)
+    public static RequestResult askRequest(String input, AppContext ctx)
             throws Exception {
 
         ParseSuccess<Token> token = scanTokenForRequest(input);
@@ -65,21 +66,22 @@ public class GeneralRqstAsker {
 
         RequestHandler handler = HANDLERS.get(status);
         if (handler != null) {
-            handler.handle(input, ctx, token.matched());
+            return handler.handle(input, ctx, token.matched());
         } else {
             handleUnknownCommand(status);
+            return RequestResult.withMessage("");
         }
     }
 
-    public static void handleShow(String input, AppContext ctx, Token token)
+    public static RequestResult handleShow(String input, AppContext ctx, Token token)
             throws ParseNomException, NoDatabaseSelect, IOException {
         ParseSuccess<Token> asehoy = ShowRequestTokenizer.scanShowObjectSql(input);
         validateNoRemaining(asehoy);
         ObjectSQLEnum toShow = (ObjectSQLEnum) asehoy.matched().value;
-        displayRelation(toShow.show(ctx), ctx);
+        return RequestResult.withRelation(toShow.show(ctx), ctx.isDebugMode());
     }
 
-    public static void handleCreate(String input, AppContext ctx, Token token)
+    public static RequestResult handleCreate(String input, AppContext ctx, Token token)
             throws ParseNomException, IOException, EvalErr {
         ParseSuccess<CreateObjectRqst> result = CreateObjectRqst.parseCreate(input);
         validateNoRemaining(result);
@@ -88,18 +90,20 @@ public class GeneralRqstAsker {
         ObjectSQLEnum toShow = (ObjectSQLEnum) token.value;
         switch (toShow) {
             case DATABASE:
-                printSuccess("Ny tahiry : " + result.matched().getName() + " dia voaforona soamantsara");
-                break;
+                return RequestResult.withMessage(
+                        "Ny tahiry : " + result.matched().getName() + " dia voaforona soamantsara");
             case DOMAIN:
-                printSuccess("Ny efitra : " + result.matched().getName() + " dia voaforona soamantsara");
-                break;
+                return RequestResult.withMessage(
+                        "Ny efitra : " + result.matched().getName() + " dia voaforona soamantsara");
             case TABLE:
-                printSuccess("Ny tabilao : " + result.matched().getName() + " dia voaforona soamantsara");
-                break;
+                return RequestResult.withMessage(
+                        "Ny tabilao : " + result.matched().getName() + " dia voaforona soamantsara");
             default:
                 break;
 
         }
+
+        return RequestResult.withMessage("");
 
         // ObjectSQLEnum toShow = (ObjectSQLEnum) create.matched().value;
         // displayRelation(toShow.show(ctx), ctx);
@@ -130,61 +134,63 @@ public class GeneralRqstAsker {
     // printSuccess("Ny tabilao dia voaforona soamantsara");
     // }
 
-    private static void handleSelect(String input, AppContext ctx, Token token)
+    private static RequestResult handleSelect(String input, AppContext ctx, Token token)
             throws ParseNomException, EvalErr, IOException {
 
         ParseSuccess<SelectExpr> result = SelectExpr.parseExpr(input);
         validateNoRemaining(result);
 
         Relation relation = result.matched().eval(ctx);
-        displayRelation(relation, ctx);
+        return RequestResult.withRelation(relation, ctx.isDebugMode());
     }
 
-    private static void handleUseDatabase(String input, AppContext ctx, Token token)
+    private static RequestResult handleUseDatabase(String input, AppContext ctx, Token token)
             throws ParseNomException, DatabaseNotExistErr {
 
         String databaseName = (String) token.value;
         validateNoRemaining(scanUseDatabaseToken(input).remaining());
 
         ctx.setDatabaseName(databaseName);
-        printSuccess("Ny tahiry : " + databaseName + " dia miasa ankehitriny");
+        return RequestResult.withMessage("Ny tahiry : " + databaseName + " dia miasa ankehitriny");
     }
 
-    private static void handleInsert(String input, AppContext ctx, Token token)
+    private static RequestResult handleInsert(String input, AppContext ctx, Token token)
             throws IOException, RelationalErr {
 
         ParseSuccess<InsertRqst> result = InsertRqst.parseInsert(input);
         validateNoRemaining(result);
 
         result.matched().eval(ctx);
-        printSuccess("Tafinditra ny fiovana ny tabilao");
+        return RequestResult.withMessage("Tafinditra ny fiovana ny tabilao");
     }
 
-    private static void handleUpdate(String input, AppContext ctx, Token token)
+    private static RequestResult handleUpdate(String input, AppContext ctx, Token token)
             throws ParseNomException, EvalErr, IOException {
 
         ParseSuccess<UpdateRqst> result = UpdateRqst.parseUpdate(input);
         validateNoRemaining(result);
 
         result.matched().eval(ctx);
-        printSuccess("Tafinditra ny fiovana ny tabilao");
+        return RequestResult.withMessage("Tafinditra ny fiovana ny tabilao");
     }
 
-    private static void handleDelete(String input, AppContext ctx, Token token)
+    private static RequestResult handleDelete(String input, AppContext ctx, Token token)
             throws ParseNomException, EvalErr, IOException {
 
         ParseSuccess<DeleteRqst> result = DeleteRqst.parseDelete(input);
         validateNoRemaining(result);
 
         result.matched().eval(ctx);
-        printSuccess("Tafinditra ny fiovana ny tabilao");
+        return RequestResult.withMessage("Tafinditra ny fiovana ny tabilao");
     }
 
-    public static void handleDrop(String input, AppContext ctx, Token token) throws ParseNomException,
+    public static RequestResult handleDrop(String input, AppContext ctx, Token token) throws ParseNomException,
             DatabaseNotExistErr, TableNotFound, NoDatabaseSelect, IOException, DomainNotFound {
         ParseSuccess<DropRequest> result = DropRequest.parseDropRequest(input);
         validateNoRemaining(result);
         result.matched().eval(ctx);
+
+        return RequestResult.withMessage("");
     }
 
     private static void handleUnknownCommand(TokenKind status) {
@@ -207,17 +213,7 @@ public class GeneralRqstAsker {
         }
     }
 
-    private static void displayRelation(Relation relation, AppContext ctx) {
-        String output = ctx.isDebugMode()
-                ? relation.toStringDebug()
-                : relation.toString();
-
-        System.out.println("\n" + output + "\n");
-    }
-
-    private static void printSuccess(String message) {
-        System.out.println(message);
-    }
+    
 
     // ========== MÉTHODES DE TOKENISATION ==========
 
