@@ -28,17 +28,21 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
     Vector<JoinElement> joins;
     Expression where;
     Vector<QualifiedIdentifier> groupBy;
+    Integer limitDebut;
+    Integer limitFin;
 
     public SelectRqst(){
         
     }
     public SelectRqst(SelectFields fields, TableOriginWithAlias from, Vector<JoinElement> joins, Expression where,
-            Vector<QualifiedIdentifier> groupBy) {
+            Vector<QualifiedIdentifier> groupBy, Integer limitDebut, Integer limitFin) {
         this.fields = fields;
         this.from = from;
         this.joins = joins;
         this.where = where;
         this.groupBy = groupBy;
+        this.limitDebut = limitDebut;
+        this.limitFin = limitFin;
     }
 
     public SelectCtx makeSelectCtx(AppContext context) throws AmbigousAliasErr {
@@ -67,10 +71,18 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         if (where != null)
             result = result.selection(where, selectCtx);
         if (groupBy != null && !groupBy.isEmpty()) {
-            return result.groupBy(fields, groupBy, selectCtx);
+            Relation grouped = result.groupBy(fields, groupBy, selectCtx);
+            return applyLimit(grouped);
         }
         result = result.projection(fields, selectCtx);
-        return result;
+        return applyLimit(result);
+    }
+
+    private Relation applyLimit(Relation result) {
+        if (limitDebut == null || limitFin == null) {
+            return result;
+        }
+        return result.limit(limitDebut, limitFin);
     }
 
     public Relation evalJoins(Relation fromRelation, SelectCtx ctx) throws ParseNomException, EvalErr, IOException {
@@ -95,8 +107,15 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         }
         ParseSuccess<Expression> where = parseOptionalWhere(joins.remaining());
         ParseSuccess<Vector<QualifiedIdentifier>> groupBy = parseOptionalGroupBy(where.remaining());
-        return new ParseSuccess<SelectRqst>(groupBy.remaining(),
-                new SelectRqst(fields.matched(), from.matched(), joins.matched(), where.matched(), groupBy.matched()));
+        ParseSuccess<int[]> limit = parseOptionalLimit(groupBy.remaining());
+        Integer debut = null;
+        Integer fin = null;
+        if (limit.matched() != null) {
+            debut = limit.matched()[0];
+            fin = limit.matched()[1];
+        }
+        return new ParseSuccess<SelectRqst>(limit.remaining(),
+                new SelectRqst(fields.matched(), from.matched(), joins.matched(), where.matched(), groupBy.matched(), debut, fin));
     }
 
     public static ParseSuccess<TableOriginWithAlias> parseOptionalTableOrigin(String input) throws ParseNomException {
@@ -133,6 +152,22 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         return ParserNomUtil
                 .parseListBetweenParentheses(ParserNomUtil::identifier1, "Identifiant")
                 .apply(groupByToken.remaining());
+    }
+
+    public static ParseSuccess<int[]> parseOptionalLimit(String input) throws ParseNomException {
+        ParseSuccess<Token> limitToken = ParserNomUtil.opt(inp -> {
+            return SelectTokenizer.scanLimitToken(inp);
+        }, input);
+        if (limitToken.matched() == null) {
+            return new ParseSuccess<int[]>(input, null);
+        }
+
+        ParseSuccess<String> debutStr = ParserNomUtil.digit1(limitToken.remaining().trim());
+        ParseSuccess<String> finStr = ParserNomUtil.digit1(debutStr.remaining().trim());
+
+        int debut = Integer.parseInt(debutStr.matched());
+        int fin = Integer.parseInt(finStr.matched());
+        return new ParseSuccess<int[]>(finStr.remaining(), new int[] { debut, fin });
     }
 
     @Override

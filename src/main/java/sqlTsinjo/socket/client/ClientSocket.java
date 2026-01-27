@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,13 +22,17 @@ import sqlTsinjo.query.result.RequestResult;
 
 public class ClientSocket {
 
-    private static final int PORT = 3948;
+    private static final int DEFAULT_PORT = 3949;
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final Pattern USE_DB_SUCCESS = Pattern
+            .compile("^Ny tahiry\\s*:\\s*(.+?)\\s+dia\\s+miasa\\s+ankehitriny\\s*$");
 
     public static void main(String[] args) throws IOException {
         String host = args.length > 0 ? args[0] : "127.0.0.1";
+        int port = args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_PORT;
 
-        try (Socket socket = new Socket(host, PORT);
+        try (Socket socket = new Socket(host, port);
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 PrintWriter out = new PrintWriter(
@@ -34,17 +40,27 @@ public class ClientSocket {
                 Scanner scanner = new Scanner(System.in)) {
 
             StringBuilder requestBuilder = new StringBuilder();
+            String currentDatabaseName = null;
             while (true) {
                 if (requestBuilder.length() == 0) {
-                    System.out.print("|DirkDB(Remote) > ");
+                    String promptDb = (currentDatabaseName == null || currentDatabaseName.isBlank())
+                            ? "DirkDB"
+                            : currentDatabaseName;
+                    System.out.print("|" + promptDb + "> ");
                 } else {
-                    System.out.print("               > ");
+                    System.out.print("        > ");
                 }
 
                 String line = scanner.nextLine();
                 if (requestBuilder.length() == 0) {
                     if (line.equalsIgnoreCase("miala") || line.equalsIgnoreCase("mivaoka")) {
                         break;
+                    }
+
+                    if (line.equalsIgnoreCase("diovy") || line.equalsIgnoreCase("!")) {
+                        System.out.print("\033[H\033[2J");
+                        System.out.flush();
+                        continue;
                     }
                 }
 
@@ -63,6 +79,14 @@ public class ClientSocket {
 
                     RequestResult response = readResponse(in);
                     System.out.println(response);
+
+                    String msg = response.getMessage();
+                    if (msg != null) {
+                        Matcher m = USE_DB_SUCCESS.matcher(msg.trim());
+                        if (m.matches()) {
+                            currentDatabaseName = m.group(1).trim();
+                        }
+                    }
                 }
             }
         }
