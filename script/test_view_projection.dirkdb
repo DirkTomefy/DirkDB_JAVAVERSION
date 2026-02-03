@@ -1,0 +1,13 @@
+-- Test de la projection sur vue
+ampiasao examen1;
+
+-- Test 1: Select * sur la vue (devrait marcher)
+alaivo * ao@ etudiant_l3;
+
+-- Test 2: Select attribut spécifique sur la vue (doit marcher)
+alaivo nom ao@ etudiant_l3;
+
+-- Test 3: Select avec qualification
+
+alaivo etudiant_l3.nom,etudiant.idE #ao@ etudiant_l3 el3 
+#tonona:avia@ etudiant ;

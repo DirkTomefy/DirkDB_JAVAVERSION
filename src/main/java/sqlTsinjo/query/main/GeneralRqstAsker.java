@@ -15,6 +15,7 @@ import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 import sqlTsinjo.query.err.eval.DomainNotFound;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.err.eval.TableNotFound;
+import sqlTsinjo.query.err.eval.ViewNotFound;
 import sqlTsinjo.query.err.parsing.CommandAvailableNotFound;
 import sqlTsinjo.query.main.delete.DeleteRqst;
 import sqlTsinjo.query.main.delete.token.DeleteRqstTokenizer;
@@ -95,6 +96,9 @@ public class GeneralRqstAsker {
                 break;
             case TABLE:
                 printSuccess("Ny tabilao : " + result.matched().getName() + " dia voaforona soamantsara");
+                break;
+            case VIEW:
+                printSuccess("Ny jery : " + result.matched().getName() + " dia voaforona soamantsara");
                 break;
             default:
                 break;
@@ -181,7 +185,7 @@ public class GeneralRqstAsker {
     }
 
     public static void handleDrop(String input, AppContext ctx, Token token) throws ParseNomException,
-            DatabaseNotExistErr, TableNotFound, NoDatabaseSelect, IOException, DomainNotFound {
+            DatabaseNotExistErr, TableNotFound, NoDatabaseSelect, IOException, DomainNotFound, ViewNotFound {
         ParseSuccess<DropRequest> result = DropRequest.parseDropRequest(input);
         validateNoRemaining(result);
         result.matched().eval(ctx);

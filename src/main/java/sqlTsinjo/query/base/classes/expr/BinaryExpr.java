@@ -7,13 +7,41 @@ import sqlTsinjo.query.base.classes.operand.BinaryOp;
 import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 
 public class BinaryExpr implements Expression {
-    private final Expression left;
-    private final BinaryOp op;
-    private final Expression right;
+    private Expression left;
+    private BinaryOp op;
+    private Expression right;
+
+    public BinaryExpr() {
+        // Default constructor for Jackson
+    }
 
     public BinaryExpr(Expression left, BinaryOp op, Expression right) {
         this.left = left;
         this.op = op;
+        this.right = right;
+    }
+
+    public Expression getLeft() {
+        return left;
+    }
+
+    public void setLeft(Expression left) {
+        this.left = left;
+    }
+
+    public BinaryOp getOp() {
+        return op;
+    }
+
+    public void setOp(BinaryOp op) {
+        this.op = op;
+    }
+
+    public Expression getRight() {
+        return right;
+    }
+
+    public void setRight(Expression right) {
         this.right = right;
     }
 

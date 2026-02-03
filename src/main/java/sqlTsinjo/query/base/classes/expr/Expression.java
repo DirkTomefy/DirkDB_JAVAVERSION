@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
@@ -22,6 +24,7 @@ import sqlTsinjo.query.token.Token;
 import sqlTsinjo.query.token.TokenKind;
 import sqlTsinjo.query.token.Tokenizer;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public interface Expression {
 
     // ========================= PARSEUR =========================

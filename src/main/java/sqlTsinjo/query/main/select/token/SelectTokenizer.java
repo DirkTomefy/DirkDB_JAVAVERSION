@@ -52,7 +52,21 @@ public class SelectTokenizer extends Tokenizer {
         return ParserNomUtil.alt(
                 SelectTokenizer::scanAsToken,
                 SelectTokenizer::scanCommaToken,
-                Tokenizer.tagId()).apply(input);
+                SelectTokenizer::scanIdNotFollowedByAt).apply(input);
+    }
+
+    /**
+     * Parse un identifiant mais vérifie qu'il n'est pas suivi de @ (pour ne pas confondre avec ao@)
+     */
+    public static ParseSuccess<Token> scanIdNotFollowedByAt(String input) throws ParseNomException {
+        ParseSuccess<Token> idResult = Tokenizer.tagId().apply(input);
+        // Vérifier si l'identifiant est suivi de @
+        String remaining = idResult.remaining().trim();
+        if (remaining.startsWith("@")) {
+            // C'est probablement un token comme "ao@", donc on ne doit pas le parser comme alias
+            throw new ParseNomException(input, "Identifiant suivi de @ non autorisé comme alias");
+        }
+        return idResult;
     }
 
     public static ParseSuccess<Token> mapJoinToken(String matched, String input) throws ParseNomException {

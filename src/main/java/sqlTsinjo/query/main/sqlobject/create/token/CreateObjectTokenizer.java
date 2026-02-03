@@ -27,8 +27,18 @@ public class CreateObjectTokenizer {
         return new ParseSuccess<>(success.remaining(), Token.createObjectSQL(ObjectSQLEnum.DOMAIN));
     }
 
+    public static ParseSuccess<Token> scanCreateViewToken(String input) throws ParseNomException {
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.tagNoCase("Manamboara"), ParserNomUtil.tagNoCase("jery")).apply(input);
+        return new ParseSuccess<>(success.remaining(), Token.createObjectSQL(ObjectSQLEnum.VIEW));
+    }
+
     public static ParseSuccess<Token> scanCreateToken(String input) throws ParseNomException {
-        return ParserNomUtil.alt(CreateObjectTokenizer::scanCreateDatabaseToken, CreateObjectTokenizer::scanCreateTableToken ,CreateObjectTokenizer::scanCreateDomainToken)
+        return ParserNomUtil.alt(
+                CreateObjectTokenizer::scanCreateDatabaseToken, 
+                CreateObjectTokenizer::scanCreateTableToken,
+                CreateObjectTokenizer::scanCreateDomainToken,
+                CreateObjectTokenizer::scanCreateViewToken)
                 .apply(input);
     }
 }

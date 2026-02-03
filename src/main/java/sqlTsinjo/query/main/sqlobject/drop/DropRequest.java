@@ -10,11 +10,13 @@ import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 import sqlTsinjo.query.err.eval.DomainNotFound;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.err.eval.TableNotFound;
+import sqlTsinjo.query.err.eval.ViewNotFound;
 import sqlTsinjo.query.main.sqlobject.ObjectSQLEnum;
 import sqlTsinjo.query.main.sqlobject.drop.token.DropRequestTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeDomain;
 import sqlTsinjo.storage.SerdeRelation;
+import sqlTsinjo.storage.SerdeView;
 
 public class DropRequest {
     String name;
@@ -33,7 +35,7 @@ public class DropRequest {
     }
 
     public void eval(AppContext ctx)
-            throws DatabaseNotExistErr, IOException, TableNotFound, NoDatabaseSelect, DomainNotFound {
+            throws DatabaseNotExistErr, IOException, TableNotFound, NoDatabaseSelect, DomainNotFound, ViewNotFound {
 
         switch (objectType) {
             case DATABASE:
@@ -42,13 +44,18 @@ public class DropRequest {
                 break;
             case TABLE:
                 SerdeRelation serdeTable = new SerdeRelation(ctx, name);
-                System.out.println("Dossier supprimé avec succès.");
+                System.out.println("Tabilao supprimé avec succès.");
                 serdeTable.dropTable();
                 break;
             case DOMAIN:
                 SerdeDomain serdeDomain = new SerdeDomain(ctx, name);
-                System.out.println("Dossier supprimé avec succès.");
+                System.out.println("Efitra supprimé avec succès.");
                 serdeDomain.dropDomain();
+                break;
+            case VIEW:
+                SerdeView serdeView = new SerdeView(ctx, name);
+                System.out.println("Jery supprimé avec succès.");
+                serdeView.dropView();
                 break;
         }
     }

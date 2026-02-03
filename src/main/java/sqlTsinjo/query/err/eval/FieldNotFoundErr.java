@@ -6,6 +6,10 @@ import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 
 public class FieldNotFoundErr extends EvalErr {
+    public FieldNotFoundErr(String message) {
+        super(message);
+    }
+    
     public FieldNotFoundErr(QualifiedIdentifier fieldName) {
         super("Field '" + fieldName + "' not found");
     }

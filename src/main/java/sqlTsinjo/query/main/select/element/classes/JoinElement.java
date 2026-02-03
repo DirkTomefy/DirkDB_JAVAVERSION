@@ -20,9 +20,25 @@ public class JoinElement {
     TableOriginWithAlias tableOrigin;
     Expression onCondition;
 
+    public JoinElement() {
+        // Default constructor for Jackson
+    }
+
     public JoinElement(JoinOp op, TableOriginWithAlias table, Expression onCondition) {
         this.op = op;
         this.tableOrigin = table;
+        this.onCondition = onCondition;
+    }
+
+    public void setOp(JoinOp op) {
+        this.op = op;
+    }
+
+    public void setTableOrigin(TableOriginWithAlias tableOrigin) {
+        this.tableOrigin = tableOrigin;
+    }
+
+    public void setOnCondition(Expression onCondition) {
         this.onCondition = onCondition;
     }
 

@@ -1,0 +1,28 @@
+-- Test du module VIEW
+-- D'abord utiliser la database examen1
+
+ampiasao examen1;
+
+manamboara jery etudiant_l3 @ alaivo * ao@ etudiant #rehefa niveau="L3";
+
+-- Afficher la vue (elle s'utilise comme une table)
+alaivo * ao@ etudiant_l3;
+
+-- Créer une vue plus complexe avec jointure : étudiants inscrits aux cours obligatoires
+manamboara jery etudiant_cours_oblig @ 
+alaivo etudiant.nom , inscription.codeC   #ao@ inscription 
+  #tonona:@ cours #ka cours.codeC=inscription.codeC
+  #tonona:@ etudiant #ka etudiant.idE=inscription.idE
+  #rehefa type="OBLIG" ary note >= 10 ary semestre="S1";
+
+-- Utiliser la vue
+alaivo * ao@ etudiant_cours_oblig;
+
+-- Montrer les vues disponibles
+asehoy ny jery;
+
+-- Supprimer une vue
+ravao ny jery etudiant_l3;
+
+-- Vérifier que la vue est bien supprimée
+asehoy ny jery;

@@ -7,7 +7,7 @@ import sqlTsinjo.query.main.GeneralRqstAsker;
 public class DirkDbCli {
 
     public static void main(String[] args)  {
-        AppContext context = new AppContext(null, "Tomefy", false);
+        AppContext context = new AppContext(null, "Herman", false);
         printCopyright();
 
         try (Scanner scanner = new Scanner(System.in)) {
@@ -16,9 +16,9 @@ public class DirkDbCli {
             while (true) {
                 // Asehoy ny prompt raha vao manomboka fangatahana vaovao
                 if (requestBuilder.length() == 0) {
-                    System.out.print("|DirkDB > ");
+                    System.out.print("[My Database] : ");
                 } else {
-                    System.out.print("        > "); // Fanalavirana ho an'ny andalana manaraka
+                    System.out.print("        : "); // Fanalavirana ho an'ny andalana manaraka
                 }
 
                 String line = scanner.nextLine();
@@ -89,14 +89,11 @@ public class DirkDbCli {
 
     private static void printCopyright() {
         System.out.println("========================================");
-        System.out.println(" DirkDB SQL Engine - Fitaovana anaty terminal");
         System.out.println(" Dika 1.0.0");
         System.out.println();
         System.out.println(" Zo rehetra voatokana © 2025");
-        System.out.println(" Mpamorona : Dirk Tomefy");
         System.out.println(" Voaaro avokoa ny zo rehetra.");
         System.out.println();
-        System.out.println(" Soraty 'miala' na 'mivaoka' raha hiala.");
         System.out.println("========================================");
     }
 }

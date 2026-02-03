@@ -41,6 +41,46 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         this.groupBy = groupBy;
     }
 
+    public SelectFields getFields() {
+        return fields;
+    }
+
+    public void setFields(SelectFields fields) {
+        this.fields = fields;
+    }
+
+    public TableOriginWithAlias getFrom() {
+        return from;
+    }
+
+    public void setFrom(TableOriginWithAlias from) {
+        this.from = from;
+    }
+
+    public Vector<JoinElement> getJoins() {
+        return joins;
+    }
+
+    public void setJoins(Vector<JoinElement> joins) {
+        this.joins = joins;
+    }
+
+    public Expression getWhere() {
+        return where;
+    }
+
+    public void setWhere(Expression where) {
+        this.where = where;
+    }
+
+    public Vector<QualifiedIdentifier> getGroupBy() {
+        return groupBy;
+    }
+
+    public void setGroupBy(Vector<QualifiedIdentifier> groupBy) {
+        this.groupBy = groupBy;
+    }
+
     public SelectCtx makeSelectCtx(AppContext context) throws AmbigousAliasErr {
         LinkedHashMap<String, String> aliasMap = new LinkedHashMap<>();
         if (from != null) {

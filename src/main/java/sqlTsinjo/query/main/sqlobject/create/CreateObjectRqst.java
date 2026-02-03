@@ -26,6 +26,9 @@ public abstract class CreateObjectRqst {
              case DOMAIN:
                 ParseSuccess<CreateDomainRqst> createSuccessDomain=CreateDomainRqst.parseCreateDomain(input);
                 return new ParseSuccess<>(createSuccessDomain.remaining(),createSuccessDomain.matched());
+            case VIEW:
+                ParseSuccess<CreateViewRqst> createSuccessView=CreateViewRqst.parseCreateView(input);
+                return new ParseSuccess<>(createSuccessView.remaining(),createSuccessView.matched());
             default:
                 throw new IllegalArgumentException("ERREUR DE GESTION DES TOKEN");
           
