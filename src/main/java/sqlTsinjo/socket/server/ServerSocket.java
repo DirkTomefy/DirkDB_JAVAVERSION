@@ -22,15 +22,16 @@ import sqlTsinjo.query.result.RequestResult;
 
 public class ServerSocket {
 
-    private static final int PORT = 3948;
+    private static final int DEFAULT_PORT = 3948;
     private static final int PAGE_SIZE_ROWS = 20;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static void main(String[] args) throws IOException {
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
         ExecutorService pool = Executors.newCachedThreadPool();
 
-        try (java.net.ServerSocket server = new java.net.ServerSocket(PORT)) {
+        try (java.net.ServerSocket server = new java.net.ServerSocket(port)) {
             while (true) {
                 Socket client = server.accept();
                 pool.submit(() -> handleClient(client));

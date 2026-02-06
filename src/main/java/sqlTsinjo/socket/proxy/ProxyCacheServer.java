@@ -9,28 +9,25 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProxyCacheServer {
 
     private static final int LISTEN_PORT = 3949;
-    private static final int UPSTREAM_PORT = 3948;
-    private static final String UPSTREAM_HOST = "127.0.0.1";
 
-    private static final long TTL_MILLIS = 30_000;
-    private static final int MAX_ENTRIES = 200;
+    // Configuration des deux serveurs backend
+    private static final Backend[] BACKENDS = {
+        new Backend("127.0.0.1", 3948),  // Serveur 1
+        new Backend("127.0.0.1", 3950)   // Serveur 2 (change le port si nécessaire)
+    };
 
-    private static final Pattern USE_DB_REQUEST = Pattern.compile("^AMPIASAO\\s+(.+?)\\s*$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern USE_DB_SUCCESS = Pattern
-            .compile("^Ny tahiry\\s*:\\s*(.+?)\\s+dia\\s+miasa\\s+ankehitriny\\s*$");
-
-    private static final ProxyCache CACHE = new ProxyCache(TTL_MILLIS, MAX_ENTRIES);
+    private static final AtomicInteger ROUND_ROBIN_INDEX = new AtomicInteger(0);
 
     public static void main(String[] args) throws IOException {
         ExecutorService pool = Executors.newCachedThreadPool();
 
         try (java.net.ServerSocket server = new java.net.ServerSocket(LISTEN_PORT)) {
+            System.out.println("Load balancer démarré sur le port " + LISTEN_PORT);
             while (true) {
                 Socket client = server.accept();
                 pool.submit(() -> handleClient(client));
@@ -39,18 +36,28 @@ public class ProxyCacheServer {
     }
 
     private static void handleClient(Socket client) {
-        try (client;
-                Socket upstream = new Socket(UPSTREAM_HOST, UPSTREAM_PORT);
-                BufferedReader clientIn = new BufferedReader(
-                        new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
-                PrintWriter clientOut = new PrintWriter(
-                        new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true);
-                BufferedReader upstreamIn = new BufferedReader(
-                        new InputStreamReader(upstream.getInputStream(), StandardCharsets.UTF_8));
-                PrintWriter upstreamOut = new PrintWriter(
-                        new OutputStreamWriter(upstream.getOutputStream(), StandardCharsets.UTF_8), true)) {
+        Backend backend = getNextBackend();
+        if (backend == null) {
+            try {
+                client.close();
+            } catch (IOException e) {
+                // ignore
+            }
+            return;
+        }
 
-            String currentDb = null;
+        try (client;
+             Socket upstream = new Socket(backend.host, backend.port);
+             BufferedReader clientIn = new BufferedReader(
+                     new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
+             PrintWriter clientOut = new PrintWriter(
+                     new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true);
+             BufferedReader upstreamIn = new BufferedReader(
+                     new InputStreamReader(upstream.getInputStream(), StandardCharsets.UTF_8));
+             PrintWriter upstreamOut = new PrintWriter(
+                     new OutputStreamWriter(upstream.getOutputStream(), StandardCharsets.UTF_8), true)) {
+
+            System.out.println("Connexion client -> " + backend);
 
             while (true) {
                 String req = readUntilSemicolon(clientIn);
@@ -63,57 +70,28 @@ public class ProxyCacheServer {
                     continue;
                 }
 
-                String normalized = normalize(req);
-
-                boolean isUseDb = isUseDb(normalized);
-                boolean isSelect = isSelect(normalized);
-                boolean isWrite = isWrite(normalized);
-
-                String cacheKey = null;
-                if (isSelect) {
-                    cacheKey = ((currentDb == null) ? "" : currentDb) + "|" + normalized;
-                    String cached = CACHE.getIfPresent(cacheKey);
-                    if (cached != null) {
-                        clientOut.print(cached);
-                        clientOut.flush();
-                        continue;
-                    }
-                }
-
-                upstreamOut.print(normalized);
+                // Transférer la requête vers le backend
+                upstreamOut.print(req);
                 upstreamOut.print(";");
                 upstreamOut.flush();
 
-                String responsePayload = readUntilEndFrame(upstreamIn);
-                if (responsePayload == null) {
+                // Lire la réponse du backend et la renvoyer au client
+                String response = readUntilEndFrame(upstreamIn);
+                if (response == null) {
                     return;
                 }
 
-                if (isUseDb) {
-                    String maybeDb = extractDbFromUseDbSuccess(responsePayload);
-                    if (maybeDb != null) {
-                        currentDb = maybeDb;
-                    }
-                }
-
-                if (isWrite) {
-                    if (currentDb != null) {
-                        CACHE.clearByDbPrefix(currentDb);
-                    } else {
-                        CACHE.clearAll();
-                    }
-                }
-
-                if (isSelect && cacheKey != null) {
-                    CACHE.put(cacheKey, responsePayload);
-                }
-
-                clientOut.print(responsePayload);
+                clientOut.print(response);
                 clientOut.flush();
             }
         } catch (IOException e) {
-            // disconnected
+            System.err.println("Erreur de connexion avec " + backend + ": " + e.getMessage());
         }
+    }
+
+    private static Backend getNextBackend() {
+        int index = ROUND_ROBIN_INDEX.getAndIncrement() % BACKENDS.length;
+        return BACKENDS[Math.abs(index)];
     }
 
     private static String readUntilSemicolon(BufferedReader in) throws IOException {
@@ -145,45 +123,18 @@ public class ProxyCacheServer {
         }
     }
 
-    private static boolean isUseDb(String normalized) {
-        return USE_DB_REQUEST.matcher(normalized).matches();
-    }
+    private static class Backend {
+        final String host;
+        final int port;
 
-    private static boolean isSelect(String normalized) {
-        return startsWithNoCase(normalized, "ALAIVO") || startsWithNoCase(normalized, "SELECT");
-    }
-
-    private static boolean isWrite(String normalized) {
-        return startsWithNoCase(normalized, "MANAMPIA")
-                || startsWithNoCase(normalized, "AMPIDITRA")
-                || startsWithNoCase(normalized, "UPDATE")
-                || startsWithNoCase(normalized, "DELETE")
-                || startsWithNoCase(normalized, "CREATE")
-                || startsWithNoCase(normalized, "DROP");
-    }
-
-    private static boolean startsWithNoCase(String s, String prefix) {
-        if (s.length() < prefix.length()) {
-            return false;
+        Backend(String host, int port) {
+            this.host = host;
+            this.port = port;
         }
-        return s.regionMatches(true, 0, prefix, 0, prefix.length());
-    }
 
-    private static String normalize(String req) {
-        return req.trim().replaceAll("\\s+", " ");
-    }
-
-    private static String extractDbFromUseDbSuccess(String responsePayload) {
-        String[] lines = responsePayload.split("\\R");
-        for (String line : lines) {
-            if (line == null) {
-                continue;
-            }
-            Matcher m = USE_DB_SUCCESS.matcher(line.trim());
-            if (m.matches()) {
-                return m.group(1).trim();
-            }
+        @Override
+        public String toString() {
+            return host + ":" + port;
         }
-        return null;
     }
 }
