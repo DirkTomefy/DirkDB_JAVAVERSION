@@ -13,9 +13,37 @@ public class SelectBinOpExpr extends SelectExpr {
     BasicRowOp op;
     SelectExpr right;
 
+    public SelectBinOpExpr() {
+        // Default constructor for Jackson
+    }
+
     public SelectBinOpExpr(SelectExpr left, BasicRowOp op, SelectExpr right) {
         this.left = left;
         this.op = op;
+        this.right = right;
+    }
+
+    public SelectExpr getLeft() {
+        return left;
+    }
+
+    public void setLeft(SelectExpr left) {
+        this.left = left;
+    }
+
+    public BasicRowOp getOp() {
+        return op;
+    }
+
+    public void setOp(BasicRowOp op) {
+        this.op = op;
+    }
+
+    public SelectExpr getRight() {
+        return right;
+    }
+
+    public void setRight(SelectExpr right) {
         this.right = right;
     }
 

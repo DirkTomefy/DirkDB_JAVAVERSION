@@ -11,10 +11,26 @@ import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 
 public class PrimitiveExpr implements Expression {
     public PrimitiveKind type;
-    private final Object value;
+    private Object value;
+
+    public PrimitiveExpr() {
+        // Default constructor for Jackson
+    }
 
     public Object getValue() {
         return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public PrimitiveKind getType() {
+        return type;
+    }
+
+    public void setType(PrimitiveKind type) {
+        this.type = type;
     }
 
     public PrimitiveExpr(PrimitiveKind type, Object value) {

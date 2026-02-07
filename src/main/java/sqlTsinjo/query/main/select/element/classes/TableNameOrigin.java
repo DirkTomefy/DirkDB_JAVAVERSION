@@ -8,6 +8,7 @@ import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.query.err.eval.AmbigousAliasErr;
 import sqlTsinjo.query.main.select.element.abstracts.TableOriginWithAlias;
 import sqlTsinjo.storage.SerdeRelation;
+import sqlTsinjo.storage.SerdeView;
 
 public class TableNameOrigin extends TableOriginWithAlias {
 
@@ -21,15 +22,27 @@ public class TableNameOrigin extends TableOriginWithAlias {
         this.name = name;
     }
 
-    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String toString() {
         return "TableNameOrigin [name=" + name + ", id=" + id + ", alias=" + alias + "]";
     }
 
     @Override
     public Relation evalAsTableOrigin0(SelectCtx context) throws ParseNomException,EvalErr, IOException {
-        SerdeRelation serdeRelation =new SerdeRelation(context.getAppcontext(),name);
-        return serdeRelation.deserializeRelation();
+        if (SerdeView.viewExists(context.getAppcontext(), name)) {
+            SerdeView serdeView = new SerdeView(context.getAppcontext(), name);
+            return serdeView.evalView();
+        } else {
+            SerdeRelation serdeRelation = new SerdeRelation(context.getAppcontext(), name);
+            return serdeRelation.deserializeRelation();
+        }
     }
 
     @Override

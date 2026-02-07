@@ -104,7 +104,8 @@ alaivo etudiant.nom , inscription.codeC   #ao@ inscription
 
 
 //selection :
-alaivo *  #ao@ inscription #rehefa 1=1 ary ((note=14)) na !(2+2=2*2) ;
+alaivo *  #ao@ inscription #rehefa !(2+2=2*2) ;
+//alaivo *  #ao@ inscription #rehefa 1=1 ary (note=14) na !(2+2=2*2) ;
 
 //projection 
 

@@ -11,6 +11,10 @@ public class PrefixedExpr implements Expression {
     private PrefixedOp op;
     private Expression expr;
 
+    public PrefixedExpr() {
+        // Default constructor for Jackson
+    }
+
     public PrefixedExpr(PrefixedOp op, Expression expr) {
         this.op = op;
         this.expr = expr;

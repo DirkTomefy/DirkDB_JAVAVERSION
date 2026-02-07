@@ -229,7 +229,7 @@ public class CreateTableRqst extends CreateObjectRqst {
 
     public static ParseSuccess<DomainAtom> parseDate(String input) throws ParseNomException {
         ParseSuccess<String> success = ParserNomUtil.tagNoCase("DATY").apply(input.trim());
-        return success.map(_ ->{
+        return success.map(ignored -> {
             return new DATE();
         });
     }

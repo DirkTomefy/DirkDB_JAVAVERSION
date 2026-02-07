@@ -17,6 +17,7 @@ import sqlTsinjo.query.base.ParseSuccess;
 import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.err.eval.TableNotFound;
+import sqlTsinjo.query.err.eval.ViewNotFound;
 import sqlTsinjo.query.main.select.SelectExpr;
 
 public class SerdeRelation {
@@ -48,16 +49,54 @@ public class SerdeRelation {
         }
     }
 
+    /**
+     * Vérifie si c'est une vue
+     */
+    public boolean isView() throws NoDatabaseSelect {
+        if (appContext.getDatabaseName() == null)
+            throw new NoDatabaseSelect();
+        String path = "databases/" + appContext.getDatabaseName() + "/views/" + tableName + ".json";
+        File file = new File(path);
+        return file.exists();
+    }
+
+    /**
+     * Vérifie si c'est une table
+     */
+    public boolean isTable() throws NoDatabaseSelect {
+        if (appContext.getDatabaseName() == null)
+            throw new NoDatabaseSelect();
+        String path = "databases/" + appContext.getDatabaseName() + "/tables/" + tableName + ".json";
+        File file = new File(path);
+        return file.exists();
+    }
+
     public void serializeRelation(Relation rel) throws IOException, TableNotFound, NoDatabaseSelect {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(getTableFile(), rel);
     }
 
-    public Relation deserializeRelation() throws IOException, TableNotFound, NoDatabaseSelect {
-        ObjectMapper mapper = new ObjectMapper();
-        Relation retour=mapper.readValue(getTableFile(), Relation.class);
-        retour.setName(tableName);
-        return retour;
+    public Relation deserializeRelation() throws IOException, TableNotFound, NoDatabaseSelect, EvalErr, ParseNomException {
+        // D'abord essayer de charger comme table
+        if (isTable()) {
+            ObjectMapper mapper = new ObjectMapper();
+            Relation retour = mapper.readValue(getTableFile(), Relation.class);
+            retour.setName(tableName);
+            return retour;
+        }
+        
+        // Si pas une table, essayer comme vue
+        if (isView()) {
+            SerdeView serdeView = new SerdeView(appContext, tableName);
+            try {
+                return serdeView.evalView();
+            } catch (ViewNotFound e) {
+                throw new TableNotFound(appContext.getDatabaseName(), tableName);
+            }
+        }
+        
+        // Ni table ni vue trouvée
+        throw new TableNotFound(appContext.getDatabaseName(), tableName);
     }
 
     public static boolean databaseExist(String databaseName) {

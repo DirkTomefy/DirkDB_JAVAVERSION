@@ -59,7 +59,7 @@ public abstract class SelectExpr   extends TableOriginWithAlias  {
             ParseSuccess<SelectExpr> rhs = parseFactor(input);
             current = new SelectBinOpExpr(current, token, rhs.matched() );
             input = rhs.remaining();
-
+        
         }
         return new ParseSuccess<>(input, current);
     }

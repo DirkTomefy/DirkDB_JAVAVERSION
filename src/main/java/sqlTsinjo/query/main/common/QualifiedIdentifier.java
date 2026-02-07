@@ -81,14 +81,21 @@ public class QualifiedIdentifier {
          return index;
 
       // Recherche avec alias original (si différent)
-      if (!this.getOrigin().equals(resolvedOrigin)) {
+      if (this.getOrigin() != null && !this.getOrigin().equals(resolvedOrigin)) {
          index = findExactMatch(fieldName, this.getOrigin(), this.name);
          if (index != -1)
             return index;
       }
 
-      // Dernier recours: chercher sans origine si unique
-      throw new IllegalAccessError("HAIKO!! "+resolvedOrigin);
+      // Dernier recours: chercher par nom uniquement si unique
+      SearchResult result = countFieldOccurrences(fieldName, this.name);
+      if (result.count == 1) {
+         return result.foundIndex;
+      } else if (result.count == 0) {
+         throw new FieldNotFoundErr("Le champ '" + this.getOrigin() + "." + name + "' n'existe pas dans la relation.");
+      } else {
+         throw new FieldNotFoundErr("Le champ '" + name + "' est ambigu avec l'origine '" + resolvedOrigin + "'.");
+      }
    }
 
    private int findIndexWithoutOrigin(Vector<QualifiedIdentifier> fieldName, SelectCtx ctx)
@@ -97,6 +104,8 @@ public class QualifiedIdentifier {
       SearchResult result = countFieldOccurrences(fieldName, this.name);
       if (result.count == 1) {
          return result.foundIndex;
+      } else if (result.count == 0) {
+         throw new FieldNotFoundErr("Le champ '" + name + "' n'existe pas dans la relation.");
       } else {
          throw new AmbigousNameErr(
                "Le champ '" + name + "' est ambigu. Il apparaît " + result.count + " fois dans la relation.");

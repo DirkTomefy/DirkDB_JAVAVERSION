@@ -26,7 +26,18 @@ public class DropRequestTokenizer {
                 .tuple(true, ParserNomUtil.tagNoCase("ravao"), ParserNomUtil.tagNoCase("ny"),ParserNomUtil.tagNoCase("efitra")).apply(input);
         return new  ParseSuccess<>(success.remaining(),Token.dropObjectSQL(ObjectSQLEnum.DOMAIN)) ;
     }
+
+    public static ParseSuccess<Token> scanDropViewToken(String input) throws ParseNomException {
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.tagNoCase("ravao"), ParserNomUtil.tagNoCase("ny"),ParserNomUtil.tagNoCase("jery")).apply(input);
+        return new  ParseSuccess<>(success.remaining(),Token.dropObjectSQL(ObjectSQLEnum.VIEW)) ;
+    }
+
     public static ParseSuccess<Token> scanDropObjectSql(String input) throws ParseNomException{
-        return ParserNomUtil.alt(DropRequestTokenizer::scanDropDatabaseToken,DropRequestTokenizer::scanDropTableToken,DropRequestTokenizer::scanDropDomainToken).apply(input);
+        return ParserNomUtil.alt(
+                DropRequestTokenizer::scanDropDatabaseToken,
+                DropRequestTokenizer::scanDropTableToken,
+                DropRequestTokenizer::scanDropDomainToken,
+                DropRequestTokenizer::scanDropViewToken).apply(input);
     }
 }

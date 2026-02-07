@@ -7,8 +7,12 @@ import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.query.main.select.element.classes.SelectCtx;
 
 public class FunctionExpr implements Expression {
-    private final String name;
-    private final Vector<Expression> args;
+    private String name;
+    private Vector<Expression> args;
+
+    public FunctionExpr() {
+        // Default constructor for Jackson
+    }
 
     public FunctionExpr(String name, Vector<Expression> args) {
         this.name = name;
@@ -19,8 +23,16 @@ public class FunctionExpr implements Expression {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Vector<Expression> getArgs() {
         return args;
+    }
+
+    public void setArgs(Vector<Expression> args) {
+        this.args = args;
     }
 
     @Override

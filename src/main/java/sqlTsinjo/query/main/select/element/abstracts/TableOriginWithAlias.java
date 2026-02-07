@@ -95,7 +95,11 @@ public abstract class TableOriginWithAlias {
     public Relation evalAsTableOriginAndHandleId(SelectCtx context) throws ParseNomException, EvalErr, IOException{
         Relation rel=evalAsTableOrigin0(context);
         for (QualifiedIdentifier colum : rel.getFieldName() ) {
-            colum.setOrigin(id);
+            if (this instanceof TableNameOrigin tno) {
+                colum.setOrigin(tno.getName());
+            } else {
+                colum.setOrigin(id);
+            }
         }
         return rel;
     }
