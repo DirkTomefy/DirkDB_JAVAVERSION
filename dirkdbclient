@@ -1,0 +1,2 @@
+./mvnw -q exec:java -Dexec.mainClass=sqlTsinjo.socket.proxy.ProxyCache
+./mvnw -q exec:java -Dexec.mainClass=sqlTsinjo.socket.client.ClientSocket

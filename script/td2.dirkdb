@@ -57,7 +57,7 @@ manampia ao@ CS (IdCours,IdSalle) sanda
 manampia ao@ ENA (IdEtudiant,Nom,Adresse) sanda  
                         (100,"Toto","Nice"),
                        (200,"Tata","Paris"),
-                       ("Syst","S1","Rome")
+                       (300,"Titi","Rome")
                         ;
 
 manampia ao@ CEN (IdCours, IdEtudiant , Note) sanda  
@@ -75,3 +75,11 @@ manampia ao@ CEN (IdCours, IdEtudiant , Note) sanda
 alaivo IdCours,count(IdEtudiant) #ao@ CEN #vondrona (IdCours); 
 alaivo sum(Note) #vondrona IdCours; 
 alaivo avg(Note) #vondrona IdCours; 
+
+
+ alaivo * #ao@ CJH #tonona:natoraly CEN #tonona:natoraly ENA;
+
+ alaivo IdEtudiant #ao@  CEN #tonona:natoraly ENA #rehefa Note='C' ;
+
+
+ 

@@ -15,24 +15,13 @@ import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.base.err.ParseNomException;
 import sqlTsinjo.base.err.RelationDomainSizeErr;
 import sqlTsinjo.base.err.RelationalErr;
-import sqlTsinjo.base.util.DeleteHelper;
-import sqlTsinjo.base.util.InsertHelper;
-import sqlTsinjo.base.util.NaturalJoinHelper;
-import sqlTsinjo.base.util.ProjectionHelper;
-import sqlTsinjo.base.util.RelationDisplayer;
-import sqlTsinjo.base.util.UpdateHelper;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.base.classes.expr.Expression;
-import sqlTsinjo.query.base.classes.expr.FunctionExpr;
-import sqlTsinjo.query.base.classes.expr.PrimitiveExpr;
-import sqlTsinjo.query.err.eval.AmbigousNameErr;
-import sqlTsinjo.query.err.eval.FieldNotFoundErr;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
 import sqlTsinjo.query.main.insert.element.abstracts.InsertRqstValues;
 import sqlTsinjo.query.main.select.element.abstracts.SelectFields;
 import sqlTsinjo.query.main.select.element.classes.SelectCtx;
-import sqlTsinjo.query.main.select.element.classes.FieldElementWithAlias;
-import sqlTsinjo.query.main.select.element.classes.FieldSelectedList;
+import sqlTsinjo.base.util.*;
 
 public class Relation {
 
@@ -318,244 +307,43 @@ public class Relation {
         return helper.executeProjection();
     }
 
-    private static final class GroupKey {
-        private final Vector<Object> values;
 
-        private GroupKey(Vector<Object> values) {
-            this.values = values;
-        }
+    //TODO : limit Integer 
+    public Relation limit(int debut, int fin) {
+        int start = debut;
+        int end = fin;
+        if (start < 0)
+            start = 0;
+        if (end < 0)
+            end = 0;
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!(obj instanceof GroupKey other))
-                return false;
-            if (this.values.size() != other.values.size())
-                return false;
-            for (int i = 0; i < this.values.size(); i++) {
-                if (!Relation.objectsEqual(this.values.get(i), other.values.get(i))) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        int size = this.individus == null ? 0 : this.individus.size();
+        if (start > size)
+            start = size;
+        if (end > size)
+            end = size;
+        if (end < start)
+            end = start;
 
-        @Override
-        public int hashCode() {
-            int result = 1;
-            for (Object v : values) {
-                int h;
-                if (v == null) {
-                    h = 0;
-                } else if (v instanceof char[] c) {
-                    h = Arrays.hashCode(c);
-                } else {
-                    h = v.hashCode();
-                }
-                result = 31 * result + h;
-            }
-            return result;
+        String newName = (this.name == null ? "" : this.name) + "_limit";
+        Vector<Vector<Object>> newIndividus = new Vector<>();
+        for (int i = start; i < end; i++) {
+            Vector<Object> row = this.individus.get(i);
+            newIndividus.add(row);
         }
+        return new Relation(newName, this.fieldName, this.domaines, newIndividus);
     }
 
-    private static final class AggState {
-        final String fn;
-        final int columnIndex;
-        long count;
-        double sum;
+    
 
-        AggState(String fn, int columnIndex) {
-            this.fn = fn;
-            this.columnIndex = columnIndex;
-        }
-    }
+    
+    
 
-    private static final class GroupAcc {
-        final Object[] selectGroupValues;
-        final AggState[] aggs;
 
-        GroupAcc(int selectSize, AggState[] aggs) {
-            this.selectGroupValues = new Object[selectSize];
-            this.aggs = aggs;
-        }
-    }
 
     public Relation groupBy(SelectFields fields, Vector<QualifiedIdentifier> groupBy, SelectCtx ctx) throws EvalErr {
-        if (!(fields instanceof FieldSelectedList list)) {
-            throw new EvalErr("GROUP BY n'est supporté que pour une liste explicite de champs");
-        }
-        if (groupBy == null || groupBy.isEmpty()) {
-            throw new EvalErr("GROUP BY demande au moins une clé");
-        }
-
-        final int selectSize = list.size();
-
-        boolean[] isAgg = new boolean[selectSize];
-        QualifiedIdentifier[] groupSelectQid = new QualifiedIdentifier[selectSize];
-        AggState[] aggStateBySelect = new AggState[selectSize];
-
-        HashMap<Integer, Integer> groupByIndexByColumnIndex = new HashMap<>();
-        for (int i = 0; i < groupBy.size(); i++) {
-            QualifiedIdentifier qid = groupBy.get(i);
-            try {
-                int colIndex = qid.getIndex(this.fieldName, ctx);
-                groupByIndexByColumnIndex.put(colIndex, i);
-            } catch (AmbigousNameErr | FieldNotFoundErr e) {
-                throw new EvalErr(e);
-            }
-        }
-
-        for (int i = 0; i < selectSize; i++) {
-            FieldElementWithAlias fe = list.get(i);
-            Expression expr = fe.getExpr();
-
-            if (expr instanceof FunctionExpr fn) {
-                String name = fn.getName() == null ? "" : fn.getName().trim().toLowerCase();
-                if (!(name.equals("count") || name.equals("sum") || name.equals("avg"))) {
-                    throw new EvalErr("Fonction non supportée dans GROUP BY: " + fn.getName());
-                }
-                if (fn.getArgs() == null || fn.getArgs().size() != 1) {
-                    throw new EvalErr("" + fn.getName() + " attend exactement 1 argument");
-                }
-                Expression arg = fn.getArgs().get(0);
-                if (!(arg instanceof PrimitiveExpr p) || !(p.getValue() instanceof QualifiedIdentifier qidArg)) {
-                    throw new EvalErr("" + fn.getName() + " attend un identifiant de colonne (ex: " + fn.getName() + "(a))");
-                }
-                try {
-                    int colIndex = qidArg.getIndex(this.fieldName, ctx);
-                    isAgg[i] = true;
-                    aggStateBySelect[i] = new AggState(name, colIndex);
-                } catch (AmbigousNameErr | FieldNotFoundErr e) {
-                    throw new EvalErr(e);
-                }
-            } else if (expr instanceof PrimitiveExpr p && p.getValue() instanceof QualifiedIdentifier qid) {
-                try {
-                    int colIndex = qid.getIndex(this.fieldName, ctx);
-                    if (!groupByIndexByColumnIndex.containsKey(colIndex)) {
-                        throw new EvalErr("Champ non agrégé doit être dans #vondrona: " + qid);
-                    }
-                    groupSelectQid[i] = qid;
-                } catch (AmbigousNameErr | FieldNotFoundErr e) {
-                    throw new EvalErr(e);
-                }
-            } else {
-                throw new EvalErr("Expression non supportée avec GROUP BY: " + expr);
-            }
-        }
-
-        HashMap<GroupKey, GroupAcc> groups = new HashMap<>();
-
-        for (Vector<Object> row : this.individus) {
-            Vector<Object> keyValues = new Vector<>();
-            keyValues.setSize(groupBy.size());
-
-            for (int i = 0; i < groupBy.size(); i++) {
-                QualifiedIdentifier qid = groupBy.get(i);
-                Object v;
-                try {
-                    v = qid.getValueFromARow(this.fieldName, row, ctx);
-                } catch (AmbigousNameErr | FieldNotFoundErr e) {
-                    throw new EvalErr(e);
-                }
-                keyValues.set(i, v);
-            }
-
-            GroupKey gk = new GroupKey(keyValues);
-            GroupAcc acc = groups.get(gk);
-            if (acc == null) {
-                AggState[] freshAggs = new AggState[selectSize];
-                for (int i = 0; i < selectSize; i++) {
-                    if (isAgg[i]) {
-                        AggState template = aggStateBySelect[i];
-                        freshAggs[i] = new AggState(template.fn, template.columnIndex);
-                    }
-                }
-                acc = new GroupAcc(selectSize, freshAggs);
-                groups.put(gk, acc);
-            }
-
-            for (int i = 0; i < selectSize; i++) {
-                if (!isAgg[i]) {
-                    if (acc.selectGroupValues[i] == null) {
-                        QualifiedIdentifier qid = groupSelectQid[i];
-                        Object v;
-                        try {
-                            v = qid.getValueFromARow(this.fieldName, row, ctx);
-                        } catch (AmbigousNameErr | FieldNotFoundErr e) {
-                            throw new EvalErr(e);
-                        }
-                        acc.selectGroupValues[i] = v;
-                    }
-                } else {
-                    AggState st = acc.aggs[i];
-                    Object value = row.get(st.columnIndex);
-
-                    if (value == null) {
-                        continue;
-                    }
-
-                    switch (st.fn) {
-                        case "count" -> st.count++;
-                        case "sum" -> {
-                            if (!(value instanceof Number n)) {
-                                throw new EvalErr("SUM attend une valeur numérique, trouvé: " + value.getClass().getName());
-                            }
-                            st.sum += n.doubleValue();
-                        }
-                        case "avg" -> {
-                            if (!(value instanceof Number n)) {
-                                throw new EvalErr("AVG attend une valeur numérique, trouvé: " + value.getClass().getName());
-                            }
-                            st.sum += n.doubleValue();
-                            st.count++;
-                        }
-                        default -> throw new EvalErr("Fonction non supportée dans GROUP BY: " + st.fn);
-                    }
-                }
-            }
-        }
-
-        Vector<QualifiedIdentifier> resultFieldNames = new Vector<>();
-        for (int i = 0; i < selectSize; i++) {
-            FieldElementWithAlias fe = list.get(i);
-            Expression expr = fe.getExpr();
-            if (fe.getAlias() != null) {
-                resultFieldNames.add(new QualifiedIdentifier(null, fe.getAlias()));
-            } else if (!isAgg[i] && groupSelectQid[i] != null) {
-                resultFieldNames.add(groupSelectQid[i]);
-            } else {
-                resultFieldNames.add(new QualifiedIdentifier(null, expr.toString()));
-            }
-        }
-
-        Vector<Domain> resultDomains = new Vector<>();
-        for (int i = 0; i < selectSize; i++) {
-            resultDomains.add(Domain.makeUniversalDomain());
-        }
-
-        Vector<Vector<Object>> resultIndividus = new Vector<>();
-        Relation result = new Relation(this.name + "_groupBy", resultFieldNames, resultDomains, resultIndividus);
-
-        for (GroupAcc acc : groups.values()) {
-            Vector<Object> out = new Vector<>();
-            for (int i = 0; i < selectSize; i++) {
-                if (!isAgg[i]) {
-                    out.add(acc.selectGroupValues[i]);
-                } else {
-                    AggState st = acc.aggs[i];
-                    switch (st.fn) {
-                        case "count" -> out.add((double) st.count);
-                        case "sum" -> out.add(st.sum);
-                        case "avg" -> out.add(st.count == 0 ? 0.0 : (st.sum / st.count));
-                        default -> throw new EvalErr("Fonction non supportée dans GROUP BY: " + st.fn);
-                    }
-                }
-            }
-            resultIndividus.add(out);
-        }
-
-        return result;
+        GroupByHelper helper = new GroupByHelper(this, fields, groupBy, ctx);
+        return helper.execute();
     }
 
     public Relation selection(Expression condition, SelectCtx ctx) throws ParseNomException, EvalErr {
@@ -767,63 +555,4 @@ public class Relation {
         return RelationDisplayer.displayDebug(this);
     }
 
-    public long count(QualifiedIdentifier field, SelectCtx ctx) throws EvalErr {
-        try {
-            int index = field.getIndex(this.fieldName, ctx);
-            long count = 0;
-            for (Vector<Object> row : this.individus) {
-                Object value = row.get(index);
-                if (value != null) {
-                    count++;
-                }
-            }
-            return count;
-        } catch (AmbigousNameErr | FieldNotFoundErr e) {
-            throw new EvalErr(e);
-        }
-    }
-
-    public double sum(QualifiedIdentifier field, SelectCtx ctx) throws EvalErr {
-        try {
-            int index = field.getIndex(this.fieldName, ctx);
-            double sum = 0.0;
-            boolean seenAny = false;
-            for (Vector<Object> row : this.individus) {
-                Object value = row.get(index);
-                if (value == null) {
-                    continue;
-                }
-                if (!(value instanceof Number number)) {
-                    throw new EvalErr("SUM attend une valeur numérique, trouvé: " + value.getClass().getName());
-                }
-                sum += number.doubleValue();
-                seenAny = true;
-            }
-            return seenAny ? sum : 0.0;
-        } catch (AmbigousNameErr | FieldNotFoundErr e) {
-            throw new EvalErr(e);
-        }
-    }
-
-    public double avg(QualifiedIdentifier field, SelectCtx ctx) throws EvalErr {
-        try {
-            int index = field.getIndex(this.fieldName, ctx);
-            double sum = 0.0;
-            long count = 0;
-            for (Vector<Object> row : this.individus) {
-                Object value = row.get(index);
-                if (value == null) {
-                    continue;
-                }
-                if (!(value instanceof Number number)) {
-                    throw new EvalErr("AVG attend une valeur numérique, trouvé: " + value.getClass().getName());
-                }
-                sum += number.doubleValue();
-                count++;
-            }
-            return count == 0 ? 0.0 : (sum / count);
-        } catch (AmbigousNameErr | FieldNotFoundErr e) {
-            throw new EvalErr(e);
-        }
-    }
 }
