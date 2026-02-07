@@ -36,6 +36,13 @@ public class SelectTokenizer extends Tokenizer {
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
     }
 
+    public static ParseSuccess<Token> scanLimitToken(String input) throws ParseNomException {
+        ParseSuccess<List<String>> success = ParserNomUtil
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("limit"))
+                .apply(input.trim());
+        return new ParseSuccess<>(success.remaining(), Token.selectSign());
+    }
+
     public static ParseSuccess<Token> scanCommaToken(String input) throws ParseNomException {
         ParseSuccess<String> success = ParserNomUtil.tag(",").apply(input.trim());
         return new ParseSuccess<>(success.remaining(), Token.comma());

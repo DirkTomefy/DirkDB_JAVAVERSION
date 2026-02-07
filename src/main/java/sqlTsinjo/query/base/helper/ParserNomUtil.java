@@ -139,9 +139,49 @@ public class ParserNomUtil {
             ParseSuccess<String> openQuote = tag("" + separator).apply(input);
             String remaining = openQuote.remaining();
 
-            ParseSuccess<String> contentRes = takeWhile1(c -> c != separator, remaining);
-            remaining = contentRes.remaining();
-            String content = contentRes.matched();
+            if (separator == '\'' || separator == '"') {
+                StringBuilder sb = new StringBuilder();
+                int i = 0;
+                while (i < remaining.length()) {
+                    char c = remaining.charAt(i);
+                    if (c == '\\') {
+                        if (i + 1 >= remaining.length()) {
+                            throw new ParseNomException(remaining.substring(i), "Séquence d'échappement incomplète");
+                        }
+                        char next = remaining.charAt(i + 1);
+                        switch (next) {
+                            case 'n' -> sb.append('\n');
+                            case 't' -> sb.append('\t');
+                            case 'r' -> sb.append('\r');
+                            case '\\' -> sb.append('\\');
+                            case '\'' -> sb.append('\'');
+                            case '"' -> sb.append('"');
+                            default -> sb.append(next);
+                        }
+                        i += 2;
+                        continue;
+                    }
+                    if (c == separator) {
+                        if (i + 1 < remaining.length() && remaining.charAt(i + 1) == separator) {
+                            sb.append(separator);
+                            i += 2;
+                            continue;
+                        }
+                        String after = remaining.substring(i + 1);
+                        return new ParseSuccess<>(after, sb.toString());
+                    }
+                    sb.append(c);
+                    i++;
+                }
+                throw new ParseNomException(remaining, "Parenthèse fermante '" + separator + "' attendue");
+            }
+
+            int idx = remaining.indexOf(separator);
+            if (idx < 0) {
+                throw new ParseNomException(remaining, "Parenthèse fermante '" + separator + "' attendue");
+            }
+            String content = remaining.substring(0, idx);
+            remaining = remaining.substring(idx);
 
             ParseSuccess<String> closeQuote = tag("" + separator).apply(remaining);
             remaining = closeQuote.remaining();

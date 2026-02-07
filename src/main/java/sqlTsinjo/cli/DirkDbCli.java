@@ -2,7 +2,8 @@ package sqlTsinjo.cli;
 
 import java.util.Scanner;
 
-import sqlTsinjo.query.main.GeneralRqstAsker;
+import sqlTsinjo.query.dispatch.GeneralRqstAsker;
+import sqlTsinjo.query.result.RequestResult;
 
 public class DirkDbCli {
 
@@ -60,7 +61,8 @@ public class DirkDbCli {
 
                     if (!fullRequest.isEmpty()) {
                         try {
-                            GeneralRqstAsker.askRequest(fullRequest, context);
+                            RequestResult result = GeneralRqstAsker.askRequest(fullRequest, context);
+                            System.out.println(result);
                         } catch (Exception e) {
                             if (context.debugMode) {
                                 e.printStackTrace();
