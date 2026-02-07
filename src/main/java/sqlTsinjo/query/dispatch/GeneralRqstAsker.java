@@ -100,8 +100,8 @@ public class GeneralRqstAsker {
                 return RequestResult.withMessage(
                         "Ny tabilao : " + result.matched().getName() + " dia voaforona soamantsara");
             case VIEW:
-                printSuccess("Ny jery : " + result.matched().getName() + " dia voaforona soamantsara");
-                break;
+                return RequestResult.withMessage(
+                        "Ny jery : " + result.matched().getName() + " dia voaforona soamantsara");
             default:
                 break;
 

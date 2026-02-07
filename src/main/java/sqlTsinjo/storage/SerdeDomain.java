@@ -2,9 +2,7 @@ package sqlTsinjo.storage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -42,9 +40,8 @@ public class SerdeDomain {
     public File getDomainFile() throws  NoDatabaseSelect, DomainNotFound {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        String path = "databases/" + appContext.getDatabaseName() + "/domains/" + domainName + ".json";
-        File file = new File(path);
-        if (!file.exists()) {
+        File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
+        if (!file.exists() || TombstoneManager.isDeleted(file, appContext.getTombstoneConfig())) {
             throw new DomainNotFound(appContext.getDatabaseName(), domainName);
         } else {
             return file;
@@ -52,8 +49,14 @@ public class SerdeDomain {
     }
 
     public void serializeDomain(Domain rel) throws IOException,  NoDatabaseSelect, DomainNotFound {
+        if (appContext.getDatabaseName() == null)
+            throw new NoDatabaseSelect();
+        File domainFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
+        domainFile.getParentFile().mkdirs();
+        TombstoneManager.clearDeletedMarker(domainFile, appContext.getTombstoneConfig());
+
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(getDomainFile(), rel);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(domainFile, rel);
     }
 
     public Domain deserializeDomain() throws IOException,  NoDatabaseSelect, DomainNotFound {
@@ -63,8 +66,10 @@ public class SerdeDomain {
     }
 
      public void dropDomain() throws  NoDatabaseSelect, IOException, DomainNotFound {
-        File tableFile = getDomainFile();
-        Path path = Paths.get(tableFile.getPath());
-        Files.delete(path);
+        File domainFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
+        if (!domainFile.exists()) {
+            throw new DomainNotFound(appContext.getDatabaseName(), domainName);
+        }
+        TombstoneManager.markDeleted(domainFile, appContext.getTombstoneConfig(), appContext.getInstanceId());
     }
 }

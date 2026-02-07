@@ -2,6 +2,7 @@ package sqlTsinjo.query.main.sqlobject.create;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import sqlTsinjo.base.Domain;
 import sqlTsinjo.base.DomainRef;
@@ -15,6 +16,7 @@ import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeDomain;
+import sqlTsinjo.storage.TombstoneManager;
 
 
 public class CreateDomainRqst extends CreateObjectRqst {
@@ -67,13 +69,15 @@ public class CreateDomainRqst extends CreateObjectRqst {
     public void eval(AppContext ctx) throws EvalErr, IOException {
           if (ctx.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        File path = new File("databases/" + ctx.getDatabaseName() + "/domains/" + this.name + ".json");
-        if (path.exists()) {
+        File path = Path.of(ctx.getDataDirectory(), ctx.getDatabaseName(), "domains", this.name + ".json").toFile();
+        boolean deleted = TombstoneManager.isDeleted(path, ctx.getTombstoneConfig());
+        if (path.exists() && !deleted) {
             throw new DomainAlreadyExistErr(name);
         } else {
             SerdeDomain serde = new SerdeDomain(ctx, null);
             Domain d=DomainRef.resolveNonPrimitiveDomain(def, serde);
             path.getParentFile().mkdirs();
+            TombstoneManager.clearDeletedMarker(path, ctx.getTombstoneConfig());
             path.createNewFile();
             serde.setDomainName(name);
             serde.serializeDomain(d);

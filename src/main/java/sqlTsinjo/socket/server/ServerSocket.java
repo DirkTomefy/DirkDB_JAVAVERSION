@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import sqlTsinjo.config.ClusterRuntime;
+import sqlTsinjo.config.InstanceConfig;
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.dispatch.GeneralRqstAsker;
@@ -22,31 +24,40 @@ import sqlTsinjo.query.result.RequestResult;
 
 public class ServerSocket {
 
-    private static final int DEFAULT_PORT = 3948;
     private static final int PAGE_SIZE_ROWS = 20;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static void main(String[] args) throws IOException {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
+        ClusterRuntime runtime = ClusterRuntime.loadFromEnv();
+        InstanceConfig self = runtime.requireSelfInstanceFromEnv();
+        int port = self.getPort();
         ExecutorService pool = Executors.newCachedThreadPool();
 
         try (java.net.ServerSocket server = new java.net.ServerSocket(port)) {
+            System.out.println("Server instance '" + self.getId() + "' started on port " + port);
+            System.out.println("Data directory: " + self.getDataDirectory());
             while (true) {
                 Socket client = server.accept();
-                pool.submit(() -> handleClient(client));
+                pool.submit(() -> handleClient(client, runtime, self));
             }
         }
     }
 
-    private static void handleClient(Socket client) {
+    private static void handleClient(Socket client, ClusterRuntime runtime, InstanceConfig self) {
         try (client;
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
                 PrintWriter out = new PrintWriter(
                         new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
-            AppContext ctx = new AppContext(null, "remote", false);
+            var replCfg = runtime.getCluster().getReplication();
+            var tombCfg = replCfg == null ? null : replCfg.getTombstone();
+            int intervalSeconds = replCfg == null ? 2 : replCfg.getIntervalSeconds();
+            if (tombCfg == null) tombCfg = new sqlTsinjo.config.TombstoneConfig();
+
+            AppContext ctx = new AppContext(null, "remote", false,
+                    self.getDataDirectory(), self.getId(), tombCfg, intervalSeconds);
 
             while (true) {
                 String request = readUntilSemicolon(in);

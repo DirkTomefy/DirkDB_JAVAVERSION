@@ -2,6 +2,7 @@ package sqlTsinjo.query.main.sqlobject.create;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Vector;
 
@@ -23,6 +24,7 @@ import sqlTsinjo.query.err.eval.TableAlreadyExistErr;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeRelation;
+import sqlTsinjo.storage.TombstoneManager;
 
 public class CreateTableRqst extends CreateObjectRqst {
     Vector<String> fieldName;
@@ -41,11 +43,14 @@ public class CreateTableRqst extends CreateObjectRqst {
     public void eval(AppContext ctx) throws EvalErr, IOException {
         if (ctx.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        File path = new File("databases/" + ctx.getDatabaseName() + "/tables/" + this.name + ".json");
-        if (path.exists()) {
+        File path = Path.of(ctx.getDataDirectory(), ctx.getDatabaseName(), "tables", this.name + ".json").toFile();
+        boolean deleted = TombstoneManager.isDeleted(path, ctx.getTombstoneConfig());
+        if (path.exists() && !deleted) {
             throw new TableAlreadyExistErr(name);
         } else {
             DomainRef.resolveAllNonPrimitiveDomains(domains, ctx);
+            path.getParentFile().mkdirs();
+            TombstoneManager.clearDeletedMarker(path, ctx.getTombstoneConfig());
             path.createNewFile();
             Relation rel = new Relation(name, fieldName, domains);
             SerdeRelation seralizer = new SerdeRelation(ctx, name);

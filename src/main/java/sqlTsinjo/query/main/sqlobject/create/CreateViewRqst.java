@@ -2,6 +2,7 @@ package sqlTsinjo.query.main.sqlobject.create;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import sqlTsinjo.base.Relation;
 import sqlTsinjo.base.err.EvalErr;
@@ -15,6 +16,7 @@ import sqlTsinjo.query.main.select.SelectExpr;
 import sqlTsinjo.query.main.sqlobject.create.token.CreateObjectTokenizer;
 import sqlTsinjo.query.token.Token;
 import sqlTsinjo.storage.SerdeView;
+import sqlTsinjo.storage.TombstoneManager;
 
 public class CreateViewRqst extends CreateObjectRqst {
     private SelectExpr expr;
@@ -34,13 +36,14 @@ public class CreateViewRqst extends CreateObjectRqst {
             throw new NoDatabaseSelect();
         
         // Créer le dossier views s'il n'existe pas
-        File viewsDir = new File("databases/" + ctx.getDatabaseName() + "/views");
+        File viewsDir = Path.of(ctx.getDataDirectory(), ctx.getDatabaseName(), "views").toFile();
         if (!viewsDir.exists()) {
             viewsDir.mkdirs();
         }
         
-        File viewFile = new File("databases/" + ctx.getDatabaseName() + "/views/" + this.name + ".json");
-        if (viewFile.exists()) {
+        File viewFile = Path.of(ctx.getDataDirectory(), ctx.getDatabaseName(), "views", this.name + ".json").toFile();
+        boolean deleted = TombstoneManager.isDeleted(viewFile, ctx.getTombstoneConfig());
+        if (viewFile.exists() && !deleted) {
             throw new ViewAlreadyExistErr(name);
         }
         
@@ -52,6 +55,7 @@ public class CreateViewRqst extends CreateObjectRqst {
         }
         
         // Créer le fichier de vue
+        TombstoneManager.clearDeletedMarker(viewFile, ctx.getTombstoneConfig());
         viewFile.createNewFile();
         
         // Sérialiser la vue (nom + SelectExpr uniquement)

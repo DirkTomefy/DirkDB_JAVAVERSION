@@ -2,9 +2,7 @@ package sqlTsinjo.storage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,9 +41,8 @@ public class SerdeView {
     public File getViewFile() throws ViewNotFound, NoDatabaseSelect {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        String path = "databases/" + appContext.getDatabaseName() + "/views/" + viewName + ".json";
-        File file = new File(path);
-        if (!file.exists()) {
+        File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
+        if (!file.exists() || TombstoneManager.isDeleted(file, appContext.getTombstoneConfig())) {
             throw new ViewNotFound(appContext.getDatabaseName(), viewName);
         }
         return file;
@@ -60,13 +57,13 @@ public class SerdeView {
             throw new NoDatabaseSelect();
         
         // Créer le dossier views s'il n'existe pas
-        File viewsDir = new File("databases/" + appContext.getDatabaseName() + "/views");
+        File viewsDir = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views").toFile();
         if (!viewsDir.exists()) {
             viewsDir.mkdirs();
         }
-        
-        String path = "databases/" + appContext.getDatabaseName() + "/views/" + viewName + ".json";
-        File file = new File(path);
+
+        File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
+        TombstoneManager.clearDeletedMarker(file, appContext.getTombstoneConfig());
         
         ViewData viewData = new ViewData(viewName, selectExpr);
         
@@ -104,17 +101,19 @@ public class SerdeView {
     public static boolean viewExists(AppContext appContext, String viewName) throws NoDatabaseSelect {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
-        File file = new File("databases/" + appContext.getDatabaseName() + "/views/" + viewName + ".json");
-        return file.exists();
+        File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
+        return file.exists() && !TombstoneManager.isDeleted(file, appContext.getTombstoneConfig());
     }
 
     /**
      * Supprime une vue
      */
     public void dropView() throws ViewNotFound, NoDatabaseSelect, IOException {
-        File viewFile = getViewFile();
-        Path path = Paths.get(viewFile.getPath());
-        Files.delete(path);
+        File viewFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
+        if (!viewFile.exists()) {
+            throw new ViewNotFound(appContext.getDatabaseName(), viewName);
+        }
+        TombstoneManager.markDeleted(viewFile, appContext.getTombstoneConfig(), appContext.getInstanceId());
     }
 
     /**

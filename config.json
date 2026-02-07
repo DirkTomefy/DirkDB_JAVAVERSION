@@ -1,0 +1,56 @@
+{
+  "configVersion": 1,
+  "loadBalancer": {
+    "listenHost": "0.0.0.0",
+    "listenPort": 3949
+  },
+  "instances": [
+    {
+      "id": "m1",
+      "role": "MASTER",
+      "host": "127.0.0.1",
+      "port": 3948,
+      "dataDirectory": "data/m1"
+    },
+    {
+      "id": "m2",
+      "role": "MASTER",
+      "host": "127.0.0.1",
+      "port": 3950,
+      "dataDirectory": "data/m2"
+    },
+    {
+      "id": "r1",
+      "role": "REPLICA",
+      "host": "127.0.0.1",
+      "port": 3951,
+      "dataDirectory": "data/r1"
+    }
+  ],
+  "routing": {
+    "reads": {
+      "strategy": "ROUND_ROBIN",
+      "includeRoles": ["MASTER", "REPLICA"]
+    },
+    "writes": {
+      "mode": "MULTI_PRIMARY",
+      "partition": "DB_OBJECT",
+      "hash": "RENDEZVOUS"
+    }
+  },
+  "replication": {
+    "type": "FILE",
+    "intervalSeconds": 2,
+    "tombstone": {
+      "suffix": ".tombstone",
+      "databaseMarkerFile": ".db.tombstone",
+      "ttlSeconds": 86400,
+      "gcSafetyMultiplier": 10,
+      "archive": {
+        "enabled": true,
+        "directoryName": ".tombstone_archive",
+        "retentionSeconds": 604800
+      }
+    }
+  }
+}

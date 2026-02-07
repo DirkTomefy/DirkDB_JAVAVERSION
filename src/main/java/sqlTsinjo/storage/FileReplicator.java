@@ -6,16 +6,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import sqlTsinjo.config.TombstoneConfig;
+
 public class FileReplicator {
 
     private final String primaryPath;
     private final String secondaryPath;
     private final ScheduledExecutorService scheduler;
+    private final TombstoneConfig tombstoneConfig;
+    private final int intervalSeconds;
 
     public FileReplicator(String primaryPath, String secondaryPath) {
+        this(primaryPath, secondaryPath, new TombstoneConfig(), 2);
+    }
+
+    public FileReplicator(String primaryPath, String secondaryPath, TombstoneConfig tombstoneConfig, int intervalSeconds) {
         this.primaryPath = primaryPath;
         this.secondaryPath = secondaryPath;
         this.scheduler = Executors.newScheduledThreadPool(1);
+        this.tombstoneConfig = tombstoneConfig;
+        this.intervalSeconds = intervalSeconds;
     }
 
     public void startReplication(int intervalSeconds) {
@@ -32,7 +42,7 @@ public class FileReplicator {
                 Files.createDirectories(secondaryDir);
             }
 
-            // Parcourir tous les fichiers dans databases/
+            // Parcourir tous les fichiers (incluant tombstones)
             Files.walk(primaryDir)
                 .filter(Files::isRegularFile)
                 .forEach(file -> {
@@ -53,6 +63,9 @@ public class FileReplicator {
                         System.err.println("Erreur réplication de " + file + ": " + e.getMessage());
                     }
                 });
+
+            // GC / archivage tombstones sur la cible
+            TombstoneManager.gcTombstones(secondaryDir, tombstoneConfig, intervalSeconds);
         } catch (IOException e) {
             System.err.println("Erreur lors de la réplication: " + e.getMessage());
         }
