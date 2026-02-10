@@ -32,6 +32,7 @@ public class LocalProxyCacheServer {
                     + " ttlMillis=" + ttlMillis + " maxEntries=" + maxEntries);
             while (true) {
                 Socket client = server.accept();
+                System.out.println("[ProxyCache] accepted client=" + client.getRemoteSocketAddress());
                 pool.submit(() -> handleClient(client, upstreamHost, upstreamPort, cache));
             }
         }
@@ -46,6 +47,8 @@ public class LocalProxyCacheServer {
              PrintWriter clientOut = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true);
              BufferedReader upstreamIn = new BufferedReader(new InputStreamReader(upstream.getInputStream(), StandardCharsets.UTF_8));
              PrintWriter upstreamOut = new PrintWriter(new OutputStreamWriter(upstream.getOutputStream(), StandardCharsets.UTF_8), true)) {
+
+            System.out.println("[ProxyCache] connected upstream=" + upstreamHost + ":" + upstreamPort + " for client=" + client.getRemoteSocketAddress());
 
             while (true) {
                 String req = readUntilSemicolon(clientIn);
@@ -100,7 +103,7 @@ public class LocalProxyCacheServer {
 
             }
         } catch (IOException e) {
-            // client disconnected
+            System.out.println("[ProxyCache] client=" + client.getRemoteSocketAddress() + " disconnected/error: " + e.getMessage());
         }
     }
 

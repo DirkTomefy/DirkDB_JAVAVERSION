@@ -2,8 +2,9 @@
 
 ## Architecture
 ```
-Client → Load Balancer (port 3949) → Serveur 1 (127.0.0.1:3948)
-                                   → Serveur 2 (127.0.0.1:3950)
+Client → (optionnel) ProxyCache local (port 3951) → Load Balancer (port 3949)
+                                              → Serveur 1 (127.0.0.1:3948)
+                                              → Serveur 2 (127.0.0.1:3950)
 ```
 
 ## Prérequis
@@ -15,38 +16,45 @@ Client → Load Balancer (port 3949) → Serveur 1 (127.0.0.1:3948)
 ### 1. Lancer les serveurs DirkDB
 ```bash
 # Terminal 1 - Serveur 1
-java -cp target/classes sqlTsinjo.socket.server.ServerSocket
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.server.ServerSocket \
+  -Ddirk.configPath="$PWD/config.json" \
+  -Ddirk.instanceId=m1
 
-# Terminal 2 - Serveur 2 (modifier le port vers 3950 dans ServerSocket.java)
-java -cp target/classes sqlTsinjo.socket.server.ServerSocket
+# Terminal 2 - Serveur 2
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.server.ServerSocket \
+  -Ddirk.configPath="$PWD/config.json" \
+  -Ddirk.instanceId=m2
 ```
 
 ### 2. Lancer le load balancer
 ```bash
 # Terminal 3
-java -cp target/classes sqlTsinjo.socket.proxy.ProxyCacheServer
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.proxy.AsyncReplicatingProxy \
+  -Ddirk.configPath="$PWD/config.json"
 ```
 
-### 3. Tester
+### 3. (Optionnel) Lancer le ProxyCache local (côté client)
 ```bash
-# Les clients se connectent au port 3949 (load balancer)
-telnet localhost 3949
+# Terminal 4
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.proxy.LocalProxyCacheServer \
+  -Dexec.args="127.0.0.1 3949 3951 3000 200"
+```
+
+### 4. Tester
+```bash
+# Les clients se connectent au port 3951 (ProxyCache local) ou 3949 (LB)
+telnet localhost 3951
 ```
 
 ## Configuration
-Pour changer les IPs/ports des serveurs backend, modifier dans `ProxyCacheServer.java` :
-```java
-private static final Backend[] BACKENDS = {
-    new Backend("IP_SERVEUR_1", PORT_1),
-    new Backend("IP_SERVEUR_2", PORT_2)
-};
-```
+Pour changer les IPs/ports des instances, modifier `config.json`.
 
 ## Comportement
-- Round-robin par connexion
-- Chaque connexion client reste sur le même serveur (sticky implicite)
-- Transparent pour le client
-- Logs : affiche "Connexion client -> IP:PORT" pour chaque nouvelle connexion
+- Lecture/écriture routées par le LB selon `config.json`.
 
 ## Réplication
-Assure-toi que la réplication est configurée entre les 2 serveurs pour que les données restent cohérentes.
+La réplication dépend de la stratégie activée (ex: copie de fichiers côté LB, ou autre mécanisme).

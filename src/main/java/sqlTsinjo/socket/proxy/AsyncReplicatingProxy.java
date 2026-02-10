@@ -48,6 +48,8 @@ public class AsyncReplicatingProxy {
             System.out.println("Load balancer démarré sur le port " + listenPort);
             while (true) {
                 Socket client = server.accept();
+                System.out.println("[LB] accepted client=" + client.getRemoteSocketAddress());
+                logConnectivityForClient(client, masters);
                 List<InstanceConfig> finalReadBackends = readBackends;
                 pool.submit(() -> handleClient(client, masters, finalReadBackends));
             }
@@ -58,6 +60,23 @@ public class AsyncReplicatingProxy {
             throw e;
         }
            }
+
+    private static void logConnectivityForClient(Socket client, List<InstanceConfig> masters) {
+        String remote = String.valueOf(client.getRemoteSocketAddress());
+        for (InstanceConfig m : masters) {
+            boolean ok = canConnect(m.getHost(), m.getPort(), 800);
+            System.out.println("[LB] connectivity client=" + remote + " -> engine=" + m.getId() + " (" + m.getHost() + ":" + m.getPort() + ") : " + (ok ? "OK" : "FAIL"));
+        }
+    }
+
+    private static boolean canConnect(String host, int port, int timeoutMs) {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress(host, port), timeoutMs);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     private static void handleClient(Socket client, List<InstanceConfig> masters, List<InstanceConfig> readBackends) {
         Map<String, Upstream> upstreams = new ConcurrentHashMap<>();
@@ -138,6 +157,7 @@ public class AsyncReplicatingProxy {
                 }
             }
         } catch (IOException e) {
+            System.out.println("[LB] client=" + client.getRemoteSocketAddress() + " disconnected/error: " + e.getMessage());
             closeAll(upstreams);
         }
     }
@@ -494,6 +514,7 @@ public class AsyncReplicatingProxy {
         void ensureConnected() throws IOException {
             if (socket != null && socket.isConnected() && !socket.isClosed()) return;
             socket = new Socket();
+            System.out.println("[LB] connecting upstream=" + backend.getId() + " -> " + backend.getHost() + ":" + backend.getPort());
             socket.connect(new InetSocketAddress(backend.getHost(), backend.getPort()), 2000);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);

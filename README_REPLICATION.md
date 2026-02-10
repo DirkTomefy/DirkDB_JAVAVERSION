@@ -2,50 +2,34 @@
 
 ## Options disponibles
 
-### 1. Réplication synchrone (ReplicatingProxy.java)
-- **Avantages** : Cohérence forte, données toujours synchronisées
-- **Inconvénients** : Plus lent (attend les 2 serveurs)
-- **Usage** : Quand la cohérence est critique
+### 1. Load balancer + réplication (AsyncReplicatingProxy)
+
+- Le proxy `AsyncReplicatingProxy` route les requêtes selon `config.json`.
+- Il peut déclencher une réplication (ex: copie de fichiers après WRITE, selon l'implémentation active).
 
 ```bash
-# Lancement
-java -cp target/classes sqlTsinjo.socket.proxy.ReplicatingProxy
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.proxy.AsyncReplicatingProxy \
+  -Ddirk.configPath="$PWD/config.json"
 ```
 
-### 2. Réplication asynchrone (AsyncReplicatingProxy.java)
-- **Avantages** : Rapide (répond après écriture primaire)
-- **Inconvénients** : Risque de décalage (replication lag)
-- **Usage** : Performance > cohérence immédiate
-
-```bash
-# Lancement
-java -cp target/classes sqlTsinjo.socket.proxy.AsyncReplicatingProxy
-```
-
-### 3. Réplication fichier (FileReplicator.java)
+### 2. Réplication fichier (FileReplicator)
 - **Avantages** : Simple, pas de modification du protocole
 - **Inconvénients** : Délai de réplication, conflits possibles
 - **Usage** : Complément des autres méthodes
 
 ```bash
 # Test
-java -cp target/classes sqlTsinjo.storage.FileReplicator
+./mvnw -q -DskipTests exec:java -Dexec.mainClass=sqlTsinjo.storage.FileReplicator
 ```
 
 ## Architecture recommandée
 
-### Pour production
+### Pour développement
 ```
-Client → AsyncReplicatingProxy (port 3949)
-        → Serveur Primaire (127.0.0.1:3948) [écritures + lectures]
-        → Serveur Secondaire (127.0.0.1:3950) [réplication async + lectures]
-```
-
-### Pour développement/tests
-```
-Client → ReplicatingProxy (port 3949)
-        → Serveur 1 (127.0.0.1:3948)
-        → Serveur 2 (127.0.0.1:3950)
+Client → (optionnel) LocalProxyCacheServer (port 3951) → AsyncReplicatingProxy (port 3949)
+                                                  → m1 (127.0.0.1:3948)
+                                                  → m2 (127.0.0.1:3950)
 ```
 
 ## Configuration
@@ -58,17 +42,32 @@ Client → ReplicatingProxy (port 3949)
 ### Lancement complet
 
 ```bash
-# Terminal 1 - Serveur primaire
-java -cp target/classes sqlTsinjo.socket.server.ServerSocket
+# Terminal 1 - Serveur m1
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.server.ServerSocket \
+  -Ddirk.configPath="$PWD/config.json" \
+  -Ddirk.instanceId=m1
 
-# Terminal 2 - Serveur secondaire
-java -cp target/classes sqlTsinjo.socket.server.ServerSocket 3950
+# Terminal 2 - Serveur m2
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.server.ServerSocket \
+  -Ddirk.configPath="$PWD/config.json" \
+  -Ddirk.instanceId=m2
 
-# Terminal 3 - Proxy avec réplication
-java -cp target/classes sqlTsinjo.socket.proxy.AsyncReplicatingProxy
+# Terminal 3 - LB
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.proxy.AsyncReplicatingProxy \
+  -Ddirk.configPath="$PWD/config.json"
 
-# Optionnel - Terminal 4 - Réplication fichier (backup)
-java -cp target/classes sqlTsinjo.storage.FileReplicator
+# Terminal 4 - (optionnel) ProxyCache local
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.proxy.LocalProxyCacheServer \
+  -Dexec.args="127.0.0.1 3949 3951 3000 200"
+
+# Terminal 5 - Client (connecté au ProxyCache local)
+./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.client.ClientSocket \
+  -Dexec.args="127.0.0.1 3951"
 ```
 
 ## Gestion des pannes
