@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -183,31 +185,66 @@ public class ClientSocket {
         if (response.relation != null) {
             RelationDto rel = response.relation;
             String name = rel.name == null ? "" : rel.name;
-            System.out.println("Relation: " + name);
-
-            if (rel.columns != null && !rel.columns.isEmpty()) {
-                StringBuilder header = new StringBuilder();
-                for (int i = 0; i < rel.columns.size(); i++) {
-                    var c = rel.columns.get(i);
-                    String colName = c == null || c.name == null ? "" : c.name;
-                    if (i > 0) header.append(" | ");
-                    header.append(colName);
-                }
-                System.out.println(header);
+            if (!name.isEmpty()) {
+                System.out.println("Relation: " + name);
             }
 
-            if (rel.rows != null) {
-                for (var row : rel.rows) {
-                    StringBuilder sb = new StringBuilder();
-                    if (row != null) {
-                        for (int i = 0; i < row.size(); i++) {
-                            if (i > 0) sb.append(" | ");
-                            Object v = row.get(i);
-                            sb.append(v == null ? "null" : String.valueOf(v));
-                        }
-                    }
-                    System.out.println(sb);
+            int colCount = rel.columns != null ? rel.columns.size() : 0;
+            if (colCount == 0) {
+                System.out.println("(empty result)");
+            } else {
+                // Calculer la largeur maximale de chaque colonne
+                int[] colWidths = new int[colCount];
+                String[] headers = new String[colCount];
+                
+                for (int i = 0; i < colCount; i++) {
+                    var c = rel.columns.get(i);
+                    headers[i] = (c == null || c.name == null) ? "" : c.name;
+                    colWidths[i] = headers[i].length();
                 }
+                
+                // Convertir les lignes en String et calculer les largeurs
+                List<String[]> rowStrings = new ArrayList<>();
+                if (rel.rows != null) {
+                    for (var row : rel.rows) {
+                        String[] rowStr = new String[colCount];
+                        for (int i = 0; i < colCount; i++) {
+                            Object v = (row != null && i < row.size()) ? row.get(i) : null;
+                            rowStr[i] = (v == null) ? "NULL" : String.valueOf(v);
+                            colWidths[i] = Math.max(colWidths[i], rowStr[i].length());
+                        }
+                        rowStrings.add(rowStr);
+                    }
+                }
+                
+                // Construire la ligne de séparation
+                StringBuilder separator = new StringBuilder("+");
+                for (int i = 0; i < colCount; i++) {
+                    separator.append("-".repeat(colWidths[i] + 2)).append("+");
+                }
+                String sepLine = separator.toString();
+                
+                // Afficher l'en-tête
+                System.out.println(sepLine);
+                StringBuilder headerLine = new StringBuilder("|");
+                for (int i = 0; i < colCount; i++) {
+                    headerLine.append(" ").append(String.format("%-" + colWidths[i] + "s", headers[i])).append(" |");
+                }
+                System.out.println(headerLine);
+                System.out.println(sepLine);
+                
+                // Afficher les lignes de données
+                for (String[] rowStr : rowStrings) {
+                    StringBuilder rowLine = new StringBuilder("|");
+                    for (int i = 0; i < colCount; i++) {
+                        rowLine.append(" ").append(String.format("%-" + colWidths[i] + "s", rowStr[i])).append(" |");
+                    }
+                    System.out.println(rowLine);
+                }
+                System.out.println(sepLine);
+                
+                // Afficher le nombre de lignes
+                System.out.println(rowStrings.size() + " row(s) returned");
             }
         }
 

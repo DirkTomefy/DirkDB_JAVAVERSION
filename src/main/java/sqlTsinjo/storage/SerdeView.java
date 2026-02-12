@@ -64,7 +64,7 @@ public class SerdeView {
         }
 
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
-        TombstoneManager.clearDeletedMarker(file, appContext.getTombstoneConfig());
+    
         
         ViewData viewData = new ViewData(viewName, selectExpr);
         
@@ -115,7 +115,6 @@ public class SerdeView {
             throw new ViewNotFound(appContext.getDatabaseName(), viewName);
         }
         Files.deleteIfExists(viewFile.toPath());
-        Files.deleteIfExists(TombstoneManager.tombstoneFor(viewFile, appContext.getTombstoneConfig()).toPath());
     }
 
     /**

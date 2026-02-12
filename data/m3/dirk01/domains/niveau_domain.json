@@ -1,0 +1,7 @@
+{
+  "supports" : [ {
+    "@class" : "sqlTsinjo.base.DomainEnum",
+    "canBenull" : true,
+    "allowedValue" : [ "M1", "L2", "L3" ]
+  } ]
+}

@@ -63,9 +63,6 @@ public class FileReplicator {
                         System.err.println("Erreur réplication de " + file + ": " + e.getMessage());
                     }
                 });
-
-            // GC / archivage tombstones sur la cible
-            TombstoneManager.gcTombstones(secondaryDir, tombstoneConfig, intervalSeconds);
         } catch (IOException e) {
             System.err.println("Erreur lors de la réplication: " + e.getMessage());
         }

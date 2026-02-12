@@ -54,7 +54,7 @@ public class SerdeDomain {
             throw new NoDatabaseSelect();
         File domainFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
         domainFile.getParentFile().mkdirs();
-        TombstoneManager.clearDeletedMarker(domainFile, appContext.getTombstoneConfig());
+        
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(domainFile, rel);
@@ -72,6 +72,5 @@ public class SerdeDomain {
             throw new DomainNotFound(appContext.getDatabaseName(), domainName);
         }
         Files.deleteIfExists(domainFile.toPath());
-        Files.deleteIfExists(TombstoneManager.tombstoneFor(domainFile, appContext.getTombstoneConfig()).toPath());
     }
 }

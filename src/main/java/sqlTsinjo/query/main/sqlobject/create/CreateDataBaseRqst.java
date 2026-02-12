@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import sqlTsinjo.base.err.EvalErr;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.err.eval.DatabaseAlreadyExist;
-import sqlTsinjo.storage.TombstoneManager;
 
 public class CreateDataBaseRqst extends CreateObjectRqst{
 
@@ -26,7 +25,6 @@ public class CreateDataBaseRqst extends CreateObjectRqst{
             throw new DatabaseAlreadyExist(name);
         }else{
             dbDir.mkdirs();
-            TombstoneManager.clearDatabaseDeletedMarker(dbDir, ctx.getTombstoneConfig());
             path.mkdirs();
             pathDomains.mkdirs();
             pathViews.mkdirs();

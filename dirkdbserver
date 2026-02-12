@@ -9,5 +9,10 @@
   -Ddirk.instanceId=m2
 
 ./mvnw -q -DskipTests exec:java \
+  -Dexec.mainClass=sqlTsinjo.socket.server.ServerSocket \
+  -Ddirk.configPath="$PWD/config.json" \
+  -Ddirk.instanceId=m3
+
+./mvnw -q -DskipTests exec:java \
   -Dexec.mainClass=sqlTsinjo.socket.proxy.AsyncReplicatingProxy \
   -Ddirk.configPath="$PWD/config.json"

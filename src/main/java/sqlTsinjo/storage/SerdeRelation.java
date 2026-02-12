@@ -72,8 +72,7 @@ public class SerdeRelation {
             throw new NoDatabaseSelect();
         File tableFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "tables", tableName + ".json").toFile();
         tableFile.getParentFile().mkdirs();
-        TombstoneManager.clearDeletedMarker(tableFile, appContext.getTombstoneConfig());
-
+        
         ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(tableFile, rel);
     }
@@ -118,7 +117,7 @@ public class SerdeRelation {
             throw new TableNotFound(appContext.getDatabaseName(), tableName);
         }
         Files.deleteIfExists(tableFile.toPath());
-        Files.deleteIfExists(TombstoneManager.tombstoneFor(tableFile, appContext.getTombstoneConfig()).toPath());
+       
     }
 
     private static void deleteDirectoryRecursively(java.nio.file.Path dir) throws IOException {
