@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import sqlTsinjo.config.TombstoneConfig;
 import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
-import sqlTsinjo.storage.TombstoneManager;
 
 public class AppContext {
     String databaseName;
@@ -59,7 +58,6 @@ public class AppContext {
     public boolean databaseExists(String databaseName) {
         File dbDir = Path.of(dataDirectory, databaseName).toFile();
         if (!dbDir.exists()) return false;
-        if (TombstoneManager.isDatabaseDeleted(dbDir, tombstoneConfig)) return false;
         return true;
     }
 

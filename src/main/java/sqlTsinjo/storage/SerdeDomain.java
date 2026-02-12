@@ -2,6 +2,7 @@ package sqlTsinjo.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +42,7 @@ public class SerdeDomain {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
-        if (!file.exists() || TombstoneManager.isDeleted(file, appContext.getTombstoneConfig())) {
+        if (!file.exists()) {
             throw new DomainNotFound(appContext.getDatabaseName(), domainName);
         } else {
             return file;
@@ -66,10 +67,11 @@ public class SerdeDomain {
     }
 
      public void dropDomain() throws  NoDatabaseSelect, IOException, DomainNotFound {
-        File domainFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
-        if (!domainFile.exists()) {
+       File domainFile = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "domains", domainName + ".json").toFile();
+       if (!domainFile.exists()) {
             throw new DomainNotFound(appContext.getDatabaseName(), domainName);
         }
-        TombstoneManager.markDeleted(domainFile, appContext.getTombstoneConfig(), appContext.getInstanceId());
+        Files.deleteIfExists(domainFile.toPath());
+        Files.deleteIfExists(TombstoneManager.tombstoneFor(domainFile, appContext.getTombstoneConfig()).toPath());
     }
 }

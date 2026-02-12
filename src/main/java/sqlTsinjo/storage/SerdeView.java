@@ -2,6 +2,7 @@ package sqlTsinjo.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ public class SerdeView {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
-        if (!file.exists() || TombstoneManager.isDeleted(file, appContext.getTombstoneConfig())) {
+        if (!file.exists()) {
             throw new ViewNotFound(appContext.getDatabaseName(), viewName);
         }
         return file;
@@ -102,7 +103,7 @@ public class SerdeView {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", viewName + ".json").toFile();
-        return file.exists() && !TombstoneManager.isDeleted(file, appContext.getTombstoneConfig());
+        return file.exists();
     }
 
     /**
@@ -113,7 +114,8 @@ public class SerdeView {
         if (!viewFile.exists()) {
             throw new ViewNotFound(appContext.getDatabaseName(), viewName);
         }
-        TombstoneManager.markDeleted(viewFile, appContext.getTombstoneConfig(), appContext.getInstanceId());
+        Files.deleteIfExists(viewFile.toPath());
+        Files.deleteIfExists(TombstoneManager.tombstoneFor(viewFile, appContext.getTombstoneConfig()).toPath());
     }
 
     /**

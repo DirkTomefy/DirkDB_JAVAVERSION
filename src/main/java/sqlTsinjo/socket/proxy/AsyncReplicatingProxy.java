@@ -11,9 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -141,19 +138,24 @@ public class AsyncReplicatingProxy {
                 clientOut.print(response);
                 clientOut.flush();
 
+                // Réplication réseau: envoyer la même commande aux autres masters
                 if (parsed.kind == RequestKind.WRITE
-                        && parsed.partitionKey != null
                         && response != null
                         && !response.contains("Hadisoana")) {
                     InstanceConfig source = target;
-                    String key = parsed.partitionKey;
+                    String reqToReplicate = req;
+                    String dbToUse = currentDb[0];
+                    System.out.println("[LB][REPL] scheduling network replication from source=" + source.getId() + " db=" + dbToUse);
                     REPLICATION_POOL.submit(() -> {
                         try {
-                            replicateWriteToOtherMasters(source, masters, key);
+                            replicateWriteToOtherMastersViaSocket(source, masters, reqToReplicate, dbToUse);
                         } catch (Exception e) {
                             System.out.println("[LB][REPL] replication error: " + e.getMessage());
+                            e.printStackTrace();
                         }
                     });
+                } else {
+                    System.out.println("[LB][REPL] NOT replicating: kind=" + parsed.kind + " responseNull=" + (response == null) + " containsError=" + (response != null && response.contains("Hadisoana")));
                 }
             }
         } catch (IOException e) {
@@ -162,125 +164,58 @@ public class AsyncReplicatingProxy {
         }
     }
 
-    private static void replicateWriteToOtherMasters(InstanceConfig source, List<InstanceConfig> masters, String partitionKey)
-            throws Exception {
+    /**
+     * Réplication via socket: envoie la même commande d'écriture aux autres masters
+     * Cela fonctionne en réseau local car on utilise les connexions socket
+     */
+    private static void replicateWriteToOtherMastersViaSocket(InstanceConfig source, List<InstanceConfig> masters, 
+            String request, String currentDb) {
         if (masters == null || masters.size() <= 1) {
+            System.out.println("[LB][REPL] No other masters to replicate to");
             return;
         }
-
-        String db = parseDbFromPartitionKey(partitionKey);
-        if (db == null || db.isBlank()) {
-            return;
-        }
-
-        ReplicationPlan plan = ReplicationPlan.fromPartitionKey(db, partitionKey);
-        if (plan == null) {
-            return;
-        }
-
-        Path srcRoot = Path.of(source.getDataDirectory());
 
         for (InstanceConfig dest : masters) {
-            if (dest.getId().equals(source.getId())) continue;
-            Path destRoot = Path.of(dest.getDataDirectory());
-            System.out.println("[LB][REPL] " + source.getId() + " -> " + dest.getId() + " key=" + partitionKey);
-
-            if (plan.kind == ReplicationKind.DATABASE_DIR) {
-                Path srcDbDir = srcRoot.resolve(db);
-                Path dstDbDir = destRoot.resolve(db);
-                copyDirectory(srcDbDir, dstDbDir);
-            } else {
-                for (Path rel : plan.relativeFiles) {
-                    copyFileIfExists(srcRoot.resolve(rel), destRoot.resolve(rel));
+            if (dest.getId().equals(source.getId())) {
+                continue; // Ne pas répliquer vers soi-même
+            }
+            
+            System.out.println("[LB][REPL] Replicating to " + dest.getId() + " (" + dest.getHost() + ":" + dest.getPort() + ")");
+            
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(dest.getHost(), dest.getPort()), 3000);
+                socket.setSoTimeout(5000);
+                
+                BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                PrintWriter out = new PrintWriter(
+                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+                
+                // D'abord, envoyer USE database si nécessaire
+                if (currentDb != null && !currentDb.isBlank()) {
+                    out.print("ampiasao " + currentDb + ";");
+                    out.flush();
+                    String useResp = readUntilEndFrame(in);
+                    System.out.println("[LB][REPL] " + dest.getId() + " USE response: " + 
+                        (useResp != null ? useResp.replace("\n", " ").trim() : "null"));
                 }
+                
+                // Ensuite, envoyer la commande d'écriture
+                out.print(request + ";");
+                out.flush();
+                String resp = readUntilEndFrame(in);
+                System.out.println("[LB][REPL] " + dest.getId() + " WRITE response: " + 
+                    (resp != null ? resp.replace("\n", " ").trim() : "null"));
+                
+                if (resp != null && resp.contains("Hadisoana")) {
+                    System.out.println("[LB][REPL] WARNING: Replication to " + dest.getId() + " returned error");
+                } else {
+                    System.out.println("[LB][REPL] SUCCESS: Replicated to " + dest.getId());
+                }
+                
+            } catch (Exception e) {
+                System.out.println("[LB][REPL] ERROR replicating to " + dest.getId() + ": " + e.getMessage());
             }
-        }
-    }
-
-    private static void copyDirectory(Path srcDir, Path dstDir) throws Exception {
-        if (!Files.exists(srcDir)) {
-            return;
-        }
-        Files.walk(srcDir)
-                .forEach(p -> {
-                    try {
-                        Path rel = srcDir.relativize(p);
-                        Path target = dstDir.resolve(rel);
-                        if (Files.isDirectory(p)) {
-                            Files.createDirectories(target);
-                        } else if (Files.isRegularFile(p)) {
-                            Files.createDirectories(target.getParent());
-                            Files.copy(p, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-                        }
-                    } catch (Exception e) {
-                        System.out.println("[LB][REPL] copyDirectory error: " + e.getMessage());
-                    }
-                });
-    }
-
-    private static void copyFileIfExists(Path srcFile, Path dstFile) throws Exception {
-        if (!Files.exists(srcFile) || !Files.isRegularFile(srcFile)) {
-            return;
-        }
-        Files.createDirectories(dstFile.getParent());
-        Files.copy(srcFile, dstFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-        System.out.println("[LB][REPL] copied file: " + srcFile + " -> " + dstFile);
-    }
-
-    private static String parseDbFromPartitionKey(String partitionKey) {
-        // formats:
-        // - DB:<db>
-        // - DB:<db>|TABLE:<t>
-        // - DB:<db>|VIEW:<v>
-        // - DB:<db>|DOMAIN:<d>
-        if (partitionKey == null) return null;
-        if (!partitionKey.startsWith("DB:")) return null;
-        String rest = partitionKey.substring(3);
-        int sep = rest.indexOf('|');
-        if (sep >= 0) return rest.substring(0, sep);
-        return rest;
-    }
-
-    private enum ReplicationKind {
-        DATABASE_DIR,
-        FILES
-    }
-
-    private static class ReplicationPlan {
-        final ReplicationKind kind;
-        final List<Path> relativeFiles;
-
-        private ReplicationPlan(ReplicationKind kind, List<Path> relativeFiles) {
-            this.kind = kind;
-            this.relativeFiles = relativeFiles;
-        }
-
-        static ReplicationPlan fromPartitionKey(String db, String key) {
-            if (key == null) return null;
-            // Database-level ops: replicate whole DB dir
-            if (!key.contains("|")) {
-                return new ReplicationPlan(ReplicationKind.DATABASE_DIR, List.of());
-            }
-
-            // object-level: replicate the object file + tombstone
-            int idx = key.indexOf('|');
-            String obj = key.substring(idx + 1);
-            int colon = obj.indexOf(':');
-            if (colon < 0) return null;
-
-            String type = obj.substring(0, colon).trim().toUpperCase();
-            String name = obj.substring(colon + 1).trim();
-            if (name.isBlank()) return null;
-
-            String folder;
-            if (type.equals("TABLE")) folder = "tables";
-            else if (type.equals("VIEW")) folder = "views";
-            else if (type.equals("DOMAIN")) folder = "domains";
-            else return null;
-
-            Path relJson = Path.of(db, folder, name + ".json");
-            Path relTomb = Path.of(db, folder, name + ".json.tombstone");
-            return new ReplicationPlan(ReplicationKind.FILES, List.of(relJson, relTomb));
         }
     }
 

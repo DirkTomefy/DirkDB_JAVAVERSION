@@ -18,6 +18,13 @@
       "host": "172.20.10.2",
       "port": 3950,
       "dataDirectory": "data/m2"
+    },
+    {
+      "id": "m3",
+      "role": "MASTER",
+      "host": "172.20.10.4",
+      "port": 4024,
+      "dataDirectory": "data/m3"
     }
   ],
   "routing": {

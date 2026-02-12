@@ -1,7 +1,7 @@
 ./mvnw -q -DskipTests exec:java \
   -Dexec.mainClass=sqlTsinjo.socket.proxy.LocalProxyCacheServer \
-  -Dexec.args="127.0.0.1 3949 3951 3000 200"
+  -Dexec.args="172.20.10.4 3949 3951 3000 200"
 
 ./mvnw -q -DskipTests exec:java \
   -Dexec.mainClass=sqlTsinjo.socket.client.ClientSocket \
-  -Dexec.args="127.0.0.1 3951"
+  -Dexec.args="172.20.10.2 3951"

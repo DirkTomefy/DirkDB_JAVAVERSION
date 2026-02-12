@@ -13,7 +13,6 @@ import sqlTsinjo.base.domains.VARCHAR;
 import sqlTsinjo.cli.AppContext;
 import sqlTsinjo.query.err.eval.NoDatabaseSelect;
 import sqlTsinjo.query.main.common.QualifiedIdentifier;
-import sqlTsinjo.storage.TombstoneManager;
 
 public enum ObjectSQLEnum {
     TABLE,
@@ -59,9 +58,7 @@ public enum ObjectSQLEnum {
         try (var stream = Files.list(root)) {
             stream.filter(Files::isDirectory)
                     .forEach(p -> {
-                        if (!TombstoneManager.isDatabaseDeleted(p.toFile(), ctx.getTombstoneConfig())) {
-                            visible.add(p.getFileName().toString());
-                        }
+                        visible.add(p.getFileName().toString());
                     });
         }
 

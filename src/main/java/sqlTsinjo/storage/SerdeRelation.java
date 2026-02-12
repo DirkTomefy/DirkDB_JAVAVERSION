@@ -3,6 +3,8 @@ package sqlTsinjo.storage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.Comparator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -38,7 +40,7 @@ public class SerdeRelation {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "tables", tableName + ".json").toFile();
-        if (!file.exists() || TombstoneManager.isDeleted(file, appContext.getTombstoneConfig())) {
+        if (!file.exists()) {
             throw new TableNotFound(appContext.getDatabaseName(), tableName);
         } else {
             return file;
@@ -52,7 +54,7 @@ public class SerdeRelation {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "views", tableName + ".json").toFile();
-        return file.exists() && !TombstoneManager.isDeleted(file, appContext.getTombstoneConfig());
+        return file.exists();
     }
 
     /**
@@ -62,7 +64,7 @@ public class SerdeRelation {
         if (appContext.getDatabaseName() == null)
             throw new NoDatabaseSelect();
         File file = Path.of(appContext.getDataDirectory(), appContext.getDatabaseName(), "tables", tableName + ".json").toFile();
-        return file.exists() && !TombstoneManager.isDeleted(file, appContext.getTombstoneConfig());
+        return file.exists();
     }
 
     public void serializeRelation(Relation rel) throws IOException, TableNotFound, NoDatabaseSelect {
@@ -103,10 +105,10 @@ public class SerdeRelation {
         if (databaseName.equals(appContext.getDatabaseName()))
             appContext.setDatabaseName(null);
         File file = Path.of(appContext.getDataDirectory(), databaseName).toFile();
-        if (!file.exists() || TombstoneManager.isDatabaseDeleted(file, appContext.getTombstoneConfig())) {
+        if (!file.exists()) {
             throw new DatabaseNotExistErr(databaseName);
         } else {
-            TombstoneManager.markDatabaseDeleted(file, appContext.getTombstoneConfig(), appContext.getInstanceId());
+            deleteDirectoryRecursively(file.toPath());
         }
     }
 
@@ -115,7 +117,21 @@ public class SerdeRelation {
         if (!tableFile.exists()) {
             throw new TableNotFound(appContext.getDatabaseName(), tableName);
         }
-        TombstoneManager.markDeleted(tableFile, appContext.getTombstoneConfig(), appContext.getInstanceId());
+        Files.deleteIfExists(tableFile.toPath());
+        Files.deleteIfExists(TombstoneManager.tombstoneFor(tableFile, appContext.getTombstoneConfig()).toPath());
+    }
+
+    private static void deleteDirectoryRecursively(java.nio.file.Path dir) throws IOException {
+        if (!Files.exists(dir)) return;
+        try (var stream = Files.walk(dir)) {
+            stream.sorted(Comparator.reverseOrder())
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException ignore) {
+                        }
+                    });
+        }
     }
 
     public static void main(String[] args) throws ParseNomException, EvalErr, IOException {
