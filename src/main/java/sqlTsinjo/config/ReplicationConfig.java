@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ReplicationConfig {
     private String type = "FILE";
     private int intervalSeconds = 2;
-    private TombstoneConfig tombstone = new TombstoneConfig();
 
     public String getType() {
         return type;
@@ -22,13 +21,5 @@ public class ReplicationConfig {
 
     public void setIntervalSeconds(int intervalSeconds) {
         this.intervalSeconds = intervalSeconds;
-    }
-
-    public TombstoneConfig getTombstone() {
-        return tombstone;
-    }
-
-    public void setTombstone(TombstoneConfig tombstone) {
-        this.tombstone = tombstone;
     }
 }

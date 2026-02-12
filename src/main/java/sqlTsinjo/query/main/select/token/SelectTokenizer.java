@@ -38,7 +38,8 @@ public class SelectTokenizer extends Tokenizer {
 
     public static ParseSuccess<Token> scanLimitToken(String input) throws ParseNomException {
         ParseSuccess<List<String>> success = ParserNomUtil
-                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")), ParserNomUtil.tagNoCase("limit"))
+                .tuple(true, ParserNomUtil.optParser(ParserNomUtil.tag("#")),
+                        ParserNomUtil.alt(ParserNomUtil.tagNoCase("fetra"), ParserNomUtil.tagNoCase("limit")))
                 .apply(input.trim());
         return new ParseSuccess<>(success.remaining(), Token.selectSign());
     }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Vector;
 
-import sqlTsinjo.config.TombstoneConfig;
 import sqlTsinjo.query.err.eval.DatabaseNotExistErr;
 
 public class AppContext {
@@ -15,7 +14,6 @@ public class AppContext {
 
     private final String dataDirectory;
     private final String instanceId;
-    private final TombstoneConfig tombstoneConfig;
     private final int replicationIntervalSeconds;
 
     public AppContext(String databaseName, String userName, boolean debugMode) {
@@ -26,19 +24,17 @@ public class AppContext {
 
         this.dataDirectory = "databases";
         this.instanceId = "default";
-        this.tombstoneConfig = new TombstoneConfig();
         this.replicationIntervalSeconds = 2;
     }
 
     public AppContext(String databaseName, String userName, boolean debugMode, String dataDirectory, String instanceId,
-            TombstoneConfig tombstoneConfig, int replicationIntervalSeconds) {
+            int replicationIntervalSeconds) {
         this.databaseName = databaseName;
         this.userName = userName;
         this.lokedFile = new Vector<>();
         this.debugMode = debugMode;
         this.dataDirectory = dataDirectory;
         this.instanceId = instanceId;
-        this.tombstoneConfig = tombstoneConfig;
         this.replicationIntervalSeconds = replicationIntervalSeconds;
     }
 
@@ -91,10 +87,6 @@ public class AppContext {
 
     public String getInstanceId() {
         return instanceId;
-    }
-
-    public TombstoneConfig getTombstoneConfig() {
-        return tombstoneConfig;
     }
 
     public int getReplicationIntervalSeconds() {

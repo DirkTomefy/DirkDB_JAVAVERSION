@@ -5,22 +5,12 @@
 ### 1. Load balancer + réplication (AsyncReplicatingProxy)
 
 - Le proxy `AsyncReplicatingProxy` route les requêtes selon `config.json`.
-- Il peut déclencher une réplication (ex: copie de fichiers après WRITE, selon l'implémentation active).
+- Il déclenche la réplication master↔master par **ré-exécution des requêtes WRITE** (réplication par requête).
 
 ```bash
 ./mvnw -q -DskipTests exec:java \
   -Dexec.mainClass=sqlTsinjo.socket.proxy.AsyncReplicatingProxy \
   -Ddirk.configPath="$PWD/config.json"
-```
-
-### 2. Réplication fichier (FileReplicator)
-- **Avantages** : Simple, pas de modification du protocole
-- **Inconvénients** : Délai de réplication, conflits possibles
-- **Usage** : Complément des autres méthodes
-
-```bash
-# Test
-./mvnw -q -DskipTests exec:java -Dexec.mainClass=sqlTsinjo.storage.FileReplicator
 ```
 
 ## Architecture recommandée
@@ -87,7 +77,6 @@ Client → (optionnel) LocalProxyCacheServer (port 3951) → AsyncReplicatingPro
 ### Logs à surveiller
 - "Erreur réplication sur" : secondaire injoignable
 - "Erreur connexion à" : serveur backend down
-- "Répliqué:" : réplication fichier réussie
 
 ### Vérification manuelle
 ```sql

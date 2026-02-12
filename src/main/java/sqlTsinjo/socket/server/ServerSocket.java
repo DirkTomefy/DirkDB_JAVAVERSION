@@ -52,12 +52,10 @@ public class ServerSocket {
                         new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
             var replCfg = runtime.getCluster().getReplication();
-            var tombCfg = replCfg == null ? null : replCfg.getTombstone();
             int intervalSeconds = replCfg == null ? 2 : replCfg.getIntervalSeconds();
-            if (tombCfg == null) tombCfg = new sqlTsinjo.config.TombstoneConfig();
 
             AppContext ctx = new AppContext(null, "remote", false,
-                    self.getDataDirectory(), self.getId(), tombCfg, intervalSeconds);
+                    self.getDataDirectory(), self.getId(), intervalSeconds);
 
             while (true) {
                 String request = readUntilSemicolon(in);

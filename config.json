@@ -40,17 +40,6 @@
   },
   "replication": {
     "type": "FILE",
-    "intervalSeconds": 2,
-    "tombstone": {
-      "suffix": ".tombstone",
-      "databaseMarkerFile": ".db.tombstone",
-      "ttlSeconds": 86400,
-      "gcSafetyMultiplier": 10,
-      "archive": {
-        "enabled": true,
-        "directoryName": ".tombstone_archive",
-        "retentionSeconds": 604800
-      }
-    }
+    "intervalSeconds": 2
   }
 }

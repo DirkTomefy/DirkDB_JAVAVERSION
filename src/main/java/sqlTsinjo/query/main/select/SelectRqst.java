@@ -119,10 +119,11 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
     }
 
     private Relation applyLimit(Relation result) {
-        if (limitDebut == null || limitFin == null) {
+        if (limitDebut == null) {
             return result;
         }
-        return result.limit(limitDebut, limitFin);
+        int fin = limitFin == null ? (result.getIndividus() == null ? 0 : result.getIndividus().size()) : limitFin;
+        return result.limit(limitDebut, fin);
     }
 
     public Relation evalJoins(Relation fromRelation, SelectCtx ctx) throws ParseNomException, EvalErr, IOException {
@@ -147,7 +148,7 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
         }
         ParseSuccess<Expression> where = parseOptionalWhere(joins.remaining());
         ParseSuccess<Vector<QualifiedIdentifier>> groupBy = parseOptionalGroupBy(where.remaining());
-        ParseSuccess<int[]> limit = parseOptionalLimit(groupBy.remaining());
+        ParseSuccess<Integer[]> limit = parseOptionalLimit(groupBy.remaining());
         Integer debut = null;
         Integer fin = null;
         if (limit.matched() != null) {
@@ -194,20 +195,23 @@ public class SelectRqst extends SelectExpr implements InsertRqstValues {
                 .apply(groupByToken.remaining());
     }
 
-    public static ParseSuccess<int[]> parseOptionalLimit(String input) throws ParseNomException {
+    public static ParseSuccess<Integer[]> parseOptionalLimit(String input) throws ParseNomException {
         ParseSuccess<Token> limitToken = ParserNomUtil.opt(inp -> {
             return SelectTokenizer.scanLimitToken(inp);
         }, input);
         if (limitToken.matched() == null) {
-            return new ParseSuccess<int[]>(input, null);
+            return new ParseSuccess<Integer[]>(input, null);
         }
 
         ParseSuccess<String> debutStr = ParserNomUtil.digit1(limitToken.remaining().trim());
-        ParseSuccess<String> finStr = ParserNomUtil.digit1(debutStr.remaining().trim());
-
         int debut = Integer.parseInt(debutStr.matched());
-        int fin = Integer.parseInt(finStr.matched());
-        return new ParseSuccess<int[]>(finStr.remaining(), new int[] { debut, fin });
+
+        ParseSuccess<String> finStrOpt = ParserNomUtil.opt(inp -> {
+            return ParserNomUtil.digit1(inp.trim());
+        }, debutStr.remaining());
+        Integer fin = finStrOpt.matched() == null ? null : Integer.parseInt(finStrOpt.matched());
+
+        return new ParseSuccess<Integer[]>(finStrOpt.remaining(), new Integer[] { debut, fin });
     }
 
     @Override

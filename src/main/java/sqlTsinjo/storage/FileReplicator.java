@@ -6,25 +6,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import sqlTsinjo.config.TombstoneConfig;
-
 public class FileReplicator {
 
     private final String primaryPath;
     private final String secondaryPath;
     private final ScheduledExecutorService scheduler;
-    private final TombstoneConfig tombstoneConfig;
     private final int intervalSeconds;
 
     public FileReplicator(String primaryPath, String secondaryPath) {
-        this(primaryPath, secondaryPath, new TombstoneConfig(), 2);
+        this(primaryPath, secondaryPath, 2);
     }
 
-    public FileReplicator(String primaryPath, String secondaryPath, TombstoneConfig tombstoneConfig, int intervalSeconds) {
+    public FileReplicator(String primaryPath, String secondaryPath, int intervalSeconds) {
         this.primaryPath = primaryPath;
         this.secondaryPath = secondaryPath;
         this.scheduler = Executors.newScheduledThreadPool(1);
-        this.tombstoneConfig = tombstoneConfig;
         this.intervalSeconds = intervalSeconds;
     }
 
