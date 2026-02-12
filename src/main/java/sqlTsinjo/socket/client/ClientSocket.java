@@ -8,17 +8,14 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import sqlTsinjo.base.Domain;
-import sqlTsinjo.base.Relation;
-import sqlTsinjo.query.main.common.QualifiedIdentifier;
-import sqlTsinjo.query.result.RequestResult;
+import sqlTsinjo.protocol.QueryResponseDto;
+import sqlTsinjo.protocol.RelationDto;
+import sqlTsinjo.protocol.RelationPageDto;
 
 public class ClientSocket {
 
@@ -77,10 +74,10 @@ public class ClientSocket {
                     out.print(";");
                     out.flush();
 
-                    RequestResult response = readResponse(in);
-                    System.out.println(response);
+                    QueryResponseDto response = readResponse(in);
+                    printResponse(response);
 
-                    String msg = response.getMessage();
+                    String msg = response.message;
                     if (msg != null) {
                         Matcher m = USE_DB_SUCCESS.matcher(msg.trim());
                         if (m.matches()) {
@@ -92,9 +89,8 @@ public class ClientSocket {
         }
     }
 
-    private static RequestResult readResponse(BufferedReader in) throws IOException {
-        Relation relation = null;
-
+    private static QueryResponseDto readResponse(BufferedReader in) throws IOException {
+        RelationDto relation = null;
         StringBuilder messagePart = new StringBuilder();
 
         while (true) {
@@ -112,55 +108,28 @@ public class ClientSocket {
                     break;
                 }
                 try {
-                    JsonNode node = MAPPER.readTree(json);
-
-                    if (relation == null) {
-                        relation = new Relation();
-
-                        JsonNode nameNode = node.get("name");
-                        String relationName = nameNode == null || nameNode.isNull() ? null : nameNode.asText();
-                        relation.setName(relationName);
-
-                        Vector<QualifiedIdentifier> fieldNames = new Vector<>();
-                        Vector<Domain> domains = new Vector<>();
-
-                        JsonNode cols = node.get("columns");
-                        if (cols != null && cols.isArray()) {
-                            for (JsonNode col : cols) {
-                                String colName = "";
-                                String origin = null;
-
-                                JsonNode n = col.get("name");
-                                if (n != null && !n.isNull()) {
-                                    colName = n.asText();
+                    RelationPageDto page = MAPPER.readValue(json, RelationPageDto.class);
+                    if (page != null) {
+                        if (relation == null) {
+                            relation = new RelationDto();
+                            relation.name = page.name;
+                            if (page.columns != null) {
+                                for (var c : page.columns) {
+                                    relation.columns.add(c);
                                 }
-
-                                JsonNode o = col.get("origin");
-                                if (o != null && !o.isNull()) {
-                                    origin = o.asText();
-                                }
-
-                                fieldNames.add(new QualifiedIdentifier(origin, colName));
-                                domains.add(Domain.makeUniversalDomain());
                             }
                         }
 
-                        relation.setFieldName(fieldNames);
-                        relation.setDomaines(domains);
-                        relation.setIndividus(new Vector<>());
-                    }
-
-                    JsonNode rows = node.get("rows");
-                    if (rows != null && rows.isArray()) {
-                        Vector<Vector<Object>> individus = relation.getIndividus();
-                        for (JsonNode row : rows) {
-                            Vector<Object> ind = new Vector<>();
-                            if (row != null && row.isArray()) {
-                                for (JsonNode cell : row) {
-                                    ind.add(jsonNodeToValue(cell));
+                        if (page.rows != null) {
+                            for (Object[] row : page.rows) {
+                                java.util.ArrayList<Object> r = new java.util.ArrayList<>();
+                                if (row != null) {
+                                    for (Object cell : row) {
+                                        r.add(cell);
+                                    }
                                 }
+                                relation.rows.add(r);
                             }
-                            individus.add(ind);
                         }
                     }
                 } catch (Exception e) {
@@ -199,31 +168,51 @@ public class ClientSocket {
         }
 
         if (relation != null) {
-            return RequestResult.withRelation(relation, false);
+            return QueryResponseDto.withRelation(relation, messagePart.toString());
         }
 
-        return RequestResult.withMessage(messagePart.toString());
+        return QueryResponseDto.withMessage(messagePart.toString());
     }
 
-    private static Object jsonNodeToValue(JsonNode node) {
-        if (node == null || node.isNull()) {
-            return null;
+    private static void printResponse(QueryResponseDto response) {
+        if (response == null) {
+            System.out.println("<null>");
+            return;
         }
-        if (node.isTextual()) {
-            return node.asText();
+
+        if (response.relation != null) {
+            RelationDto rel = response.relation;
+            String name = rel.name == null ? "" : rel.name;
+            System.out.println("Relation: " + name);
+
+            if (rel.columns != null && !rel.columns.isEmpty()) {
+                StringBuilder header = new StringBuilder();
+                for (int i = 0; i < rel.columns.size(); i++) {
+                    var c = rel.columns.get(i);
+                    String colName = c == null || c.name == null ? "" : c.name;
+                    if (i > 0) header.append(" | ");
+                    header.append(colName);
+                }
+                System.out.println(header);
+            }
+
+            if (rel.rows != null) {
+                for (var row : rel.rows) {
+                    StringBuilder sb = new StringBuilder();
+                    if (row != null) {
+                        for (int i = 0; i < row.size(); i++) {
+                            if (i > 0) sb.append(" | ");
+                            Object v = row.get(i);
+                            sb.append(v == null ? "null" : String.valueOf(v));
+                        }
+                    }
+                    System.out.println(sb);
+                }
+            }
         }
-        if (node.isInt()) {
-            return node.intValue();
+
+        if (response.message != null && !response.message.isBlank()) {
+            System.out.println(response.message);
         }
-        if (node.isLong()) {
-            return node.longValue();
-        }
-        if (node.isFloatingPointNumber()) {
-            return node.doubleValue();
-        }
-        if (node.isBoolean()) {
-            return node.booleanValue();
-        }
-        return node.toString();
     }
 }
